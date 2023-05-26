@@ -4,6 +4,9 @@ project(swot_manipulation_bt)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+## Find catkin macros and libraries
+## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
+## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   ur_ros_driver
@@ -28,6 +31,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_srvs
 )
 
+## The catkin_package macro generates cmake config files for the package
+## Declare things to be passed to dependent projects
 catkin_package(
  INCLUDE_DIRS include
  CATKIN_DEPENDS roscpp swot_ur swot_msgs 
