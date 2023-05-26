@@ -2,10 +2,9 @@
 <package format="2">
   <name>swot_manipulation_bt</name>
   <version>0.0.0</version>
-  <description>The swot_manipulation_BT package</description>
-
-
-  <maintainer email="irobot@todo.todo">irobot</maintainer>
+  <description>The swot_manipulation_bt package</description>
+  
+  <maintainer email="joel.santosvalle@gmail.com">irobot</maintainer>
 
   <license>TODO</license>
 
