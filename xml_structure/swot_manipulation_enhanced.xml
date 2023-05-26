@@ -1,0 +1,149 @@
+<root main_tree_to_execute="BehaviorTree">
+
+    <BehaviorTree ID="BehaviorTree">
+            <Sequence>
+                <Fallback name="Pick">
+                    <Condition ID="NotPick"/>
+                    <Fallback name="WS">
+                        <Condition ID="NotWS"/>
+                        <SubTree ID="PickFromWS"/>
+                    </Fallback>
+                    <Fallback name="SH">
+                        <Condition ID="NotSH"/>
+                        <SubTree ID="PickFromSH"/>
+                    </Fallback>
+                    <Fallback name="TT">
+                        <Condition ID="NotTT"/>
+                        <Sequence>
+                            <AlwaysFailure/>
+                        </Sequence>
+                    </Fallback>
+                </Fallback>
+                <Fallback name="Place">
+                    <Condition ID="NotPlace"/>
+                    <Fallback name="WS">
+                        <Condition ID="NotWS"/>
+                        <SubTree ID="PlaceInWS"/>
+                    </Fallback>
+                    <Fallback name="SH">
+                        <Condition ID="NotSH"/>
+                        <SubTree ID="PlaceInSH"/>
+                    </Fallback>
+                    <Fallback name="TT">
+                        <Condition ID="NotTT"/>
+                        <Sequence>
+                            <AlwaysFailure/>
+                        </Sequence>
+                    </Fallback>
+                    <Fallback name="PP">
+                        <Condition ID="NotPP"/>
+                        <Sequence>
+                            <AlwaysFailure/>
+                        </Sequence>
+                    </Fallback>
+                </Fallback>
+                <Fallback name="Drive">
+                    <Condition ID="NotDrive"/>
+                    <Action ID="MoveToDrivePose"/>
+                </Fallback>
+            </Sequence>
+    </BehaviorTree>
+
+    <BehaviorTree ID="PickFromSH">
+        
+            <Sequence>
+                <Action ID="MoveToScan"/>
+                <RetryUntilSuccessful num_attempts="3">
+                  <Action ID="ScanWorkSpace"/>
+                </RetryUntilSuccessful>
+                <Action ID="GetGraspAndMoveGrasp"/>
+                <Action ID="PickObject"/>
+                <Action ID="CheckObjectPicked"/>
+                <Action ID="MoveUp"/>
+                <Action ID="DropObjectInTray"/>
+                <Action ID="MoveHomePos"/>
+            </Sequence>
+        
+    </BehaviorTree>
+
+    <BehaviorTree ID="PickFromWS">
+        
+            <Sequence>
+                <Action ID="MoveToScan"/>
+                <RetryUntilSuccessful num_attempts="3">
+                  <Action ID="ScanWorkSpace"/>
+                </RetryUntilSuccessful>
+                <Action ID="GetGraspAndMoveGrasp"/>
+                <Action ID="PickObject"/>
+                <Action ID="CheckObjectPicked"/>
+                <Action ID="MoveUp"/>
+                <Action ID="DropObjectInTray"/>
+                <Action ID="MoveHomePos"/>
+            </Sequence>
+        
+    </BehaviorTree>
+ 
+    <BehaviorTree ID="PlaceInSH">
+        
+            <Sequence>
+                <Action ID="CheckObjRequired"/>
+                <Action ID="MoveToTray"/>
+                <Action ID="PickFromTray"/>
+                <Action ID="MoveToDropPos"/>
+                <RetryUntilSuccessful num_attempts="3">
+                  <Action ID="CheckWSFree"/>
+                </RetryUntilSuccessful>
+                <Action ID="MoveDown"/>
+                <Action ID="DropObj"/>
+                <Action ID="MoveHomePos"/>
+            </Sequence>
+        
+    </BehaviorTree>
+    
+    <BehaviorTree ID="PlaceInWS">
+    
+            <Sequence>
+                <Action ID="CheckObjRequired"/>
+                <Action ID="MoveToTray"/>
+                <Action ID="PickFromTray"/>
+                <Action ID="MoveToDropPos"/>
+                <RetryUntilSuccessful num_attempts="3">
+                  <Action ID="CheckWSFree"/>
+                </RetryUntilSuccessful>
+                <Action ID="MoveDown"/>
+                <Action ID="DropObj"/>
+                <Action ID="MoveHomePos"/>
+            </Sequence>
+        
+    </BehaviorTree>
+    
+    <TreeNodesModel>
+        <Action ID="CheckObjRequired"/>
+        <Action ID="CheckObjectPicked"/>
+        <Action ID="CheckWSFree"/>
+        <Action ID="DropObj"/>
+        <Action ID="DropObjectInTray"/>
+        <Action ID="GetGraspAndMoveGrasp"/>
+        <Action ID="MoveDown"/>
+        <Action ID="MoveHomePos"/>
+        <Action ID="MoveToDrivePose"/>
+        <Action ID="MoveToDropPos"/>
+        <Action ID="MoveToScan"/>
+        <Action ID="MoveToTray"/>
+        <Action ID="MoveUp"/>
+        <Condition ID="NotDrive"/>
+        <Condition ID="NotPP"/>
+        <Condition ID="NotPick"/>
+        <Condition ID="NotPlace"/>
+        <Condition ID="NotSH"/>
+        <Condition ID="NotTT"/>
+        <Condition ID="NotWS"/>
+        <SubTree ID="PickFromSH"/>
+        <Action ID="PickFromTray"/>
+        <SubTree ID="PickFromWS"/>
+        <Action ID="PickObject"/>
+        <SubTree ID="PlaceInSH"/>
+        <SubTree ID="PlaceInWS"/>
+        <Action ID="ScanWorkSpace"/>
+    </TreeNodesModel>
+</root>
