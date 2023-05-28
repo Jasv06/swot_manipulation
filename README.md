@@ -18,21 +18,18 @@ You should have the swot package which can be downloaded from the [gitlab](https
 For guidance on installation, development, environmental setup, and troubleshooting, see the section "[Implementation](https://www.overleaf.com/read/ffcfzsjkwfws)" in Joel's bachelor thesis. This documentation includes a description of the sensors and the robot arm which were used to develop and test the behavior trees. A brief description of every node can found inside the respective folders. In case you desired to read a more detail explanation of every node please refer to the sub-section "Implemenation concept".
 
 ## Current features
-- [Pick up and delivery of an object/piece while hand is being hold inside the sensor working area](/scripts/demonstrator_hold_hand)
-- [Pick up an object once a signal is given to the robot](/scripts/Industrial_like_robot)
-- [Delivery of an object once the a hand is detected again](/scripts/Industrial_like_robot)
-- [Pick up and delivery of differnt objects/pieces placed in different locations]((/scripts/Industrial_like_robot))
-- Determinations of the hands status
+- The [behavior tree](/src/swot_manipulation_bt) which replicates the old manipulation workflow. It is important to note that instead of the multiple go-to statements the old script had, this script allows the user to addapt the code in very easy manner through the usage of classes.
+- The [behavior tree enhanced](/src/swot_manipulation_bt_enhanced) which contains additional capabilities through decorator nodes which expand the behavior tree framework through my own criteria.
 
 ## Installation of this package
 **1.** Go to the source folder of your catkin workspace.
 ```bash 
 cd ~/catkin_ws/src
-git clone https://github.com/Jasv06/human_robot_interaction.git
+git clone https://github.com/Jasv06/swot_manipulation_bt.git
 cd ~/catkin_ws
 catkin_make
 ```
-**2.** Source your current catkin workspace.
+**2.** Source your current catkin workspace (Optional)
 ```bash 
 source ~/catkin_ws/devel/setup.bash
 ```
