@@ -9,12 +9,13 @@
 |-|------|
 |[Ubuntu 18.04](https://releases.ubuntu.com/18.04/)|[ROS Melodic](http://wiki.ros.org/melodic/Installation)|
 
+In case it is desired to migrate from ROS Melodic to ROS noetic or any ROS 2 distrutios please refer to the [migration guide](http://wiki.ros.org/melodic/Installation) from the behavior tree framework developers site. Keep in mind that most changes are incremental and back compatible with this repository.
 ### Requirements: 
 
-You should have the [swot package](https://developer.leapmotion.com/tracking-software-download), [Python 2](https://www.python.org/downloads/release/python-272) and [Python 3](https://www.python.org/downloads/) installed on your device. 
+You should have the swot package which can be downloaded from the [gitlab](https://gitlab.vlab.fm.fhws.de/swot/swot_platform/-/tree/main/), the [behavior tree package](https://github.com/BehaviorTree/BehaviorTree.CPP/tree/v3.8), and [c++ 14 or a newer version](https://en.cppreference.com/w/cpp/14) installed on your device. 
 
 ## Documentation and Enviornment setup
-For guidance on installation, development, environmental setup, and troubleshooting, see our [documentation](). This documentation includes a description of the sensors and the robot arm which were used to develop and test the industrial-like interaction.
+For guidance on installation, development, environmental setup, and troubleshooting, see the section of [Implementation](https://www.overleaf.com/read/ffcfzsjkwfws) in Joel's bachelor thesis. This documentation includes a description of the sensors and the robot arm which were used to develop and test the behavior trees.
 
 ## Current features
 - [Pick up and delivery of an object/piece while hand is being hold inside the sensor working area](/scripts/demonstrator_hold_hand)
