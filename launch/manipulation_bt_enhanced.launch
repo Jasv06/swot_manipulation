@@ -1,0 +1,13 @@
+<launch>
+  
+  <!-- <arg name="case_name" default="kinect2"/>
+  <param name="case_name" type="str" value="$(arg case_name)" /> -->
+  <!-- <node pkg="robotiq_2f_gripper_control" name="Robotiq2FGripperRtuNode" type="Robotiq2FGripperRtuNode.py" respawn="true" output="screen"/>  -->
+  <node name="swot_manipulation_bt_enhanced" pkg="swot_manipulation_bt" type="swot_manipulation_bt_enhanced" output="screen"  />
+  <!-- launch-prefix="xterm -e gdb - -args" -->
+  <node pkg="tf2_ros" type="static_transform_publisher" name="link1_broadcaster" args="0 0 0.157 0 0 0 1 wrist_3_link tool0_controller" />
+  <!-- static_transform_publisher x y z qx qy qz qw frame_id child_frame_id -->
+  <!-- node pkg="tf2_ros" type="static_transform_publisher" name="hand_eye_tf" args="-0.000442986892091924 0.05104719384558998 -0.05609394582614991
+0.48973957115829253 -0.4983590257676559 0.5053236708724071 0.5064004557004654 tool0_controller camera_base"/ -->
+
+</launch>
