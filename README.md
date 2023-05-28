@@ -1,3 +1,5 @@
+#Manipulation package with behavior trees
+
 ![](images/groot.png)
 
 ## Requierments and supported platforms
