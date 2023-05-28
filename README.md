@@ -15,7 +15,7 @@ In case it is desired to migrate from ROS Melodic to ROS noetic or any ROS 2 dis
 You should have the swot package which can be downloaded from the [gitlab](https://gitlab.vlab.fm.fhws.de/swot/swot_platform/-/tree/main/), the [behavior tree package](https://github.com/BehaviorTree/BehaviorTree.CPP/tree/v3.8), and [c++ 14 or a newer version](https://en.cppreference.com/w/cpp/14) installed on your device. 
 
 ## Documentation and Enviornment setup
-For guidance on installation, development, environmental setup, and troubleshooting, see the section of [Implementation](https://www.overleaf.com/read/ffcfzsjkwfws) in Joel's bachelor thesis. This documentation includes a description of the sensors and the robot arm which were used to develop and test the behavior trees.
+For guidance on installation, development, environmental setup, and troubleshooting, see the section "[Implementation](https://www.overleaf.com/read/ffcfzsjkwfws)" in Joel's bachelor thesis. This documentation includes a description of the sensors and the robot arm which were used to develop and test the behavior trees. A brief description of every node can found inside the respective folders. In case you desired to read a more detail explanation of every node please refer to the sub-section "Implemenation concept".
 
 ## Current features
 - [Pick up and delivery of an object/piece while hand is being hold inside the sensor working area](/scripts/demonstrator_hold_hand)
