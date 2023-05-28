@@ -66,3 +66,7 @@ roslaunch interbotix_xsarm_control xsarm_control.launch robot_model:=rx150
 cd ~/catkin_ws
 rosrun human_robot_interaction robot_control_industrial_3.py
 ``` 
+### Example Video
+If all the previous steps were followed correclty and carefully you should be able to see the following.
+
+[![Watch the video](images/robot.png)]()
