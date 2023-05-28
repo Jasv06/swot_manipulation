@@ -1,4 +1,4 @@
-#Manipulation package with behavior trees
+# Manipulation package with behavior trees
 
 ![](images/groot.png)
 
