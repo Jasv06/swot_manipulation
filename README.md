@@ -33,7 +33,7 @@ catkin_make
 ```bash 
 source ~/catkin_ws/devel/setup.bash
 ```
-## Running the scripts
+## Running the behavior trees
 If you didn't add `source $YOUR_WORKSPACE/devel/setup.bash` and `source /opt/ros/noetic/setup.bash` to your `.bashrc`, remember to source it when you open a new terminal. Also, in the following example catkin_ws is the name of our workspace, but this could change depending on the name you gave to your workspace.
 
 ### Example
