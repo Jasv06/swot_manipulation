@@ -49,7 +49,6 @@ include_directories(
 #a must!
 link_directories($ENV{HOME}/catkin_ws/devel/lib)
 
-
 ##declaration of executable files 
 add_executable(swot_manipulation_bt src/swot_manipulation_bt.cpp)
 add_dependencies(swot_manipulation_bt ${${PROJECT_NAME}_EXPORTED_TARGETS}  ${catkin_EXPORTED_TARGETS})
