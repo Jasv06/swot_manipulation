@@ -83,6 +83,10 @@ Finally, open one last terminal, and type the following:
 ```sh
 roslaunch swot_manipulation_bt swot_manipulation_bt
 ``` 
+Or
+```sh
+roslaunch swot_manipulation_bt swot_manipulation_bt_enhanced
+``` 
 ### Example Video for picking
 If all the previous steps were followed correclty and carefully you should be able to see the following. (Click on the image below)
 
