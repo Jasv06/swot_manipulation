@@ -40,7 +40,7 @@ If you didn't add `source $YOUR_WORKSPACE/devel/setup.bash` and `source /opt/ros
 #### Starting the ROS master
 1. Connect your computer to the Nvidia jetson and start the ros master via: 
 ```sh
-roscore
+ssh nvidia@192.168.0.22
 ```
 #### Starting the KoPro UR driver
 2. Start in your computer the UR driver via:
@@ -48,12 +48,12 @@ roscore
 roslaunch ur_ros_driver ur_full_driver.launch
 ```
 #### Starting the azure kinect
-3. You can start the azure kinect either in your computer or the onboard.
+3. You can start the azure kinect either in your computer or the onboard via: 
 ```sh
 roslaunch swot_launch swot_k4a.launch
 ```
 #### Starting YOLO
-3. Yolo can be started in your computer, but it is highly recommended to start it in the YOLO Jetson.
+4. Yolo can be started in your computer, but it is highly recommended to start it in the YOLO Jetson. The first step is to switch 
 ```sh
 ssh irobot@192.168.0.6
 ```
