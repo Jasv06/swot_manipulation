@@ -36,23 +36,22 @@ source ~/catkin_ws/devel/setup.bash
 ## Running the behavior trees
 If you didn't add `source $YOUR_WORKSPACE/devel/setup.bash` and `source /opt/ros/noetic/setup.bash` to your `.bashrc`, remember to source it when you open a new terminal. Also, in the following example catkin_ws is the name of our workspace, but this could change depending on the name you gave to your workspace.
 
-### Example
-#### Connecting the Leap motion sensor
-1. Open a terminal and type:
+### Example for picking 
+#### Starting the ROS master
+1. Connect your computer to the Nvidia jetson and start the ros master
 ```sh
-sudo leapd
+roscore
 ```
-#### Use the Leap Motion sensor
-2. Open a terminal, source it and type the following:
+#### Starting the KoPro UR driver
+2. Start in your computer the UR driver via:
 ```sh
-cd ~/catkin_ws/src/human_robot_interaction/scripts/Industrial_like_robot
-python2 Leap_client_industrial.py
+roslaunch ur_ros_driver ur_full_driver.launch
 ```
-#### Publishing the data extracted from the Leap motion sensor into ROS
-3. Open a new terminal, source it and type the following:
+#### Starting the necessary ROS services
+3. Either in your computer or the onboard computer launch the following ROS services: 
 ```sh
-cd ~/catkin_ws
-roslaunch human_robot_interaction leap_ros_industrial.launch
+roslaunch swot_launch swot_k4a.launch
+roslaunch swo_object_matching ObjectMatching.launch
 ```
 #### Connecting to the Robot
 4. Ensure the Robot is connected correctly, open a new terminal, source it and type the following:
