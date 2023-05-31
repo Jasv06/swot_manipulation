@@ -24,7 +24,7 @@ typedef boost::array<long int, 6> array6i;
 typedef boost::array<double, 7> array7d;
 
 std::vector<std::string> objects_in_trays{"","",""};
-std::vector<std::string> possible_last_positions{"drive"};
+std::vector<std::string> possible_last_positions{};
 
 class Manipulation;
 void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation);
@@ -34,11 +34,11 @@ class Manipulation
     private:
 
         std::string xml_file;
-        std::string last_pos = "drive";    
-        std::string grasping_area = "mid"; 
-        const double wrench_limit = 7.0;
-        bool collision_detected = false;
-        bool collision_activated = false;
+        std::string last_pos;    
+        std::string grasping_area; 
+        const double wrench_limit;
+        bool collision_detected;
+        bool collision_activated;
         ros::NodeHandle nh_;
         ros::Subscriber sub_wrench;
         geometry_msgs::Pose grasping_point;
@@ -63,7 +63,7 @@ class Manipulation
         int move_duration = 5.0;
         double blend_ = 0.02;
 
-        Manipulation() 
+        Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_limit(7.0), collision_detected(false), collision_activated(false)
         {
             if(!this->initialized)
             {
@@ -84,20 +84,12 @@ class Manipulation
         {              
             this->req_ = req;
             this->res_ = res;
-
-            std::cout << "After assigning to variables of the class" << std::endl;
-            std::cout << get_request().mode << std::endl;
-            std::cout << get_request().object << std::endl;
-            std::cout << get_request().save << std::endl;
-            std::cout << get_request().task << std::endl;
             ros::Duration(1).sleep();
 
             BT::BehaviorTreeFactory factory;
             registerNodes(factory, *this);            
             nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation_bt/bt_xml_structure/swot_manipulation_backup_with_decorator.xml");
-            ROS_INFO("Loading XML : %s", xml_file.c_str());
             auto tree = factory.createTreeFromFile(xml_file);
-            BT::PublisherZMQ publisher_zmq(tree);
             tree.tickRoot();
             return true;
         }
@@ -321,10 +313,6 @@ class NotWS : public BT::ConditionNode
             }
         }
 };
-
-/*************************************************** Todo lo de arriba esta perfecto y ahora hay que revisar todo lo de abajo que el proceso quede perfecto ***************************************************************/
-
-// classes for picking 
 
 class MoveToScan : public BT::SyncActionNode
 {
@@ -1037,7 +1025,7 @@ void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation)
 int main(int argc, char **argv)
 {
 
-    ros::init(argc, argv, "swot_manipulation_bt");
+    ros::init(argc, argv, "swot_manipulation_bt_joel");
 
     Manipulation manipulation;
     ros::MultiThreadedSpinner spinner(8);
