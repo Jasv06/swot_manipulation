@@ -38,7 +38,7 @@ If you didn't add `source $YOUR_WORKSPACE/devel/setup.bash` and `source /opt/ros
 
 ### Example for picking 
 #### Starting the ROS master
-1. Connect your computer to the Nvidia jetson and start the ros master
+1. Connect your computer to the Nvidia jetson and start the ros master via: 
 ```sh
 roscore
 ```
@@ -47,17 +47,20 @@ roscore
 ```sh
 roslaunch ur_ros_driver ur_full_driver.launch
 ```
-#### Starting the necessary ROS services
-3. Either in your computer or the onboard computer launch the following ROS services: 
+#### Starting the azure kinect
+3. You can start the azure kinect either in your computer or the onboard.
 ```sh
 roslaunch swot_launch swot_k4a.launch
-roslaunch swo_object_matching ObjectMatching.launch
 ```
-#### Connecting to the Robot
-4. Ensure the Robot is connected correctly, open a new terminal, source it and type the following:
+#### Starting YOLO
+3. Yolo can be started in your computer, but it is highly recommended to start it in the YOLO Jetson.
 ```sh
-cd ~/catkin_ws
-roslaunch interbotix_xsarm_control xsarm_control.launch robot_model:=rx150 
+ssh irobot@192.168.0.6
+```
+#### Starting the necessary ROS service for object matching
+4. Either in your computer or the onboard computer launch the following ROS service: 
+```sh
+roslaunch swo_object_matching ObjectMatching.launch
 ```
 #### Controlling the robot
 5. Finally, open one last terminal, source it and type the following:
