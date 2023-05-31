@@ -78,11 +78,10 @@ Either in your computer or the onboard computer launch the following ROS service
 ```sh
 roslaunch swo_object_matching ObjectMatching.launch
 ```
-#### Controlling the robot
-5. Finally, open one last terminal, source it and type the following:
+#### 6. Start the manipulation of the robot
+Finally, open one last terminal, and type the following:
 ```sh
-cd ~/catkin_ws
-rosrun human_robot_interaction robot_control_industrial_3.py
+roslaunch swot_manipulation_bt swot_manipulation_bt
 ``` 
 ### Example Video for picking
 If all the previous steps were followed correclty and carefully you should be able to see the following. (Click on the image below)
