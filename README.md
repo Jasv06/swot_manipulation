@@ -34,31 +34,47 @@ catkin_make
 source ~/catkin_ws/devel/setup.bash
 ```
 ## Running the behavior trees
-If you didn't add `source $YOUR_WORKSPACE/devel/setup.bash` and `source /opt/ros/noetic/setup.bash` to your `.bashrc`, remember to source it when you open a new terminal. Also, in the following example catkin_ws is the name of our workspace, but this could change depending on the name you gave to your workspace.
+If you didn't add `source $YOUR_WORKSPACE/devel/setup.bash` and `source /opt/ros/noetic/setup.bash` to your `.bashrc`, remember to source it when you open a new terminal. Also, in the following example catkin_ws is the name of our workspace, but this could change depending on the name you gave to your workspace. Note that for the following example it is assumed that you have the correct set up to operate the robot and have already downloaded the package from the swot gitlba containing everything needed.
 
-### Example for picking 
-#### Starting the ROS master
-1. Connect your computer to the Nvidia jetson and start the ros master via: 
+### Example for picking
+#### 1. Start the ROS master
+Connect your computer to the Nvidia jetson by opening a terminal and typing: 
 ```sh
 ssh nvidia@192.168.0.22
 ```
-#### Starting the KoPro UR driver
-2. Start in your computer the UR driver via:
+You will be required for a password. The password is:
+```sh
+nvidia
+```
+Finally start the ROS master: 
+```sh
+roscore
+```
+#### 2. Start the KoPro UR driver
+Start in your computer the UR driver by launching the following:
 ```sh
 roslaunch ur_ros_driver ur_full_driver.launch
 ```
-#### Starting the azure kinect
-3. You can start the azure kinect either in your computer or the onboard via: 
+#### 3. Start the azure kinect
+The azure kinect can be started either in your computer or the onboard via: 
 ```sh
 roslaunch swot_launch swot_k4a.launch
 ```
-#### Starting YOLO
-4. Yolo can be started in your computer, but it is highly recommended to start it in the YOLO Jetson. The first step is to switch 
+#### 4. Start YOLO
+Yolo can be started in your computer, but it is highly recommended to start it in the YOLO Jetson. The first step is to switch to the YOLO Jetson by opening a new terminal and typing the following:
 ```sh
 ssh irobot@192.168.0.6
 ```
-#### Starting the necessary ROS service for object matching
-4. Either in your computer or the onboard computer launch the following ROS service: 
+Enter the following password:
+```sh
+myrobot
+```
+Start yolo by typing: 
+```sh
+roslaunch darknet_ros robocup_old_objects.launch
+```
+#### 5. Starting the necessary ROS service for object matching
+Either in your computer or the onboard computer launch the following ROS service: 
 ```sh
 roslaunch swo_object_matching ObjectMatching.launch
 ```
