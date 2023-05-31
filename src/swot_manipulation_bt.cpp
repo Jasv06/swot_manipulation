@@ -348,7 +348,7 @@ class ScanWorkSpace : public BT::SyncActionNode
             for(auto i = 0; i < 3; i++)
             {
                 (manipulation_.rtde)->joint_target(manipulation_.scan_pose[i], manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-                ros::Duration(3).sleep();
+                ros::Duration(1).sleep();
                 if(ros::service::waitForService("ObjectMatchingServer", ros::Duration(5.0)) == false)
                 {
                     return BT::NodeStatus::FAILURE;   
@@ -362,12 +362,11 @@ class ScanWorkSpace : public BT::SyncActionNode
                 {
                     return BT::NodeStatus::FAILURE;
                 }
-                ros::Duration(3).sleep();
+                ros::Duration(2).sleep();
                 if(srv_match.response.status == "FINISHED")
                 {
                     break;
                 }
-                std::cout << "loop number" << i << std::endl;
             }
 
             manipulation_.set_grasping_point(srv_match.response.pose);
