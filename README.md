@@ -84,7 +84,7 @@ roslaunch swo_object_matching ObjectMatching.launch
 cd ~/catkin_ws
 rosrun human_robot_interaction robot_control_industrial_3.py
 ``` 
-### Example Video
+### Example Video for picking
 If all the previous steps were followed correclty and carefully you should be able to see the following. (Click on the image below)
 
 [![Watch the video](images/robot.png)]()
