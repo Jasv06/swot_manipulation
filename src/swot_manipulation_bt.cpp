@@ -88,7 +88,7 @@ class Manipulation
 
             BT::BehaviorTreeFactory factory;
             registerNodes(factory, *this);            
-            nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation_bt/bt_xml_structure/swot_manipulation_backup_with_decorator.xml");
+            nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation_bt/bt_xml_structure/swot_manipulation.xml");
             auto tree = factory.createTreeFromFile(xml_file);
             tree.tickRoot();
             return true;
