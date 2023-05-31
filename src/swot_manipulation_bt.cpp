@@ -1037,7 +1037,7 @@ void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation)
 int main(int argc, char **argv)
 {
 
-    ros::init(argc, argv, "swot_manipulation_bt_joel");
+    ros::init(argc, argv, "swot_manipulation_bt");
 
     Manipulation manipulation;
     ros::MultiThreadedSpinner spinner(8);
