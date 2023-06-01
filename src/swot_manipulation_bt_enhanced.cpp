@@ -85,13 +85,11 @@ class Manipulation
             this->req_ = req;
             this->res_ = res;
 
-            std::cout << "After assigning to variables of the class" << std::endl;
             std::cout << get_request().mode << std::endl;
             std::cout << get_request().object << std::endl;
             std::cout << get_request().save << std::endl;
             std::cout << get_request().task << std::endl;
-            ros::Duration(1).sleep();
-
+            
             BT::BehaviorTreeFactory factory;
             registerNodes(factory, *this);            
             nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation_bt/bt_xml_structure/swot_manipulation_backup_with_decorator.xml");
@@ -108,15 +106,15 @@ class Manipulation
         {
             if(collision_activated)
             {
-            if (collision_detected == false)
-            {
-                if (std::max({std::abs(msg.wrench.force.x), std::abs(msg.wrench.force.y), std::abs(msg.wrench.force.z)}) > wrench_limit)
+                if (collision_detected == false)
                 {
-                    ROS_INFO("wrench_limit achieved");
-                    set_collision(true);
-                    set_collision_activated(false);
+                    if (std::max({std::abs(msg.wrench.force.x), std::abs(msg.wrench.force.y), std::abs(msg.wrench.force.z)}) > wrench_limit)
+                    {
+                        ROS_INFO("wrench_limit achieved");
+                        set_collision(true);
+                        set_collision_activated(false);
+                    }
                 }
-            }
             }
         }
    
@@ -164,6 +162,8 @@ class Manipulation
         array6d array_tray2_load = {-0.255173508320944, -1.6467939815917, 1.58283216158022, -1.48665781438861, -1.55522424379458, -3.37798530260195};
         array6d array_tray3_load = {-0.530647579823629, -1.6887427769103, 1.65178472200503, -1.53478486955676, -1.56944162050356, -3.6110408941852};
         array6d array_drive = {3.18401956558228, -2.55628885845327, 1.20438319841494, -0.691585080032684, -1.76227599779238, -3.09013063112368};
+        array6d free_backup_1 = {3.5078, -1.3333, 1.7648, -2.033566, -1.58985, -4.33499};
+        array6d free_backup_2 = {2.1859, -1.2849, 2.01598, -2.326377, -1.567803, -2.50999};
 };
 
 class NotDrive : public BT::ConditionNode
@@ -177,14 +177,8 @@ class NotDrive : public BT::ConditionNode
         virtual BT::NodeStatus tick() override
         {
             ROS_INFO("drive achieved");
-            if(manipulation_.get_request().mode == "DRIVE")
-            {
-                return BT::NodeStatus::FAILURE;
-            }
-            else
-            {
-                return BT::NodeStatus::SUCCESS;
-            }
+            if(manipulation_.get_request().mode == "DRIVE") {return BT::NodeStatus::FAILURE};
+            else {return BT::NodeStatus::SUCCESS};
         }
 };
 
@@ -199,14 +193,8 @@ class NotPick : public BT::ConditionNode
         virtual BT::NodeStatus tick() override
         {
             ROS_INFO("pick achieved");
-            if(manipulation_.get_request().mode == "PICK")
-            {
-                return BT::NodeStatus::FAILURE;
-            }
-            else
-            {
-                return BT::NodeStatus::SUCCESS;
-            }
+            if(manipulation_.get_request().mode == "PICK") {return BT::NodeStatus::FAILURE;}
+            else {return BT::NodeStatus::SUCCESS;}
         }
         
 };
@@ -222,14 +210,8 @@ class NotPlace : public BT::ConditionNode
         virtual BT::NodeStatus tick() override
         {
             ROS_INFO("place achieved");
-            if(manipulation_.get_request().mode == "PLACE")
-            { 
-                return BT::NodeStatus::FAILURE;
-            }
-            else
-            { 
-                return BT::NodeStatus::SUCCESS;
-            }
+            if(manipulation_.get_request().mode == "PLACE") {return BT::NodeStatus::FAILURE;}
+            else {return BT::NodeStatus::SUCCESS;}
         } 
 };
 
@@ -244,14 +226,8 @@ class NotPP : public BT::ConditionNode
         virtual BT::NodeStatus tick() override
         {
             ROS_INFO("pp achieved");
-            if(manipulation_.get_request().task == "PP")
-            {   
-                return BT::NodeStatus::FAILURE;
-            }
-            else
-            {
-                return BT::NodeStatus::SUCCESS;
-            }
+            if(manipulation_.get_request().task == "PP") {return BT::NodeStatus::FAILURE;}
+            else {return BT::NodeStatus::SUCCESS;}
         }
 };
 
@@ -266,14 +242,8 @@ class NotSH : public BT::ConditionNode
         virtual BT::NodeStatus tick() override
         {
             ROS_INFO("sh achieved");
-            if(manipulation_.get_request().task == "SH")
-            {
-                return BT::NodeStatus::FAILURE;
-            }
-            else
-            { 
-                return BT::NodeStatus::SUCCESS;
-            }
+            if(manipulation_.get_request().task == "SH") {return BT::NodeStatus::FAILURE;}
+            else {return BT::NodeStatus::SUCCESS;}
         }
 };
 
@@ -289,14 +259,8 @@ class NotTT : public BT::ConditionNode
         virtual BT::NodeStatus tick() override
         {
             ROS_INFO("tt achieved");
-            if(manipulation_.get_request().task == "TT")
-            {             
-                return BT::NodeStatus::FAILURE;
-            }
-            else
-            {
-                return BT::NodeStatus::SUCCESS;
-            }
+            if(manipulation_.get_request().task == "TT") {return BT::NodeStatus::FAILURE;}
+            else {return BT::NodeStatus::SUCCESS;}
         }
 };
 
@@ -311,14 +275,8 @@ class NotWS : public BT::ConditionNode
         virtual BT::NodeStatus tick() override
         {
             ROS_INFO("ws achieved");
-            if(manipulation_.get_request().task == "WS")
-            {
-                return BT::NodeStatus::FAILURE;
-            }
-            else
-            {
-                return BT::NodeStatus::SUCCESS;
-            }
+            if(manipulation_.get_request().task == "WS") {return BT::NodeStatus::FAILURE;}
+            else {return BT::NodeStatus::SUCCESS;}
         }
 };
 
