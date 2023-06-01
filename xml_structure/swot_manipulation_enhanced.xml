@@ -53,7 +53,7 @@
         
             <ReactiveSequence>
                 <Action ID="MoveToScan"/>
-                <RetryUntilSuccessful num_attempts="3">
+                <RetryUntilSuccessful num_attempts="2">
                   <Action ID="ScanWorkSpace"/>
                 </RetryUntilSuccessful>
                 <Action ID="GetGraspAndMoveGrasp"/>
@@ -70,7 +70,7 @@
         
             <ReactiveSequence>
                 <Action ID="MoveToScan"/>
-                <RetryUntilSuccessful num_attempts="3">
+                <RetryUntilSuccessful num_attempts="2">
                   <Action ID="ScanWorkSpace"/>
                 </RetryUntilSuccessful>
                 <Action ID="GetGraspAndMoveGrasp"/>
@@ -90,7 +90,7 @@
                 <Action ID="MoveToTray"/>
                 <Action ID="PickFromTray"/>
                 <Action ID="MoveToDropPos"/>
-                <RetryUntilSuccessful num_attempts="3">
+                <RetryUntilSuccessful num_attempts="2">
                   <Action ID="CheckWSFree"/>
                 </RetryUntilSuccessful>
                 <Action ID="MoveDown"/>
@@ -107,7 +107,7 @@
                 <Action ID="MoveToTray"/>
                 <Action ID="PickFromTray"/>
                 <Action ID="MoveToDropPos"/>
-                <RetryUntilSuccessful num_attempts="3">
+                <RetryUntilSuccessful num_attempts="2">
                   <Action ID="CheckWSFree"/>
                 </RetryUntilSuccessful>
                 <Action ID="MoveDown"/>
