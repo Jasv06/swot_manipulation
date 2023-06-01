@@ -993,7 +993,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "swot_manipulation_bt_joel");
 
     Manipulation manipulation;
-    ros::MultiThreadedSpinner spinner(8);
+    ros::MultiThreadedSpinner spinner(4);
     spinner.spin();
     
     return 0;
