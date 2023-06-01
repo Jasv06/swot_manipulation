@@ -24,7 +24,7 @@ typedef boost::array<long int, 6> array6i;
 typedef boost::array<double, 7> array7d;
 
 std::vector<std::string> objects_in_trays{"","",""};
-std::vector<std::string> possible_last_positions{"drive"};
+std::vector<std::string> possible_last_positions;
 
 class Manipulation;
 void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation);
