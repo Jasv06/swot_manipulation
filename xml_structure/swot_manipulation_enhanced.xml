@@ -51,7 +51,7 @@
 
     <BehaviorTree ID="PickFromSH">
         
-            <Sequence>
+            <ReactiveSequence>
                 <Action ID="MoveToScan"/>
                 <RetryUntilSuccessful num_attempts="3">
                   <Action ID="ScanWorkSpace"/>
@@ -62,13 +62,13 @@
                 <Action ID="MoveUp"/>
                 <Action ID="DropObjectInTray"/>
                 <Action ID="MoveHomePos"/>
-            </Sequence>
+            </ReactiveSequence>
         
     </BehaviorTree>
 
     <BehaviorTree ID="PickFromWS">
         
-            <Sequence>
+            <ReactiveSequence>
                 <Action ID="MoveToScan"/>
                 <RetryUntilSuccessful num_attempts="3">
                   <Action ID="ScanWorkSpace"/>
@@ -79,7 +79,7 @@
                 <Action ID="MoveUp"/>
                 <Action ID="DropObjectInTray"/>
                 <Action ID="MoveHomePos"/>
-            </Sequence>
+            </ReactiveSequence>
         
     </BehaviorTree>
  
