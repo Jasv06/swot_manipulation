@@ -4,17 +4,12 @@
 #include <swot_msgs/SwotManipulation.h>
 #include <swot_msgs/SwotObjectMatching2023.h>
 #include <swot_msgs/SwotFreeSpot.h>
-#include <swot_msgs/SwotWeightedBBox.h>
-#include <swot_msgs/SwotBBoxCheck.h>
-#include <darknet_ros_msgs/BoundingBox.h>
-#include <darknet_ros_msgs/BoundingBoxes.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/WrenchStamped.h>
 #include <tf2_ros/transform_listener.h>
 #include <algorithm>
 #include <vector>
 #include <memory>
-#include <behaviortree_cpp_v3/loggers/bt_zmq_publisher.h>
 #include <behaviortree_cpp_v3/bt_factory.h>
 #include <behaviortree_cpp_v3/condition_node.h>
 #include <behaviortree_cpp_v3/action_node.h>
@@ -34,15 +29,15 @@ class Manipulation
     private:
 
         std::string xml_file;
-        std::string last_pos = "drive";    
-        std::string grasping_area = "mid"; 
-        const double wrench_limit = 7.0;
-        bool collision_detected = false;
-        bool collision_activated = false;
+        std::string last_pos;    
+        std::string grasping_area; 
+        const double wrench_limit;
+        bool collision_detected;
+        bool collision_activated;
         ros::NodeHandle nh_;
         ros::Subscriber sub_wrench;
         geometry_msgs::Pose grasping_point;
-        static inline bool initialized = false;
+        static bool initialized;
         std::string tray;
 
     public:
@@ -54,16 +49,16 @@ class Manipulation
         swot_msgs::SwotManipulation::Request req_;
         swot_msgs::SwotManipulation::Response res_;
 
-        double gripper_speed_ = 1.0;
-        double gripper_force_ = 70.0;
+        double gripper_speed_;
+        double gripper_force_;
 
-        double jnt_vel_ = 1;
-        double jnt_acc_ = 1;
+        double jnt_vel_;
+        double jnt_acc_;
 
-        int move_duration = 5.0;
-        double blend_ = 0.02;
+        int move_duration;
+        double blend_;
 
-        Manipulation() 
+        Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_limit(7), collision_detected(false), collision_activated(false), initialized(false), gripper_speed_(1.0), gripper_force_(70.0), jnt_vel_(1), jnt_acc_(1), move_duration(5), blend_(0.02)
         {
             if(!this->initialized)
             {
@@ -93,15 +88,11 @@ class Manipulation
             BT::BehaviorTreeFactory factory;
             registerNodes(factory, *this);            
             nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation_bt/bt_xml_structure/swot_manipulation_backup_with_decorator.xml");
-            ROS_INFO("Loading XML : %s", xml_file.c_str());
             auto tree = factory.createTreeFromFile(xml_file);
-            BT::PublisherZMQ publisher_zmq(tree);
             tree.tickRoot();
             return true;
         }
-
-        virtual ~Manipulation() {}
-        
+    
         void callback_wrench(const geometry_msgs::WrenchStamped &msg)
         {
             if(collision_activated)
