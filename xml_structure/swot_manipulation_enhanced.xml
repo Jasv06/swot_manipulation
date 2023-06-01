@@ -85,7 +85,7 @@
  
     <BehaviorTree ID="PlaceInSH">
         
-            <Sequence>
+            <ReactiveSequence>
                 <Action ID="CheckObjRequired"/>
                 <Action ID="MoveToTray"/>
                 <Action ID="PickFromTray"/>
@@ -96,13 +96,13 @@
                 <Action ID="MoveDown"/>
                 <Action ID="DropObj"/>
                 <Action ID="MoveHomePos"/>
-            </Sequence>
+            </ReactiveSequence>
         
     </BehaviorTree>
     
     <BehaviorTree ID="PlaceInWS">
     
-            <Sequence>
+            <ReactiveSequence>
                 <Action ID="CheckObjRequired"/>
                 <Action ID="MoveToTray"/>
                 <Action ID="PickFromTray"/>
@@ -113,7 +113,7 @@
                 <Action ID="MoveDown"/>
                 <Action ID="DropObj"/>
                 <Action ID="MoveHomePos"/>
-            </Sequence>
+            </ReactiveSequence>
         
     </BehaviorTree>
     
