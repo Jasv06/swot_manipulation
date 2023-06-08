@@ -4,17 +4,12 @@
 #include <swot_msgs/SwotManipulation.h>
 #include <swot_msgs/SwotObjectMatching2023.h>
 #include <swot_msgs/SwotFreeSpot.h>
-#include <swot_msgs/SwotWeightedBBox.h>
-#include <swot_msgs/SwotBBoxCheck.h>
-#include <darknet_ros_msgs/BoundingBox.h>
-#include <darknet_ros_msgs/BoundingBoxes.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/WrenchStamped.h>
 #include <tf2_ros/transform_listener.h>
 #include <algorithm>
 #include <vector>
 #include <memory>
-#include <behaviortree_cpp_v3/loggers/bt_zmq_publisher.h>
 #include <behaviortree_cpp_v3/bt_factory.h>
 #include <behaviortree_cpp_v3/condition_node.h>
 #include <behaviortree_cpp_v3/action_node.h>
@@ -24,7 +19,7 @@ typedef boost::array<long int, 6> array6i;
 typedef boost::array<double, 7> array7d;
 
 std::vector<std::string> objects_in_trays{"","",""};
-std::vector<std::string> possible_last_positions{"drive"};
+std::vector<std::string> possible_last_positions;
 
 class Manipulation;
 void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation);
@@ -34,15 +29,15 @@ class Manipulation
     private:
 
         std::string xml_file;
-        std::string last_pos = "drive";    
-        std::string grasping_area = "mid"; 
-        const double wrench_limit = 7.0;
-        bool collision_detected = false;
-        bool collision_activated = false;
+        std::string last_pos;    
+        std::string grasping_area; 
+        const double wrench_limit;
+        bool collision_detected;
+        bool collision_activated;
         ros::NodeHandle nh_;
         ros::Subscriber sub_wrench;
         geometry_msgs::Pose grasping_point;
-        static inline bool initialized = false;
+        static bool initialized;
         std::string tray;
 
     public:
@@ -54,16 +49,18 @@ class Manipulation
         swot_msgs::SwotManipulation::Request req_;
         swot_msgs::SwotManipulation::Response res_;
 
-        double gripper_speed_ = 1.0;
-        double gripper_force_ = 70.0;
+        double gripper_speed_;
+        double gripper_force_;
 
-        double jnt_vel_ = 1;
-        double jnt_acc_ = 1;
+        double jnt_vel_;
+        double jnt_vel_multi;
+        double jnt_acc_;
+        double jnt_acc_multi;
 
-        int move_duration = 5.0;
-        double blend_ = 0.02;
+        int move_duration;
+        double blend_;
 
-        Manipulation() 
+        Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_limit(10.5), collision_detected(false), collision_activated(false), initialized(false), gripper_speed_(1.0), gripper_force_(60.0), jnt_vel_(1), jnt_acc_(1), jnt_vel_multi(2), jnt_acc_multi(1.5), move_duration(5), blend_(0.02)
         {
             if(!this->initialized)
             {
@@ -85,38 +82,32 @@ class Manipulation
             this->req_ = req;
             this->res_ = res;
 
-            std::cout << "After assigning to variables of the class" << std::endl;
             std::cout << get_request().mode << std::endl;
             std::cout << get_request().object << std::endl;
             std::cout << get_request().save << std::endl;
             std::cout << get_request().task << std::endl;
-            ros::Duration(1).sleep();
-
+            
             BT::BehaviorTreeFactory factory;
             registerNodes(factory, *this);            
             nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation_bt/bt_xml_structure/swot_manipulation_backup_with_decorator.xml");
-            ROS_INFO("Loading XML : %s", xml_file.c_str());
             auto tree = factory.createTreeFromFile(xml_file);
-            BT::PublisherZMQ publisher_zmq(tree);
             tree.tickRoot();
             return true;
         }
-
-        virtual ~Manipulation() {}
-        
+    
         void callback_wrench(const geometry_msgs::WrenchStamped &msg)
         {
             if(collision_activated)
             {
-            if (collision_detected == false)
-            {
-                if (std::max({std::abs(msg.wrench.force.x), std::abs(msg.wrench.force.y), std::abs(msg.wrench.force.z)}) > wrench_limit)
+                if (collision_detected == false)
                 {
-                    ROS_INFO("wrench_limit achieved");
-                    set_collision(true);
-                    set_collision_activated(false);
+                    if (std::max({std::abs(msg.wrench.force.x), std::abs(msg.wrench.force.y), std::abs(msg.wrench.force.z)}) > wrench_limit)
+                    {
+                        ROS_INFO("wrench_limit achieved");
+                        set_collision(true);
+                        set_collision_activated(false);
+                    }
                 }
-            }
             }
         }
    
@@ -142,6 +133,7 @@ class Manipulation
         swot_msgs::SwotManipulation::Response get_response() const {return this->res_;};
         ros::NodeHandle get_nh() {return nh_;};
 
+        
         array6d array_scan_mid = {2.40435886383057, -1.83808960537099, 0.975212875996725, -0.674065129165985, -1.63826924959292, -3.8627772966968};
         array6d array_scan_left = {3.681095838546753, -1.2161747378161927, 0.6712544600116175, -1.0322970908931275, -1.663314167653219, -2.6715996901141565};
         array6d array_scan_left_yolo = {3.31208157539368, -1.67535986522817, 1.43538600603213, -1.27126656592403, -1.62322599092592, -3.0253372828113};
@@ -164,6 +156,9 @@ class Manipulation
         array6d array_tray2_load = {-0.255173508320944, -1.6467939815917, 1.58283216158022, -1.48665781438861, -1.55522424379458, -3.37798530260195};
         array6d array_tray3_load = {-0.530647579823629, -1.6887427769103, 1.65178472200503, -1.53478486955676, -1.56944162050356, -3.6110408941852};
         array6d array_drive = {3.18401956558228, -2.55628885845327, 1.20438319841494, -0.691585080032684, -1.76227599779238, -3.09013063112368};
+        array6d free_backup_1 = {3.5078, -1.3333, 1.7648, -2.033566, -1.58985, -4.33499};
+        array6d free_backup_2 = {2.1859, -1.2849, 2.01598, -2.326377, -1.567803, -2.50999};
+        array6d free_SH_1 = {3.1510367393493652, -1.4416437161019822, 1.5042608420001429, -2.213513513604635, -1.6092117468463343, -3.0877655188189905};
 };
 
 class NotDrive : public BT::ConditionNode
@@ -177,14 +172,8 @@ class NotDrive : public BT::ConditionNode
         virtual BT::NodeStatus tick() override
         {
             ROS_INFO("drive achieved");
-            if(manipulation_.get_request().mode == "DRIVE")
-            {
-                return BT::NodeStatus::FAILURE;
-            }
-            else
-            {
-                return BT::NodeStatus::SUCCESS;
-            }
+            if(manipulation_.get_request().mode == "DRIVE") {return BT::NodeStatus::FAILURE};
+            else {return BT::NodeStatus::SUCCESS};
         }
 };
 
@@ -199,14 +188,8 @@ class NotPick : public BT::ConditionNode
         virtual BT::NodeStatus tick() override
         {
             ROS_INFO("pick achieved");
-            if(manipulation_.get_request().mode == "PICK")
-            {
-                return BT::NodeStatus::FAILURE;
-            }
-            else
-            {
-                return BT::NodeStatus::SUCCESS;
-            }
+            if(manipulation_.get_request().mode == "PICK") {return BT::NodeStatus::FAILURE;}
+            else {return BT::NodeStatus::SUCCESS;}
         }
         
 };
@@ -222,14 +205,8 @@ class NotPlace : public BT::ConditionNode
         virtual BT::NodeStatus tick() override
         {
             ROS_INFO("place achieved");
-            if(manipulation_.get_request().mode == "PLACE")
-            { 
-                return BT::NodeStatus::FAILURE;
-            }
-            else
-            { 
-                return BT::NodeStatus::SUCCESS;
-            }
+            if(manipulation_.get_request().mode == "PLACE") {return BT::NodeStatus::FAILURE;}
+            else {return BT::NodeStatus::SUCCESS;}
         } 
 };
 
@@ -244,14 +221,8 @@ class NotPP : public BT::ConditionNode
         virtual BT::NodeStatus tick() override
         {
             ROS_INFO("pp achieved");
-            if(manipulation_.get_request().task == "PP")
-            {   
-                return BT::NodeStatus::FAILURE;
-            }
-            else
-            {
-                return BT::NodeStatus::SUCCESS;
-            }
+            if(manipulation_.get_request().task == "PP") {return BT::NodeStatus::FAILURE;}
+            else {return BT::NodeStatus::SUCCESS;}
         }
 };
 
@@ -266,14 +237,8 @@ class NotSH : public BT::ConditionNode
         virtual BT::NodeStatus tick() override
         {
             ROS_INFO("sh achieved");
-            if(manipulation_.get_request().task == "SH")
-            {
-                return BT::NodeStatus::FAILURE;
-            }
-            else
-            { 
-                return BT::NodeStatus::SUCCESS;
-            }
+            if(manipulation_.get_request().task == "SH") {return BT::NodeStatus::FAILURE;}
+            else {return BT::NodeStatus::SUCCESS;}
         }
 };
 
@@ -289,14 +254,8 @@ class NotTT : public BT::ConditionNode
         virtual BT::NodeStatus tick() override
         {
             ROS_INFO("tt achieved");
-            if(manipulation_.get_request().task == "TT")
-            {             
-                return BT::NodeStatus::FAILURE;
-            }
-            else
-            {
-                return BT::NodeStatus::SUCCESS;
-            }
+            if(manipulation_.get_request().task == "TT") {return BT::NodeStatus::FAILURE;}
+            else {return BT::NodeStatus::SUCCESS;}
         }
 };
 
@@ -311,14 +270,8 @@ class NotWS : public BT::ConditionNode
         virtual BT::NodeStatus tick() override
         {
             ROS_INFO("ws achieved");
-            if(manipulation_.get_request().task == "WS")
-            {
-                return BT::NodeStatus::FAILURE;
-            }
-            else
-            {
-                return BT::NodeStatus::SUCCESS;
-            }
+            if(manipulation_.get_request().task == "WS") {return BT::NodeStatus::FAILURE;}
+            else {return BT::NodeStatus::SUCCESS;}
         }
 };
 
@@ -347,10 +300,9 @@ class ScanWorkSpace : public BT::SyncActionNode
 {
     private:
         Manipulation& manipulation_;
-        int count;
 
     public:
-        ScanWorkSpace(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation), count(0) {}
+        ScanWorkSpace(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
         ~ScanWorkSpace() override = default;      
         virtual BT::NodeStatus tick() override
         {
@@ -360,8 +312,7 @@ class ScanWorkSpace : public BT::SyncActionNode
             for(auto i = 0; i < 3; i++)
             {
                 (manipulation_.rtde)->joint_target(manipulation_.scan_pose[i], manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-                ros::Duration(3).sleep();
-                if(ros::service::waitForService("ObjectMatchingServer", ros::Duration(5.0)) == false)
+                if(ros::service::waitForService("ObjectMatchingServer", ros::Duration(3.0)) == false)
                 {
                     return BT::NodeStatus::FAILURE;   
                 }
@@ -374,14 +325,11 @@ class ScanWorkSpace : public BT::SyncActionNode
                 {
                     return BT::NodeStatus::FAILURE;
                 }
-                ros::Duration(3).sleep();
                 if(srv_match.response.status == "FINISHED")
                 {
                     break;
                 }
-                std::cout << "loop number" << i << std::endl;
             }
-
             manipulation_.set_grasping_point(srv_match.response.pose);
             return BT::NodeStatus::SUCCESS;
         }
@@ -1040,7 +988,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "swot_manipulation_bt_joel");
 
     Manipulation manipulation;
-    ros::MultiThreadedSpinner spinner(8);
+    ros::MultiThreadedSpinner spinner(4);
     spinner.spin();
     
     return 0;

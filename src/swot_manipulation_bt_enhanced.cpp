@@ -53,12 +53,14 @@ class Manipulation
         double gripper_force_;
 
         double jnt_vel_;
+        double jnt_vel_multi;
         double jnt_acc_;
+        double jnt_acc_multi;
 
         int move_duration;
         double blend_;
 
-        Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_limit(7), collision_detected(false), collision_activated(false), initialized(false), gripper_speed_(1.0), gripper_force_(70.0), jnt_vel_(1), jnt_acc_(1), move_duration(5), blend_(0.02)
+        Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_limit(10.5), collision_detected(false), collision_activated(false), initialized(false), gripper_speed_(1.0), gripper_force_(60.0), jnt_vel_(1), jnt_acc_(1), jnt_vel_multi(2), jnt_acc_multi(1.5), move_duration(5), blend_(0.02)
         {
             if(!this->initialized)
             {
@@ -131,6 +133,7 @@ class Manipulation
         swot_msgs::SwotManipulation::Response get_response() const {return this->res_;};
         ros::NodeHandle get_nh() {return nh_;};
 
+        
         array6d array_scan_mid = {2.40435886383057, -1.83808960537099, 0.975212875996725, -0.674065129165985, -1.63826924959292, -3.8627772966968};
         array6d array_scan_left = {3.681095838546753, -1.2161747378161927, 0.6712544600116175, -1.0322970908931275, -1.663314167653219, -2.6715996901141565};
         array6d array_scan_left_yolo = {3.31208157539368, -1.67535986522817, 1.43538600603213, -1.27126656592403, -1.62322599092592, -3.0253372828113};
@@ -155,6 +158,7 @@ class Manipulation
         array6d array_drive = {3.18401956558228, -2.55628885845327, 1.20438319841494, -0.691585080032684, -1.76227599779238, -3.09013063112368};
         array6d free_backup_1 = {3.5078, -1.3333, 1.7648, -2.033566, -1.58985, -4.33499};
         array6d free_backup_2 = {2.1859, -1.2849, 2.01598, -2.326377, -1.567803, -2.50999};
+        array6d free_SH_1 = {3.1510367393493652, -1.4416437161019822, 1.5042608420001429, -2.213513513604635, -1.6092117468463343, -3.0877655188189905};
 };
 
 class NotDrive : public BT::ConditionNode
