@@ -285,10 +285,6 @@ class NotWS : public BT::ConditionNode
         }
 };
 
-/*************************************************** Todo lo de arriba esta perfecto y ahora hay que revisar todo lo de abajo que el proceso quede perfecto ***************************************************************/
-
-// classes for picking 
-
 class MoveToScan : public BT::SyncActionNode
 {
     private:
@@ -299,8 +295,8 @@ class MoveToScan : public BT::SyncActionNode
         ~MoveToScan() override = default;      
         virtual BT::NodeStatus tick() override
         {
-            manipulation_.set_collision(false);
             ROS_INFO("move to scan");
+            manipulation_.set_collision(false);
             (manipulation_.rtde)->joint_target(manipulation_.array_scan_mid, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
             return BT::NodeStatus::SUCCESS; 
         }               
@@ -316,9 +312,9 @@ class ScanWorkSpace : public BT::SyncActionNode
         ~ScanWorkSpace() override = default;      
         virtual BT::NodeStatus tick() override
         {
+            ROS_INFO("scan workspace");
             swot_msgs::SwotObjectMatching2023 srv_match;
             srv_match.request.object = manipulation_.get_request().object;
-            ROS_INFO("scan workspace");
             for(auto i = 0; i < 3; i++)
             {
                 (manipulation_.rtde)->joint_target(manipulation_.scan_pose[i], manipulation_.jnt_vel_, manipulation_.jnt_acc_);
@@ -388,15 +384,12 @@ class GetGraspAndMoveGrasp : public BT::SyncActionNode
         virtual BT::NodeStatus tick() override
         {
             ROS_INFO("get grasp and move grasp");
-
             for (const auto& conditionAction : conditionActions) {
-            if (conditionAction.condition()) {
-            conditionAction.action();
-            return BT::NodeStatus::SUCCESS;
+                if (conditionAction.condition()) {
+                    conditionAction.action();
+                    return BT::NodeStatus::SUCCESS;
+                }
             }
-            }
-
-            // Handle the case when no matching action is found
             std::cout << "No matching action found." << std::endl;
             return BT::NodeStatus::FAILURE;
         }
