@@ -417,18 +417,41 @@ class PickObject : public BT::SyncActionNode
             array7d target = {manipulation_.get_grasping_point().position.x, manipulation_.get_grasping_point().position.y, manipulation_.get_grasping_point().position.z + 0.07,
             manipulation_.get_grasping_point().orientation.x, manipulation_.get_grasping_point().orientation.y, manipulation_.get_grasping_point().orientation.z,
             manipulation_.get_grasping_point().orientation.w};
-            (manipulation_.rtde)->cart_target(1, target, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+            (manipulation_.rtde)->cart_target(1, target, manipulation_.jnt_vel_ * 0.7, manipulation_.jnt_acc_ * 0.5);
 
             ROS_INFO("Move to grasping_point");
 
-            array7d target2 = {manipulation_.get_grasping_point().position.x, manipulation_.get_grasping_point().position.y, manipulation_.get_grasping_point().position.z + 0.001,
-            manipulation_.get_grasping_point().orientation.x, manipulation_.get_grasping_point().orientation.y, manipulation_.get_grasping_point().orientation.z,
-            manipulation_.get_grasping_point().orientation.w};
-            (manipulation_.rtde)->cart_target(1, target2, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+            array6d free_axis = {1,1,1,0,0,0};
+            array6d wrench = {0,0,-20,0,0,0};
+            ros::Duration(1.0).sleep();
+            rtde.force_target(true, free_axis, wrench, 1.0);
+            ROS_INFO("Force Mode activated");
+            collision_activated = true;
+            long int timer = 0;
+            ROS_INFO("test1");
+            while ( (collision_detected == false) && (timer<100) )
+            {
+                ros::Duration(0.1).sleep();
+                timer++;
+            }
+            ROS_INFO("test2");
+            collision_activated = false;
+            collision_detected = false;
+            rtde.force_target(false, free_axis , wrench, 1.0);
+            ROS_INFO("Force Mode deactivated");
+
+            ros::Duration(0.5).sleep();
+            geometry_msgs::TransformStampedConstPtr pcp_pose_;
+            pcp_pose_ = ros::topic::waitForMessage<geometry_msgs::TransformStamped>("/tcp_pose", nh, ros::Duration(2.0));
+
+            array7d target_2 = {pcp_pose_->transform.translation.x, pcp_pose_->transform.translation.y, pcp_pose_->transform.translation.z + 0.002, 
+                     pcp_pose_->transform.rotation.x, pcp_pose_->transform.rotation.y, pcp_pose_->transform.rotation.z, 
+                     pcp_pose_->transform.rotation.w};
+            (manipulation_.rtde)->cart_target(1, target2, manipulation_.jnt_vel_*0.2, manipulation_.jnt_acc_*0.2);
                 
-            ros::Duration(1).sleep();
+            ros::Duration(0.5).sleep();
             (manipulation_.rtde)->gripper_close(manipulation_.gripper_speed_, manipulation_.gripper_force_);
-            ros::Duration(3).sleep();
+            ros::Duration(1).sleep();
             ROS_INFO("no collision_detected");           
             return BT::NodeStatus::SUCCESS;
         }
