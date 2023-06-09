@@ -53,7 +53,9 @@
         
             <Sequence>
                 <Action ID="MoveToScan"/>
-                <Action ID="ScanWorkSpace"/>
+                <RetryUntilSuccessful num_attempts="2">
+                  <Action ID="ScanWorkSpace"/>
+                </RetryUntilSuccessful>
                 <Action ID="GetGraspAndMoveGrasp"/>
                 <Action ID="PickObject"/>
                 <Action ID="CheckObjectPicked"/>
@@ -68,7 +70,9 @@
         
             <Sequence>
                 <Action ID="MoveToScan"/>
-                <Action ID="ScanWorkSpace"/>
+                <RetryUntilSuccessful num_attempts="2">
+                  <Action ID="ScanWorkSpace"/>
+                </RetryUntilSuccessful>
                 <Action ID="GetGraspAndMoveGrasp"/>
                 <Action ID="PickObject"/>
                 <Action ID="CheckObjectPicked"/>
@@ -86,8 +90,10 @@
                 <Action ID="MoveToTray"/>
                 <Action ID="PickFromTray"/>
                 <Action ID="MoveToDropPos"/>
-                <Action ID="CheckWSFree"/>
-                <Action ID="MoveDown"/>
+                <RetryUntilSuccessful num_attempts="2">
+                  <Action ID="CheckWSFree"/>
+                </RetryUntilSuccessful>
+                <Action ID="GetGraspAndMoveGrasp"/>
                 <Action ID="DropObj"/>
                 <Action ID="MoveHomePos"/>
             </Sequence>
@@ -101,8 +107,10 @@
                 <Action ID="MoveToTray"/>
                 <Action ID="PickFromTray"/>
                 <Action ID="MoveToDropPos"/>
-                <Action ID="CheckWSFree"/>
-                <Action ID="MoveDown"/>
+                <RetryUntilSuccessful num_attempts="2">
+                  <Action ID="CheckWSFree"/>
+                </RetryUntilSuccessful>
+                <Action ID="GetGraspAndMoveGrasp"/>
                 <Action ID="DropObj"/>
                 <Action ID="MoveHomePos"/>
             </Sequence>
@@ -116,7 +124,6 @@
         <Action ID="DropObj"/>
         <Action ID="DropObjectInTray"/>
         <Action ID="GetGraspAndMoveGrasp"/>
-        <Action ID="MoveDown"/>
         <Action ID="MoveHomePos"/>
         <Action ID="MoveToDrivePose"/>
         <Action ID="MoveToDropPos"/>

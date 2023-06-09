@@ -18,9 +18,6 @@ typedef boost::array<double, 6> array6d;
 typedef boost::array<long int, 6> array6i;
 typedef boost::array<double, 7> array7d;
 
-std::vector<std::string> objects_in_trays{"","",""};
-std::vector<std::string> possible_last_positions;
-
 class Manipulation;
 void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation);
 
@@ -37,7 +34,7 @@ class Manipulation
         ros::NodeHandle nh_;
         ros::Subscriber sub_wrench;
         geometry_msgs::Pose grasping_point;
-        static bool initialized;
+        bool initialized;
         std::string tray;
 
     public:
@@ -48,6 +45,9 @@ class Manipulation
         ros::ServiceClient service_client_free;
         swot_msgs::SwotManipulation::Request req_;
         swot_msgs::SwotManipulation::Response res_;
+
+        std::vector<std::string> objects_in_trays{"","",""};
+        std::vector<std::string> possible_last_positions;
 
         double gripper_speed_;
         double gripper_force_;
@@ -132,8 +132,7 @@ class Manipulation
         swot_msgs::SwotManipulation::Request get_request() const {return this->req_;};
         swot_msgs::SwotManipulation::Response get_response() const {return this->res_;};
         ros::NodeHandle get_nh() {return nh_;};
-
-        
+ 
         array6d array_scan_mid = {2.40435886383057, -1.83808960537099, 0.975212875996725, -0.674065129165985, -1.63826924959292, -3.8627772966968};
         array6d array_scan_left = {3.681095838546753, -1.2161747378161927, 0.6712544600116175, -1.0322970908931275, -1.663314167653219, -2.6715996901141565};
         array6d array_scan_left_yolo = {3.31208157539368, -1.67535986522817, 1.43538600603213, -1.27126656592403, -1.62322599092592, -3.0253372828113};
@@ -248,7 +247,6 @@ class NotTT : public BT::ConditionNode
         Manipulation& manipulation_;
 
     public: 
-
         NotTT(const std::string& name, Manipulation& manipulation) : BT::ConditionNode(name, {}), manipulation_(manipulation) {}
         ~NotTT() override = default;
         virtual BT::NodeStatus tick() override
@@ -453,37 +451,6 @@ class CheckObjectPicked : public BT::SyncActionNode
         }
 };
 
-class CheckObjRequired : public BT::SyncActionNode
-{
-    private:
-        Manipulation& manipulation_;
-
-    public:
-    
-        CheckObjRequired(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
-        ~CheckObjRequired() override = default;      
-        virtual BT::NodeStatus tick() override
-        {
-            manipulation_.set_collision(false);
-            if (manipulation_.get_request().save == "SAVE_1")
-            {
-                ROS_INFO("Object from tray 1 required");
-                objects_in_trays[0] = "";
-            }
-            else if (manipulation_.get_request().save == "SAVE_2")
-            {
-                ROS_INFO("Object from tray 2 required");
-                objects_in_trays[1] = "";
-            }
-            else
-            {
-                ROS_INFO("Object from tray 3 required");
-                objects_in_trays[2] = "";
-            }
-            return BT::NodeStatus::SUCCESS;
-        }     
-};
-
 class MoveUp : public BT::SyncActionNode
 {
     private:
@@ -611,52 +578,19 @@ class MoveHomePos : public BT::SyncActionNode
         }
 };
 
-class CheckWSFree : public BT::SyncActionNode
+class MoveToDrivePose : public BT::SyncActionNode
 {
     private:
         Manipulation& manipulation_;
 
     public:
-        CheckWSFree(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
-        ~CheckWSFree() override = default;      
+        MoveToDrivePose(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}) , manipulation_(manipulation){}
+        ~MoveToDrivePose() override = default;      
         virtual BT::NodeStatus tick() override
         {
-            ROS_INFO("check ws free");
-            if(manipulation_.req_.task == "RED_CONTAINER" || manipulation_.req_.task == "BLUE_CONTAINER")
-            {
-
-            }
-            else
-            {
-            swot_msgs::SwotFreeSpot srv_free;
-            if (ros::service::waitForService("FreeSpotServer", ros::Duration(5.0)))
-            {
-                std::cout << "FreeSpotServer" << std::endl;
-                if (!(manipulation_.service_client_free).call(srv_free))
-                {
-                    (manipulation_.rtde)->joint_target(manipulation_.array_scan_left, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-                    if (!(manipulation_.service_client_free).call(srv_free))
-                    {
-                        (manipulation_.rtde)->joint_target(manipulation_.array_scan_right, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-                        if (!(manipulation_.service_client_free).call(srv_free))
-                        {
-                            (manipulation_.rtde)->joint_target(manipulation_.array_scan_mid, manipulation_.jnt_vel_, manipulation_.jnt_acc_);                   
-                            if(!(manipulation_.service_client_free).call(srv_free))
-                            {
-                                return BT::NodeStatus::FAILURE;
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                ROS_WARN("Couldn't find ROS Service \"SwotFreeSpot\"");
-                return BT::NodeStatus::FAILURE;
-            }
-            manipulation_.set_grasping_point(srv_free.response.pose);
-            std::cout << manipulation_.get_grasping_point() << std::endl;
-            }
+            ROS_INFO("move to drive pos");
+            (manipulation_.rtde)->joint_target(manipulation_.array_drive, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+            manipulation_.res_.status = "FINISHED";
             return BT::NodeStatus::SUCCESS;
         }
 };
@@ -718,74 +652,52 @@ class DropObj : public BT::SyncActionNode
         }
 };
 
-
-
-class MoveDown : public BT::SyncActionNode
+class CheckWSFree : public BT::SyncActionNode
 {
     private:
         Manipulation& manipulation_;
 
     public:
-        MoveDown(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
-        ~MoveDown() override = default;      
+        CheckWSFree(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
+        ~CheckWSFree() override = default;      
         virtual BT::NodeStatus tick() override
         {
-            ROS_INFO("get grasp and move grasp");
-            double left_left_thresh = 0.2;
-            double left_thresh = 0.1;
-            double right_thresh = -0.1;
-            double right_right_thresh = -0.2;
-            
-            if (manipulation_.get_grasping_point().position.y >= left_left_thresh)
+            ROS_INFO("check ws free");
+            if(manipulation_.req_.task == "RED_CONTAINER" || manipulation_.req_.task == "BLUE_CONTAINER")
             {
-                (manipulation_.rtde)->joint_target(manipulation_.array_pick_left_left, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-                manipulation_.set_grasping_area("left_left");
-                return BT::NodeStatus::SUCCESS;
-            }
-            else if (manipulation_.get_grasping_point().position.y < left_left_thresh && manipulation_.get_grasping_point().position.y >= left_thresh)
-            {
-                (manipulation_.rtde)->joint_target(manipulation_.array_pick_left, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-                manipulation_.set_grasping_area("left");
-                return BT::NodeStatus::SUCCESS;
-            }
-            else if (manipulation_.get_grasping_point().position.y < left_thresh && manipulation_.get_grasping_point().position.y >= right_thresh)
-            {
-                (manipulation_.rtde)->joint_target(manipulation_.array_pick_mid, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-                manipulation_.set_grasping_area("mid");
-                return BT::NodeStatus::SUCCESS;
-            }
-            else if (manipulation_.get_grasping_point().position.y < right_thresh && manipulation_.get_grasping_point().position.y >= right_right_thresh)
-            {
-                (manipulation_.rtde)->joint_target(manipulation_.array_pick_right, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-                manipulation_.set_grasping_area("right");
-                return BT::NodeStatus::SUCCESS;
-            }
-            else if (manipulation_.get_grasping_point().position.y < right_right_thresh)
-            {
-                (manipulation_.rtde)->joint_target(manipulation_.array_pick_left, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-                manipulation_.set_grasping_area("right_right");
-                return BT::NodeStatus::SUCCESS;
-            }
-        
-            return BT::NodeStatus::FAILURE;  
-        }
-};
 
-
-
-class MoveToDrivePose : public BT::SyncActionNode
-{
-    private:
-        Manipulation& manipulation_;
-
-    public:
-        MoveToDrivePose(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}) , manipulation_(manipulation){}
-        ~MoveToDrivePose() override = default;      
-        virtual BT::NodeStatus tick() override
-        {
-            ROS_INFO("move to drive pos");
-            (manipulation_.rtde)->joint_target(manipulation_.array_drive, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-            manipulation_.res_.status = "FINISHED";
+            }
+            else
+            {
+            swot_msgs::SwotFreeSpot srv_free;
+            if (ros::service::waitForService("FreeSpotServer", ros::Duration(5.0)))
+            {
+                std::cout << "FreeSpotServer" << std::endl;
+                if (!(manipulation_.service_client_free).call(srv_free))
+                {
+                    (manipulation_.rtde)->joint_target(manipulation_.array_scan_left, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+                    if (!(manipulation_.service_client_free).call(srv_free))
+                    {
+                        (manipulation_.rtde)->joint_target(manipulation_.array_scan_right, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+                        if (!(manipulation_.service_client_free).call(srv_free))
+                        {
+                            (manipulation_.rtde)->joint_target(manipulation_.array_scan_mid, manipulation_.jnt_vel_, manipulation_.jnt_acc_);                   
+                            if(!(manipulation_.service_client_free).call(srv_free))
+                            {
+                                return BT::NodeStatus::FAILURE;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                ROS_WARN("Couldn't find ROS Service \"SwotFreeSpot\"");
+                return BT::NodeStatus::FAILURE;
+            }
+            manipulation_.set_grasping_point(srv_free.response.pose);
+            std::cout << manipulation_.get_grasping_point() << std::endl;
+            }
             return BT::NodeStatus::SUCCESS;
         }
 };
@@ -806,36 +718,6 @@ class MoveToDropPos : public BT::SyncActionNode
             (manipulation_.rtde)->joint_target(manipulation_.array_rotate1, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
             (manipulation_.rtde)->joint_target(manipulation_.array_scan_mid, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
             return BT::NodeStatus::SUCCESS;
-        }
-};
-
-class MoveToTray : public BT::SyncActionNode
-{
-    private:
-        Manipulation& manipulation_;
-
-    public:
-        MoveToTray(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
-        ~MoveToTray() override = default;      
-        virtual BT::NodeStatus tick() override
-        {
-            ROS_INFO("move to tray");
-            (manipulation_.rtde)->joint_target(manipulation_.array_rotate3, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-            (manipulation_.rtde)->joint_target(manipulation_.array_rotate2, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-            (manipulation_.rtde)->joint_target(manipulation_.array_rotate1, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-            if (manipulation_.get_tray() == "SAVE_1")
-            {
-                (manipulation_.rtde)->joint_target(manipulation_.array_tray1_top, manipulation_.jnt_vel_, manipulation_.jnt_acc_);    
-            }
-            else if (manipulation_.get_tray() == "SAVE_2")
-            {
-                (manipulation_.rtde)->joint_target(manipulation_.array_tray2_top, manipulation_.jnt_vel_, manipulation_.jnt_acc_);          
-            }
-            else
-            {
-                (manipulation_.rtde)->joint_target(manipulation_.array_tray3_top, manipulation_.jnt_vel_, manipulation_.jnt_acc_); 
-            }       
-            return BT::NodeStatus::SUCCESS;   
         }
 };
 
@@ -906,7 +788,66 @@ class PickFromTray : public BT::SyncActionNode
         }
 };
 
+class MoveToTray : public BT::SyncActionNode
+{
+    private:
+        Manipulation& manipulation_;
 
+    public:
+        MoveToTray(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
+        ~MoveToTray() override = default;      
+        virtual BT::NodeStatus tick() override
+        {
+            ROS_INFO("move to tray");
+            (manipulation_.rtde)->joint_target(manipulation_.array_rotate3, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+            (manipulation_.rtde)->joint_target(manipulation_.array_rotate2, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+            (manipulation_.rtde)->joint_target(manipulation_.array_rotate1, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+            if (manipulation_.get_tray() == "SAVE_1")
+            {
+                (manipulation_.rtde)->joint_target(manipulation_.array_tray1_top, manipulation_.jnt_vel_, manipulation_.jnt_acc_);    
+            }
+            else if (manipulation_.get_tray() == "SAVE_2")
+            {
+                (manipulation_.rtde)->joint_target(manipulation_.array_tray2_top, manipulation_.jnt_vel_, manipulation_.jnt_acc_);          
+            }
+            else
+            {
+                (manipulation_.rtde)->joint_target(manipulation_.array_tray3_top, manipulation_.jnt_vel_, manipulation_.jnt_acc_); 
+            }       
+            return BT::NodeStatus::SUCCESS;   
+        }
+};
+
+class CheckObjRequired : public BT::SyncActionNode
+{
+    private:
+        Manipulation& manipulation_;
+
+    public:
+    
+        CheckObjRequired(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
+        ~CheckObjRequired() override = default;      
+        virtual BT::NodeStatus tick() override
+        {
+            manipulation_.set_collision(false);
+            if (manipulation_.get_request().save == "SAVE_1")
+            {
+                ROS_INFO("Object from tray 1 required");
+                objects_in_trays[0] = "";
+            }
+            else if (manipulation_.get_request().save == "SAVE_2")
+            {
+                ROS_INFO("Object from tray 2 required");
+                objects_in_trays[1] = "";
+            }
+            else
+            {
+                ROS_INFO("Object from tray 3 required");
+                objects_in_trays[2] = "";
+            }
+            return BT::NodeStatus::SUCCESS;
+        }     
+};
 
 void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation)
 {
@@ -949,9 +890,6 @@ void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation)
 
         BT::NodeBuilder builder_13 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<GetGraspAndMoveGrasp>(name,  std::ref(manipulation));};
         factory.registerBuilder<GetGraspAndMoveGrasp>("GetGraspAndMoveGrasp", builder_13);
-
-        BT::NodeBuilder builder_14 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveDown>(name,  std::ref(manipulation));};
-        factory.registerBuilder<MoveDown>("MoveDown", builder_14);
 
         BT::NodeBuilder builder_15 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveHomePos>(name,  std::ref(manipulation));};
         factory.registerBuilder<MoveHomePos>("MoveHomePos", builder_15);
