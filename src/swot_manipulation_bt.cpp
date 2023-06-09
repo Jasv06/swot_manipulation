@@ -15,10 +15,13 @@
 #include <behaviortree_cpp_v3/bt_factory.h>
 #include <behaviortree_cpp_v3/condition_node.h>
 #include <behaviortree_cpp_v3/action_node.h>
+#include <geometry_msgs/TransformStamped.h>
 
 typedef boost::array<double, 6> array6d;
 typedef boost::array<long int, 6> array6i;
 typedef boost::array<double, 7> array7d;
+std::vector<std::string> objects_in_trays{"","",""};
+std::vector<std::string> possible_last_positions;
 
 class Manipulation;
 void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation);
@@ -52,9 +55,6 @@ class Manipulation
         ros::ServiceClient service_client_free;
         swot_msgs::SwotManipulation::Request req_;
         swot_msgs::SwotManipulation::Response res_;
-
-        std::vector<std::string> objects_in_trays{"","",""};
-        std::vector<std::string> possible_last_positions;
 
         double gripper_speed_;
         double gripper_force_;
@@ -183,8 +183,8 @@ class NotDrive : public BT::ConditionNode
         virtual BT::NodeStatus tick() override
         {
             ROS_INFO("drive achieved");
-            if(manipulation_.get_request().mode == "DRIVE") {return BT::NodeStatus::FAILURE};
-            else {return BT::NodeStatus::SUCCESS};
+            if(manipulation_.get_request().mode == "DRIVE") {return BT::NodeStatus::FAILURE;}
+            else {return BT::NodeStatus::SUCCESS;}
         }
 };
 
@@ -354,31 +354,31 @@ class GetGraspAndMoveGrasp : public BT::SyncActionNode
         GetGraspAndMoveGrasp(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
         ~GetGraspAndMoveGrasp() override = default; 
         std::vector<ConditionAction> conditionActions = {
-        { [&]() { return manipulation_.get_grasping_point().position.y >= left_left_thresh;},
+        { [&]() { return manipulation_.get_grasping_point().position.y >= manipulation_.left_left_thresh;},
           [&]() {
               (manipulation_.rtde)->joint_target(manipulation_.array_pick_left_left, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
               manipulation_.set_grasping_area("left_left");
           }
         },
-        { [&]() { return manipulation_.get_grasping_point().position.y < left_left_thresh && manipulation_.get_grasping_point().position.y >= left_thresh;},
+        { [&]() { return manipulation_.get_grasping_point().position.y < manipulation_.left_left_thresh && manipulation_.get_grasping_point().position.y >= manipulation_.left_thresh;},
           [&]() {
               (manipulation_.rtde)->joint_target(manipulation_.array_pick_left, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
               manipulation_.set_grasping_area("left");
           }
         },
-        { [&]() { return manipulation_.get_grasping_point().position.y < left_thresh && manipulation_.get_grasping_point().position.y >= right_thresh;},
+        { [&]() { return manipulation_.get_grasping_point().position.y < manipulation_.left_thresh && manipulation_.get_grasping_point().position.y >= manipulation_.right_thresh;},
           [&]() {
               (manipulation_.rtde)->joint_target(manipulation_.array_pick_mid, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
               manipulation_.set_grasping_area("mid");
           }
         },
-        { [&]() { return manipulation_.get_grasping_point().position.y < right_thresh && manipulation_.get_grasping_point().position.y >= right_right_thresh;},
+        { [&]() { return manipulation_.get_grasping_point().position.y < manipulation_.right_thresh && manipulation_.get_grasping_point().position.y >= manipulation_.right_right_thresh;},
           [&]() {
               (manipulation_.rtde)->joint_target(manipulation_.array_pick_right, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
               manipulation_.set_grasping_area("right");
           }
         },
-        { [&]() { return manipulation_.get_grasping_point().position.y < right_right_thresh;},
+        { [&]() { return manipulation_.get_grasping_point().position.y < manipulation_.right_right_thresh;},
           [&]() {
               (manipulation_.rtde)->joint_target(manipulation_.array_pick_right_right, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
               manipulation_.set_grasping_area("right_right");
@@ -424,30 +424,30 @@ class PickObject : public BT::SyncActionNode
             array6d free_axis = {1,1,1,0,0,0};
             array6d wrench = {0,0,-20,0,0,0};
             ros::Duration(1.0).sleep();
-            rtde.force_target(true, free_axis, wrench, 1.0);
+            (manipulation_.rtde)->force_target(true, free_axis, wrench, 1.0);
             ROS_INFO("Force Mode activated");
-            collision_activated = true;
+            manipulation_.set_collision_activated(true);
             long int timer = 0;
             ROS_INFO("test1");
-            while ( (collision_detected == false) && (timer<100) )
+            while ( (manipulation_.get_collision() == false) && (timer<100) )
             {
                 ros::Duration(0.1).sleep();
                 timer++;
             }
             ROS_INFO("test2");
-            collision_activated = false;
-            collision_detected = false;
-            rtde.force_target(false, free_axis , wrench, 1.0);
+            manipulation_.set_collision_activated(false);
+            manipulation_.set_collision(false);
+            (manipulation_.rtde)->force_target(false, free_axis , wrench, 1.0);
             ROS_INFO("Force Mode deactivated");
 
             ros::Duration(0.5).sleep();
             geometry_msgs::TransformStampedConstPtr pcp_pose_;
-            pcp_pose_ = ros::topic::waitForMessage<geometry_msgs::TransformStamped>("/tcp_pose", nh, ros::Duration(2.0));
+            pcp_pose_ = ros::topic::waitForMessage<geometry_msgs::TransformStamped>("/tcp_pose", ros::Duration(2.0));
 
             array7d target_2 = {pcp_pose_->transform.translation.x, pcp_pose_->transform.translation.y, pcp_pose_->transform.translation.z + 0.002, 
                      pcp_pose_->transform.rotation.x, pcp_pose_->transform.rotation.y, pcp_pose_->transform.rotation.z, 
                      pcp_pose_->transform.rotation.w};
-            (manipulation_.rtde)->cart_target(1, target2, manipulation_.jnt_vel_*0.2, manipulation_.jnt_acc_*0.2);
+            (manipulation_.rtde)->cart_target(1, target_2, manipulation_.jnt_vel_*0.2, manipulation_.jnt_acc_*0.2);
                 
             ros::Duration(0.5).sleep();
             (manipulation_.rtde)->gripper_close(manipulation_.gripper_speed_, manipulation_.gripper_force_);
