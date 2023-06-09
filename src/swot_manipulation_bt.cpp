@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <vector>
 #include <memory>
+#include <iostream>
+#include <functional>
 #include <behaviortree_cpp_v3/bt_factory.h>
 #include <behaviortree_cpp_v3/condition_node.h>
 #include <behaviortree_cpp_v3/action_node.h>
@@ -20,6 +22,11 @@ typedef boost::array<double, 7> array7d;
 
 class Manipulation;
 void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation);
+
+struct ConditionAction {
+    std::function<bool()> condition;
+    std::function<void()> action;
+};
 
 class Manipulation
 {    
@@ -59,6 +66,11 @@ class Manipulation
 
         int move_duration;
         double blend_;
+
+        double left_left_thresh = 0.2;
+        double left_thresh = 0.1;
+        double right_thresh = -0.1;
+        double right_right_thresh = -0.2;
 
         Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_limit(10.5), collision_detected(false), collision_activated(false), initialized(false), gripper_speed_(1.0), gripper_force_(60.0), jnt_vel_(1), jnt_acc_(1), jnt_vel_multi(2), jnt_acc_multi(1.5), move_duration(5), blend_(0.02)
         {
@@ -340,47 +352,53 @@ class GetGraspAndMoveGrasp : public BT::SyncActionNode
 
     public:
         GetGraspAndMoveGrasp(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
-        ~GetGraspAndMoveGrasp() override = default;      
+        ~GetGraspAndMoveGrasp() override = default; 
+        std::vector<ConditionAction> conditionActions = {
+        { [&]() { return manipulation_.get_grasping_point().position.y >= left_left_thresh;},
+          [&]() {
+              (manipulation_.rtde)->joint_target(manipulation_.array_pick_left_left, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+              manipulation_.set_grasping_area("left_left");
+          }
+        },
+        { [&]() { return manipulation_.get_grasping_point().position.y < left_left_thresh && manipulation_.get_grasping_point().position.y >= left_thresh;},
+          [&]() {
+              (manipulation_.rtde)->joint_target(manipulation_.array_pick_left, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+              manipulation_.set_grasping_area("left");
+          }
+        },
+        { [&]() { return manipulation_.get_grasping_point().position.y < left_thresh && manipulation_.get_grasping_point().position.y >= right_thresh;},
+          [&]() {
+              (manipulation_.rtde)->joint_target(manipulation_.array_pick_mid, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+              manipulation_.set_grasping_area("mid");
+          }
+        },
+        { [&]() { return manipulation_.get_grasping_point().position.y < right_thresh && manipulation_.get_grasping_point().position.y >= right_right_thresh;},
+          [&]() {
+              (manipulation_.rtde)->joint_target(manipulation_.array_pick_right, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+              manipulation_.set_grasping_area("right");
+          }
+        },
+        { [&]() { return manipulation_.get_grasping_point().position.y < right_right_thresh;},
+          [&]() {
+              (manipulation_.rtde)->joint_target(manipulation_.array_pick_right_right, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+              manipulation_.set_grasping_area("right_right");
+          }
+        }
+         };     
         virtual BT::NodeStatus tick() override
         {
             ROS_INFO("get grasp and move grasp");
-            double left_left_thresh = 0.2;
-            double left_thresh = 0.1;
-            double right_thresh = -0.1;
-            double right_right_thresh = -0.2;
-            
-            if (manipulation_.get_grasping_point().position.y >= left_left_thresh)
-            {
-                (manipulation_.rtde)->joint_target(manipulation_.array_pick_left_left, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-                manipulation_.set_grasping_area("left_left");
-                return BT::NodeStatus::SUCCESS;
+
+            for (const auto& conditionAction : conditionActions) {
+            if (conditionAction.condition()) {
+            conditionAction.action();
+            return BT::NodeStatus::SUCCESS;
             }
-            else if (manipulation_.get_grasping_point().position.y < left_left_thresh && manipulation_.get_grasping_point().position.y >= left_thresh)
-            {
-                (manipulation_.rtde)->joint_target(manipulation_.array_pick_left, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-                manipulation_.set_grasping_area("left");
-                return BT::NodeStatus::SUCCESS;
             }
-            else if (manipulation_.get_grasping_point().position.y < left_thresh && manipulation_.get_grasping_point().position.y >= right_thresh)
-            {
-                (manipulation_.rtde)->joint_target(manipulation_.array_pick_mid, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-                manipulation_.set_grasping_area("mid");
-                return BT::NodeStatus::SUCCESS;
-            }
-            else if (manipulation_.get_grasping_point().position.y < right_thresh && manipulation_.get_grasping_point().position.y >= right_right_thresh)
-            {
-                (manipulation_.rtde)->joint_target(manipulation_.array_pick_right, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-                manipulation_.set_grasping_area("right");
-                return BT::NodeStatus::SUCCESS;
-            }
-            else if (manipulation_.get_grasping_point().position.y < right_right_thresh)
-            {
-                (manipulation_.rtde)->joint_target(manipulation_.array_pick_left, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-                manipulation_.set_grasping_area("right_right");
-                return BT::NodeStatus::SUCCESS;
-            }
-        
-            return BT::NodeStatus::FAILURE;  
+
+            // Handle the case when no matching action is found
+            std::cout << "No matching action found." << std::endl;
+            return BT::NodeStatus::FAILURE;
         }
 };
 
