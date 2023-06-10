@@ -57,7 +57,9 @@
                   <Action ID="ScanWorkSpace"/>
                 </RetryUntilSuccessful>
                 <Action ID="GetGraspAndMoveGrasp"/>
-                <Action ID="PickObject"/>
+                <RetryUntilSuccessful num_attempts="2">
+                    <Action ID="PickObject"/>
+                </RetryUntilSuccessful>
                 <Action ID="CheckObjectPicked"/>
                 <Action ID="MoveUp"/>
                 <Action ID="DropObjectInTray"/>
@@ -74,7 +76,9 @@
                   <Action ID="ScanWorkSpace"/>
                 </RetryUntilSuccessful>
                 <Action ID="GetGraspAndMoveGrasp"/>
-                <Action ID="PickObject"/>
+                <RetryUntilSuccessful num_attempts="2">
+                    <Action ID="PickObject"/>
+                </RetryUntilSuccessful>
                 <Action ID="CheckObjectPicked"/>
                 <Action ID="MoveUp"/>
                 <Action ID="DropObjectInTray"/>
