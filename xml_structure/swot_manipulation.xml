@@ -52,18 +52,7 @@
     <BehaviorTree ID="PickFromSH">
         
             <Sequence>
-                <Action ID="MoveToScan"/>
-                <RetryUntilSuccessful num_attempts="3">
-                  <Action ID="ScanWorkSpace"/>
-                </RetryUntilSuccessful>
-                <Action ID="GetGraspAndMoveGrasp"/>
-                <RetryUntilSuccessful num_attempts="2">
-                    <Action ID="PickObject"/>
-                </RetryUntilSuccessful>
-                <Action ID="CheckObjectPicked"/>
-                <Action ID="MoveUp"/>
-                <Action ID="DropObjectInTray"/>
-                <Action ID="MoveHomePos"/>
+                <AlwaysFailure/>
             </Sequence>
         
     </BehaviorTree>

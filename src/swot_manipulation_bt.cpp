@@ -443,13 +443,11 @@ class PickObject : public BT::SyncActionNode
             ROS_INFO("Force Mode activated");
             manipulation_.set_collision_activated(true);
             long int timer = 0;
-            ROS_INFO("test1");
             while ( (manipulation_.get_collision() == false) && (timer<100) )
             {
                 ros::Duration(0.1).sleep();
                 timer++;
             }
-            ROS_INFO("test2");
             manipulation_.set_collision_activated(false);
             manipulation_.set_collision(false);
             (manipulation_.rtde)->force_target(false, free_axis , wrench, 1.0);
@@ -573,9 +571,36 @@ class DropObjectInTray : public BT::SyncActionNode
             for (const auto& tray : trays) {
                 if (tray.trayObject.empty() && manipulation_.get_request().save == tray.savePosition) {
                     (manipulation_.rtde)->joint_target(tray.topPose, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-                    ros::Duration(1).sleep();
-                    (manipulation_.rtde)->joint_target(tray.loadPose, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-                    ros::Duration(1).sleep();
+                    ros::Duration(1).sleep();                    
+                    manipulation_.set_collision(false);
+                    array6d free_axis = {1,1,1,0,0,0};
+                    array6d wrench = {0,0,-20,0,0,0};
+                    (manipulation_.rtde)->force_target(true, free_axis, wrench, 1.0);
+                    ROS_INFO("Force Mode activated");
+
+                    ros::Duration(0.5).sleep();
+                    manipulation_.set_collision_activated(true);
+
+                    long int timer = 0;
+                    while ( (manipulation_.get_collision() == false) && (timer<100) )
+                    {
+                        ros::Duration(0.1).sleep();
+                        timer++;
+                    }
+                    
+                    (manipulation_.rtde)->force_target(false, free_axis , wrench, 1.0);
+                    ROS_INFO("Force Mode deactivated");
+                    manipulation_.set_collision_activated(false);
+                    manipulation_.set_collision(false);
+
+                    ros::Duration(0.1).sleep();
+
+                    geometry_msgs::TransformStampedConstPtr pcp_pose_;
+                    pcp_pose_ = ros::topic::waitForMessage<geometry_msgs::TransformStamped>("/tcp_pose", ros::Duration(2.0));
+                    array7d target = {pcp_pose_->transform.translation.x, pcp_pose_->transform.translation.y, pcp_pose_->transform.translation.z + 0.006, 
+                                 pcp_pose_->transform.rotation.x, pcp_pose_->transform.rotation.y, pcp_pose_->transform.rotation.z, 
+                                 pcp_pose_->transform.rotation.w};
+                    (manipulation_.rtde)->cart_target(1, target, manipulation_.jnt_vel_*0.2, manipulation_.jnt_acc_*0.2);
                     manipulation_.set_tray(tray.savePosition);
                     tray.trayObject = manipulation_.get_request().object;
                     break;
@@ -583,6 +608,7 @@ class DropObjectInTray : public BT::SyncActionNode
             }
             (manipulation_.rtde)->gripper_open(manipulation_.gripper_speed_, manipulation_.gripper_force_);
             manipulation_.set_last_pos("tray");
+            manipulation_.tray_top();
             return BT::NodeStatus::SUCCESS;
         }
 };
@@ -600,7 +626,6 @@ class MoveHomePos : public BT::SyncActionNode
             ROS_INFO("move home pos");
             if(manipulation_.get_last_pos() == "tray")
             {
-                manipulation_.tray_top();
                 (manipulation_.rtde)->joint_target(manipulation_.array_rotate2, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
                 (manipulation_.rtde)->joint_target(manipulation_.array_rotate1, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
                 (manipulation_.rtde)->joint_target(manipulation_.array_scan_mid, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
