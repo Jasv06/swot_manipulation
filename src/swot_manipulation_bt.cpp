@@ -396,14 +396,14 @@ class GetGraspAndMoveGrasp : public BT::SyncActionNode
         {
             ROS_INFO("get grasp and move grasp");
 
-            for (const auto& conditionAction : conditionActions) {
-            if (conditionAction.condition()) {
-            conditionAction.action();
-            return BT::NodeStatus::SUCCESS;
+            for (const auto& conditionAction : conditionActions) 
+            {
+                if (conditionAction.condition()) 
+                {
+                    conditionAction.action();
+                    return BT::NodeStatus::SUCCESS;
+                }
             }
-            }
-
-            // Handle the case when no matching action is found
             std::cout << "No matching action found." << std::endl;
             return BT::NodeStatus::FAILURE;
         }
@@ -511,21 +511,20 @@ class MoveUp : public BT::SyncActionNode
     public:
         MoveUp(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
         ~MoveUp() override = default;      
+        std::vector<std::pair<std::string, array6d>> areaTargets = {
+                {"left_left", manipulation_.array_pick_left_left},
+                {"left", manipulation_.array_pick_left},
+                {"mid", manipulation_.array_pick_mid},
+                {"right", manipulation_.array_pick_right},
+                {"right_right", manipulation_.array_pick_right_right}
+        };
         virtual BT::NodeStatus tick() override
         {
             ROS_INFO("move up ");           
             array7d target = {manipulation_.get_grasping_point().position.x, manipulation_.get_grasping_point().position.y, manipulation_.get_grasping_point().position.z + 0.07,
             manipulation_.get_grasping_point().orientation.x, manipulation_.get_grasping_point().orientation.y, manipulation_.get_grasping_point().orientation.z,
             manipulation_.get_grasping_point().orientation.w};
-            (manipulation_.rtde)->cart_target(1, target, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-            
-            std::vector<std::pair<std::string, array6d>> areaTargets = {
-                {"left_left", manipulation_.array_pick_left_left},
-                {"left", manipulation_.array_pick_left},
-                {"mid", manipulation_.array_pick_mid},
-                {"right", manipulation_.array_pick_right},
-                {"right_right", manipulation_.array_pick_right_right}
-            };           
+            (manipulation_.rtde)->cart_target(1, target, manipulation_.jnt_vel_, manipulation_.jnt_acc_);           
 
             std::string graspingArea = manipulation_.get_grasping_area();
             array6d defaultTarget = manipulation_.array_pick_mid;
@@ -561,7 +560,6 @@ class DropObjectInTray : public BT::SyncActionNode
             ROS_INFO("drop object in tray");
             (manipulation_.rtde)->joint_target(manipulation_.array_rotate1, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
             (manipulation_.rtde)->joint_target(manipulation_.array_rotate2, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-            (manipulation_.rtde)->joint_target(manipulation_.array_rotate3, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
 
             for (const auto& tray : trays) {
                 if (tray.trayObject.empty() && manipulation_.get_request().save == tray.savePosition) {
@@ -604,7 +602,6 @@ class MoveHomePos : public BT::SyncActionNode
                 {
                     (manipulation_.rtde)->joint_target(manipulation_.array_tray3_top, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
                 }
-                (manipulation_.rtde)->joint_target(manipulation_.array_rotate3, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
                 (manipulation_.rtde)->joint_target(manipulation_.array_rotate2, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
                 (manipulation_.rtde)->joint_target(manipulation_.array_rotate1, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
                 (manipulation_.rtde)->joint_target(manipulation_.array_scan_mid, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
