@@ -348,6 +348,10 @@ class ScanWorkSpace : public BT::SyncActionNode
                 }
                 if (srv_match.response.posture == "STANDING" || srv_match.response.posture == "FAILED")
                 {
+                    if(i == 2)
+                    {
+                        return BT::NodeStatus::FAILURE;
+                    }
                     continue;
                 }
                 if(srv_match.response.status == "FINISHED")
