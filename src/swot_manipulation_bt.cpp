@@ -21,7 +21,6 @@ typedef boost::array<double, 6> array6d;
 typedef boost::array<long int, 6> array6i;
 typedef boost::array<double, 7> array7d;
 std::vector<std::string> objects_in_trays{"","",""};
-std::vector<std::string> possible_last_positions;
 
 class Manipulation;
 void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation);
@@ -88,9 +87,6 @@ class Manipulation
                 service_client_matching = nh_.serviceClient<swot_msgs::SwotObjectMatching2023>("ObjectMatchingServer");
                 service_client_free = nh_.serviceClient<swot_msgs::SwotFreeSpot>("FreeSpotServer");
                 sub_wrench = nh_.subscribe("wrench", 1000, &Manipulation::callback_wrench, this);
-                
-                rtde->gripper_open(gripper_speed_, gripper_force_);
-
                 ROS_INFO("ROS service started"); 
                 initialized = true;
             }
@@ -105,7 +101,7 @@ class Manipulation
             std::cout << get_request().object << std::endl;
             std::cout << get_request().save << std::endl;
             std::cout << get_request().task << std::endl;
-            
+            rtde->gripper_open(gripper_speed_, gripper_force_);
             BT::BehaviorTreeFactory factory;
             registerNodes(factory, *this);            
             nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation_bt/bt_xml_structure/swot_manipulation_backup_with_decorator.xml");
@@ -308,10 +304,6 @@ class NotWS : public BT::ConditionNode
         }
 };
 
-/*************************************************** Todo lo de arriba esta perfecto y ahora hay que revisar todo lo de abajo que el proceso quede perfecto ***************************************************************/
-
-// classes for picking 
-
 class MoveToScan : public BT::SyncActionNode
 {
     private:
@@ -356,7 +348,7 @@ class ScanWorkSpace : public BT::SyncActionNode
                 }
                 if (srv_match.response.posture == "STANDING" || srv_match.response.posture == "FAILED")
                 {
-                    return BT::NodeStatus::FAILURE;
+                    continue;
                 }
                 if(srv_match.response.status == "FINISHED")
                 {
@@ -581,6 +573,7 @@ class DropObjectInTray : public BT::SyncActionNode
             for (const auto& tray : trays) {
                 if (tray.trayObject.empty() && manipulation_.get_request().save == tray.savePosition) {
                     (manipulation_.rtde)->joint_target(tray.topPose, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+                    ros::Duration(1).sleep();
                     (manipulation_.rtde)->joint_target(tray.loadPose, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
                     ros::Duration(1).sleep();
                     manipulation_.set_tray(tray.savePosition);
@@ -654,6 +647,7 @@ class MoveToDropPos : public BT::SyncActionNode
             (manipulation_.rtde)->joint_target(manipulation_.array_rotate2, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
             (manipulation_.rtde)->joint_target(manipulation_.array_rotate1, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
             (manipulation_.rtde)->joint_target(manipulation_.array_scan_mid, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+            manipulation_.set_last_pos("mid");
             return BT::NodeStatus::SUCCESS;
         }
 };
