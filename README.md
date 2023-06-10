@@ -34,7 +34,7 @@ catkin_make
 source ~/catkin_ws/devel/setup.bash
 ```
 ## Running the behavior trees
-If you didn't add `source $YOUR_WORKSPACE/devel/setup.bash` and `source /opt/ros/noetic/setup.bash` to your `.bashrc`, remember to source it when you open a new terminal. Also, in the following example catkin_ws is the name of our workspace, but this could change depending on the name you gave to your workspace. Note that for the following example it is assumed that you have the correct set up to operate the robot and have already downloaded the package from the swot gitlba containing everything needed.
+If you didn't add `source $YOUR_WORKSPACE/devel/setup.bash` and `source /opt/ros/noetic/setup.bash` to your `.bashrc`, remember to source it when you open a new terminal. Also, in the following example catkin_ws is the name of our workspace, but this could change depending on the name you gave to your workspace. Note that for the following example it is assumed that you have the correct set up to operate the robot and have already downloaded the package from the swot gitlab containing everything needed.
 
 ### Example for picking
 #### 1. Start the ROS master
