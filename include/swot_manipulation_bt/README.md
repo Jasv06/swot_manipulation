@@ -5,4 +5,4 @@ Inside this folder you will find 3 different header files that provide the decla
 - The **Pick.h** file which provides the definition of the classes which allow the robot to scan a workspace, pick an object from any workspace, and store an object in one of the storage spaces available.
 - The **Place.h** file which provides the definition of the classes which allow the robot to pick an object from the storage compartments, scan for free spaces to place the object required and place it in an available spot.
 - The **Poses.h** file which provides the definition of the classes which allow the robot to either move to drive position or home position.
-- The **main_manipulation.h** file which provides the definition of the main class which is in charge of starting and doing the callback of the behavior tree everytime the service is called.
+- The **Manipulation.h** file which provides the definition of the main class which is in charge of starting and doing the callback of the behavior tree everytime the service is called.
