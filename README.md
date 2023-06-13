@@ -19,7 +19,6 @@ For guidance on installation, development, environmental setup, and troubleshoot
 
 ## Current features
 - The [behavior tree](/src/swot_manipulation_bt) which replicates the old manipulation workflow. It is important to note that instead of the multiple go-to statements the old script had, this script allows the user to addapt the code in very easy manner through the usage of classes.
-- The [behavior tree enhanced](/src/swot_manipulation_bt_enhanced) which contains additional capabilities through decorator nodes which expand the behavior tree framework through my own criteria.
 
 ## Installation of this package
 **1.** Go to the source folder of your catkin workspace.
