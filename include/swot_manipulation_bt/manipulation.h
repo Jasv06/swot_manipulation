@@ -1,5 +1,5 @@
-#ifndef MAIN_MANIPULATION_H
-#define MAIN_MANIPULATION_H
+#ifndef MANIPULATION_H
+#define MANIPULATION_H
 
 #include "ros/ros.h"
 #include <ros/package.h>
@@ -15,9 +15,7 @@
 #include <geometry_msgs/TransformStamped.h>
 
 typedef boost::array<double, 6> array6d;
-typedef boost::array<long int, 6> array6i;
 typedef boost::array<double, 7> array7d;
-std::vector<std::string> objects_in_trays{"","",""};
 
 struct ConditionAction {
     std::function<bool()> condition;
@@ -47,35 +45,29 @@ class Manipulation
         geometry_msgs::Pose grasping_point;
         bool initialized;
         std::string tray;
-
-    public:
-        std::array<array6d, 3> scan_pose;
+        std::vector<std::string> objects_in_trays;
         std::unique_ptr<URRTDE> rtde;
         ros::ServiceServer service_server;
         ros::ServiceClient service_client_matching;
         ros::ServiceClient service_client_free;
         swot_msgs::SwotManipulation::Request req_;
         swot_msgs::SwotManipulation::Response res_;
-
         double gripper_speed_;
         double gripper_force_;
-
         double jnt_vel_;
-        double jnt_vel_multi;
         double jnt_acc_;
-        double jnt_acc_multi;
-
         int move_duration;
-        double blend_;
-
         double left_left_thresh;
         double left_thresh;
         double right_thresh;
         double right_right_thresh;
+        array6d positions_6d;
+        array7d positions_7d;
 
+    public:
         Manipulation();
   
-        bool virtual callback_service_manipulation(swot_msgs::SwotManipulation::Request &req, swot_msgs::SwotManipulation::Response &res);
+        bool callback_service_manipulation(swot_msgs::SwotManipulation::Request &req, swot_msgs::SwotManipulation::Response &res);
     
         void callback_wrench(const geometry_msgs::WrenchStamped &msg);
         void set_last_pos(std::string last_pos);
@@ -99,33 +91,9 @@ class Manipulation
         swot_msgs::SwotManipulation::Response get_response() const;
         ros::NodeHandle get_nh();
  
-        array6d array_scan_mid;
-        array6d array_scan_left;
-        array6d array_scan_left_yolo;
-        array6d array_scan_right_yolo;
-        array6d array_scan_left_pc;
-        array6d array_scan_right_pc;
-        array6d array_scan_right;
-        array6d array_pick_mid;
-        array6d array_pick_left_left;
-        array6d array_pick_left;
-        array6d array_pick_right;
-        array6d array_pick_right_right;
-        array6d array_rotate1;
-        array6d array_rotate2;
-        array6d array_rotate3;
-        array6d array_tray1_top;
-        array6d array_tray2_top;
-        array6d array_tray3_top;
-        array6d array_tray1_load;
-        array6d array_tray2_load;
-        array6d array_tray3_load;
-        array6d array_drive;
-        array6d free_backup_1;
-        array6d free_backup_2;
-        array6d free_SH_1;
-
         void tray_top();
+        void instantiation_6d(array6d ar) {};
+        void instantiation_7d(array7d ar) {};
 };
 
 void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation);
