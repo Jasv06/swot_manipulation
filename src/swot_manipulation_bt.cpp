@@ -40,7 +40,6 @@ struct Tray {
 class Manipulation
 {    
     private:
-
         std::string xml_file;
         std::string last_pos;    
         std::string grasping_area; 
@@ -54,7 +53,6 @@ class Manipulation
         std::string tray;
 
     public:
-        std::array<array6d, 3> scan_pose = {array_scan_left_yolo, array_scan_right_yolo, array_scan_mid};
         std::unique_ptr<URRTDE> rtde;
         ros::ServiceServer service_server;
         ros::ServiceClient service_client_matching;
@@ -103,8 +101,8 @@ class Manipulation
             std::cout << get_request().task << std::endl;
             rtde->gripper_open(gripper_speed_, gripper_force_);
             BT::BehaviorTreeFactory factory;
-            registerNodes(factory, *this);            
-            nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation_bt/bt_xml_structure/swot_manipulation_backup_with_decorator.xml");
+            registerNodes(factory, *this);   
+            nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation_bt/xml_structure/swot_manipulation.xml");
             auto tree = factory.createTreeFromFile(xml_file);
             tree.tickRoot();
             return true;
@@ -160,18 +158,26 @@ class Manipulation
         array6d array_pick_left = {3.0599627494812, -1.64873184780263, 2.17455464998354, -2.03081049541616, -1.54161435762514, -3.26244932809939};
         array6d array_pick_right = {2.05809712409973, -1.44568693757568, 2.1275957266437, -2.25774492839956, -1.57374316850771, -4.27933890024294};
         array6d array_pick_right_right = {1.8982390165329, -1.10214848936115, 1.67234355608095, -2.18172802547597, -1.57016212144961, -4.43200451532473};
+        // array6d array_rotate1 = {1.9052757024765, -1.89901651958608, 1.09600907961001, -0.758251087074616, -1.53577167192568, -3.33946806589235};
+        // array6d array_rotate2 = {0.541659414768219, -1.91053261379384, 0.480665985737936, -0.152518586521484, -1.56296903291811, -3.30666667619814};
+
         array6d array_rotate1 = {2.3692173957824707, -2.3164030514159144, 1.3390710989581507, -0.9904833000949402, -2.1601603666888636, -2.726298157368795};
         array6d array_rotate2 = {0.9031553864479065, -2.4277192554869593, 1.0507047812091272, -0.964714304809906, -1.9267485777484339, -2.7257021109210413};
+        
+
         array6d array_rotate3 = {-0.290535275136129, -1.32841757059608, 0.46738320985903, -0.702364699249603, -1.57764035860171, -3.45398217836489};
         array6d array_tray1_top = {0.064236424863339, -1.42052191615615, 0.902454201375143, -1.04965449989352, -1.59723025957216, -3.07310563722719};
-        array6d array_tray2_top = {-0.255208794270651, -1.54578061894093, 1.05577546754946, -1.06061519802127, -1.55526000658144, -3.37846404710879};
+        array6d array_tray2_top = {-0.255208794270651, -1.54578061894093, 1.05577546754946, -1.06061519802127, -1.55526000658144, -3.37846404710879}
+        ;
         array6d array_tray3_top = {-0.53069526353945, -1.57270397762441, 1.04742652574648, -1.04646314800296, -1.56945592561831, -3.61158138910402};
         array6d array_tray1_load = {0.064320102334023, -1.53433151290331, 1.48070460954775, -1.51407157376919, -1.59717017809023, -3.07259160677065};
         array6d array_tray2_load = {-0.255173508320944, -1.6467939815917, 1.58283216158022, -1.48665781438861, -1.55522424379458, -3.37798530260195};
         array6d array_tray3_load = {-0.530647579823629, -1.6887427769103, 1.65178472200503, -1.53478486955676, -1.56944162050356, -3.6110408941852};
         array6d array_drive = {3.18401956558228, -2.55628885845327, 1.20438319841494, -0.691585080032684, -1.76227599779238, -3.09013063112368};
+
         array6d free_backup_1 = {3.5078, -1.3333, 1.7648, -2.033566, -1.58985, -4.33499};
         array6d free_backup_2 = {2.1859, -1.2849, 2.01598, -2.326377, -1.567803, -2.50999};
+        // array6d free_SH_1 = {2.93318772315979, -1.332781882291176, 1.1443141142474573, -1.8863269291319789, -1.5656278769122522, -3.3666675726519983};
         array6d free_SH_1 = {3.1510367393493652, -1.4416437161019822, 1.5042608420001429, -2.213513513604635, -1.6092117468463343, -3.0877655188189905};
 
         void tray_top()
@@ -325,40 +331,34 @@ class ScanWorkSpace : public BT::SyncActionNode
 {
     private:
         Manipulation& manipulation_;
+        int count;
 
     public:
-        ScanWorkSpace(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
+        ScanWorkSpace(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation), count(0) {}
         ~ScanWorkSpace() override = default;      
         virtual BT::NodeStatus tick() override
         {
             swot_msgs::SwotObjectMatching2023 srv_match;
             srv_match.request.object = manipulation_.get_request().object;
             ROS_INFO("scan workspace");
-            for(auto i = 0; i < 3; i++)
+            
+            (manipulation_.rtde)->joint_target(manipulation_.array_scan_left_yolo, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+            if(ros::service::waitForService("ObjectMatchingServer", ros::Duration(3.0)) == false)
             {
-                (manipulation_.rtde)->joint_target(manipulation_.scan_pose[i], manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-                if(ros::service::waitForService("ObjectMatchingServer", ros::Duration(3.0)) == false)
-                {
-                    return BT::NodeStatus::FAILURE;   
-                }
-                if(!(manipulation_.service_client_matching).call(srv_match))
-                {
-                    ROS_WARN("Couldn't find ROS Service \"SwotObjectMatching\"");
-                    return BT::NodeStatus::FAILURE;
-                }
-                if (srv_match.response.posture == "STANDING" || srv_match.response.posture == "FAILED")
-                {
-                    if(i == 2)
-                    {
-                        return BT::NodeStatus::FAILURE;
-                    }
-                    continue;
-                }
-                if(srv_match.response.status == "FINISHED")
-                {
-                    break;
-                }
+                return BT::NodeStatus::FAILURE;   
             }
+            ros::Duration(1).sleep();
+            if(!(manipulation_.service_client_matching).call(srv_match))
+            {
+                ROS_WARN("Couldn't find ROS Service \"SwotObjectMatching\"");
+                return BT::NodeStatus::FAILURE;
+            }
+            ros::Duration(1).sleep();
+            if (srv_match.response.posture == "STANDING" || srv_match.response.posture == "FAILED")
+            {
+                    return BT::NodeStatus::FAILURE;
+            }
+            
             manipulation_.set_grasping_point(srv_match.response.pose);
             return BT::NodeStatus::SUCCESS;
         }
@@ -478,7 +478,7 @@ class PickObject : public BT::SyncActionNode
             return BT::NodeStatus::SUCCESS;
         }
 };
-
+/*
 class CheckObjectPicked : public BT::StatefulActionNode
 {
     private:
@@ -513,7 +513,7 @@ class CheckObjectPicked : public BT::StatefulActionNode
             return;
         }
 };
-
+*/
 class MoveUp : public BT::SyncActionNode
 {
     private:
@@ -864,8 +864,8 @@ void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation)
         BT::NodeBuilder builder_8 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<CheckObjRequired>(name,  std::ref(manipulation));};
         factory.registerBuilder<CheckObjRequired>("CheckObjRequired", builder_8);
 
-        BT::NodeBuilder builder_9 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<CheckObjectPicked>(name, std::ref(manipulation));};
-        factory.registerBuilder<CheckObjectPicked>("CheckObjectPicked", builder_9);
+        //BT::NodeBuilder builder_9 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<CheckObjectPicked>(name, std::ref(manipulation));};
+        //factory.registerBuilder<CheckObjectPicked>("CheckObjectPicked", builder_9);
 
         BT::NodeBuilder builder_10 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<CheckWSFree>(name, std::ref(manipulation));};
         factory.registerBuilder<CheckWSFree>("CheckWSFree", builder_10);

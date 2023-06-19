@@ -68,7 +68,6 @@
                 <RetryUntilSuccessful num_attempts="2">
                     <Action ID="PickObject"/>
                 </RetryUntilSuccessful>
-                <Action ID="CheckObjectPicked"/>
                 <Action ID="MoveUp"/>
                 <Action ID="DropObjectInTray"/>
                 <Action ID="MoveHomePos"/>
@@ -112,7 +111,6 @@
     
     <TreeNodesModel>
         <Action ID="CheckObjRequired"/>
-        <Action ID="CheckObjectPicked"/>
         <Action ID="CheckWSFree"/>
         <Action ID="DropObjectInTray"/>
         <Action ID="GetGraspAndMoveGrasp"/>
