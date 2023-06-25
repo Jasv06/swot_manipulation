@@ -92,8 +92,6 @@ class Manipulation
         ros::NodeHandle get_nh();
  
         void tray_top();
-        void instantiation_6d(array6d ar) {};
-        void instantiation_7d(array7d ar) {};
 };
 
 void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation);
