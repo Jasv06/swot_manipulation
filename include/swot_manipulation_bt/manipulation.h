@@ -17,18 +17,8 @@
 typedef boost::array<double, 6> array6d;
 typedef boost::array<double, 7> array7d;
 
-struct ConditionAction {
-    std::function<bool()> condition;
-    std::function<void()> action;
-};
-
-struct Tray {
-    array6d topPose;
-    array6d loadPose;
-    std::string savePosition;
-    std::string& trayObject;
-};
-
+struct ConditionAction;
+struct Tray;
 
 class Manipulation
 {    
