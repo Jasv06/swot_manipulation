@@ -15,7 +15,7 @@ In case it is desired to migrate from ROS Melodic to ROS noetic or any ROS 2 dis
 You should have the swot package which can be downloaded from the [gitlab](https://gitlab.vlab.fm.fhws.de/swot/swot_platform/-/tree/main/), the [behavior tree package](https://github.com/BehaviorTree/BehaviorTree.CPP/tree/v3.8), and [c++ 17 or a newer version](https://en.cppreference.com/w/cpp/17) installed on your device. 
 
 ## Alternative version
-In case it is desired to use [Ubuntu 20.04](https://releases.ubuntu.com/20.04/) and [ROS Noetic](http://wiki.ros.org/melodic/Installation) the version of this fsoftware which works with this can be found in the branch [bt_v4](https://github.com/Jasv06/swot_manipulation_bt/tree/bt_v4).
+In case it is desired to use [Ubuntu 20.04](https://releases.ubuntu.com/20.04/) and [ROS Noetic](http://wiki.ros.org/melodic/Installation) the version of this software which supports this two newer versions can be found in the branch [bt_v4](https://github.com/Jasv06/swot_manipulation_bt/tree/bt_v4). Note that this branch uses the behavior tree version number 4 so it is important to download the branch v4 instead of the v3.8 version.
 
 ## Documentation and Enviornment setup
 For guidance on installation, development, environmental setup, and troubleshooting, see the section "[Implementation](https://www.overleaf.com/read/ffcfzsjkwfws)" in Joel's bachelor thesis. This documentation includes a description of the sensors and the robot arm which were used to develop and test the behavior trees. A brief description of every node can found inside the respective folders. In case you desired to read a more detail explanation of every node please refer to the sub-section "Implemenation concept".
