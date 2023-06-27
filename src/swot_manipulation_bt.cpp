@@ -18,7 +18,6 @@
 #include <geometry_msgs/TransformStamped.h>
 
 typedef boost::array<double, 6> array6d;
-typedef boost::array<long int, 6> array6i;
 typedef boost::array<double, 7> array7d;
 std::vector<std::string> objects_in_trays{"","",""};
 
@@ -49,7 +48,6 @@ class Manipulation
         ros::NodeHandle nh_;
         ros::Subscriber sub_wrench;
         geometry_msgs::Pose grasping_point;
-        bool initialized;
         std::string tray;
 
     public:
@@ -64,9 +62,7 @@ class Manipulation
         double gripper_force_;
 
         double jnt_vel_;
-        double jnt_vel_multi;
         double jnt_acc_;
-        double jnt_acc_multi;
 
         int move_duration;
         double blend_;
@@ -76,20 +72,21 @@ class Manipulation
         double right_thresh = -0.1;
         double right_right_thresh = -0.2;
 
-        Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_limit(10.5), collision_detected(false), collision_activated(false), initialized(false), gripper_speed_(1.0), gripper_force_(60.0), jnt_vel_(1), jnt_acc_(1), jnt_vel_multi(2), jnt_acc_multi(1.5), move_duration(5), blend_(0.02)
+        Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_limit(10.5), collision_detected(false), collision_activated(false), gripper_speed_(1.0), gripper_force_(60.0), jnt_vel_(1), jnt_acc_(1), move_duration(5), blend_(0.02)
         {
-            if(!this->initialized)
-            {
-                rtde = std::make_unique<URRTDE>(nh_);
-                service_server = nh_.advertiseService("SwotManipulationBT", &Manipulation::callback_service_manipulation, this);
-                service_client_matching = nh_.serviceClient<swot_msgs::SwotObjectMatching2023>("ObjectMatchingServer");
-                service_client_free = nh_.serviceClient<swot_msgs::SwotFreeSpot>("FreeSpotServer");
-                sub_wrench = nh_.subscribe("wrench", 1000, &Manipulation::callback_wrench, this);
-                ROS_INFO("ROS service started"); 
-                initialized = true;
-            }
+
         }
-  
+        
+        void initialize()
+        {
+            rtde = std::make_unique<URRTDE>(nh_);
+            service_server = nh_.advertiseService("SwotManipulationBT", &Manipulation::callback_service_manipulation, this);
+            service_client_matching = nh_.serviceClient<swot_msgs::SwotObjectMatching2023>("ObjectMatchingServer");
+            service_client_free = nh_.serviceClient<swot_msgs::SwotFreeSpot>("FreeSpotServer");
+            sub_wrench = nh_.subscribe("wrench", 1000, &Manipulation::callback_wrench, this);
+            ROS_INFO("ROS service started"); 
+        }
+
         bool virtual callback_service_manipulation(swot_msgs::SwotManipulation::Request &req, swot_msgs::SwotManipulation::Response &res)
         {              
             this->req_ = req;
@@ -160,21 +157,16 @@ class Manipulation
         array6d array_pick_right_right = {1.8982390165329, -1.10214848936115, 1.67234355608095, -2.18172802547597, -1.57016212144961, -4.43200451532473};
         // array6d array_rotate1 = {1.9052757024765, -1.89901651958608, 1.09600907961001, -0.758251087074616, -1.53577167192568, -3.33946806589235};
         // array6d array_rotate2 = {0.541659414768219, -1.91053261379384, 0.480665985737936, -0.152518586521484, -1.56296903291811, -3.30666667619814};
-
         array6d array_rotate1 = {2.3692173957824707, -2.3164030514159144, 1.3390710989581507, -0.9904833000949402, -2.1601603666888636, -2.726298157368795};
         array6d array_rotate2 = {0.9031553864479065, -2.4277192554869593, 1.0507047812091272, -0.964714304809906, -1.9267485777484339, -2.7257021109210413};
-        
-
         array6d array_rotate3 = {-0.290535275136129, -1.32841757059608, 0.46738320985903, -0.702364699249603, -1.57764035860171, -3.45398217836489};
         array6d array_tray1_top = {0.064236424863339, -1.42052191615615, 0.902454201375143, -1.04965449989352, -1.59723025957216, -3.07310563722719};
-        array6d array_tray2_top = {-0.255208794270651, -1.54578061894093, 1.05577546754946, -1.06061519802127, -1.55526000658144, -3.37846404710879}
-        ;
+        array6d array_tray2_top = {-0.255208794270651, -1.54578061894093, 1.05577546754946, -1.06061519802127, -1.55526000658144, -3.37846404710879};
         array6d array_tray3_top = {-0.53069526353945, -1.57270397762441, 1.04742652574648, -1.04646314800296, -1.56945592561831, -3.61158138910402};
         array6d array_tray1_load = {0.064320102334023, -1.53433151290331, 1.48070460954775, -1.51407157376919, -1.59717017809023, -3.07259160677065};
         array6d array_tray2_load = {-0.255173508320944, -1.6467939815917, 1.58283216158022, -1.48665781438861, -1.55522424379458, -3.37798530260195};
         array6d array_tray3_load = {-0.530647579823629, -1.6887427769103, 1.65178472200503, -1.53478486955676, -1.56944162050356, -3.6110408941852};
         array6d array_drive = {3.18401956558228, -2.55628885845327, 1.20438319841494, -0.691585080032684, -1.76227599779238, -3.09013063112368};
-
         array6d free_backup_1 = {3.5078, -1.3333, 1.7648, -2.033566, -1.58985, -4.33499};
         array6d free_backup_2 = {2.1859, -1.2849, 2.01598, -2.326377, -1.567803, -2.50999};
         // array6d free_SH_1 = {2.93318772315979, -1.332781882291176, 1.1443141142474573, -1.8863269291319789, -1.5656278769122522, -3.3666675726519983};
@@ -341,24 +333,37 @@ class ScanWorkSpace : public BT::SyncActionNode
             swot_msgs::SwotObjectMatching2023 srv_match;
             srv_match.request.object = manipulation_.get_request().object;
             ROS_INFO("scan workspace");
-            
-            (manipulation_.rtde)->joint_target(manipulation_.array_scan_left_yolo, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+            if(count == 0)
+            {
+                (manipulation_.rtde)->joint_target(manipulation_.array_scan_left_yolo, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+            }
+            else if(count == 1)
+            {
+                (manipulation_.rtde)->joint_target(manipulation_.array_scan_right_yolo, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+            }
+            else
+            {
+                (manipulation_.rtde)->joint_target(manipulation_.array_scan_mid, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+            }
+
             if(ros::service::waitForService("ObjectMatchingServer", ros::Duration(3.0)) == false)
             {
+                count++;
                 return BT::NodeStatus::FAILURE;   
             }
             ros::Duration(1).sleep();
             if(!(manipulation_.service_client_matching).call(srv_match))
             {
+                count++;
                 ROS_WARN("Couldn't find ROS Service \"SwotObjectMatching\"");
                 return BT::NodeStatus::FAILURE;
             }
             ros::Duration(1).sleep();
             if (srv_match.response.posture == "STANDING" || srv_match.response.posture == "FAILED")
             {
-                    return BT::NodeStatus::FAILURE;
+                count++;
+                return BT::NodeStatus::FAILURE;
             }
-            
             manipulation_.set_grasping_point(srv_match.response.pose);
             return BT::NodeStatus::SUCCESS;
         }
@@ -403,7 +408,7 @@ class GetGraspAndMoveGrasp : public BT::SyncActionNode
               manipulation_.set_grasping_area("right_right");
           }
         }
-         };     
+        };     
         virtual BT::NodeStatus tick() override
         {
             ROS_INFO("get grasp and move grasp");
@@ -781,12 +786,15 @@ class CheckWSFree : public BT::SyncActionNode
             {
                 std::cout << "FreeSpotServer" << std::endl;
                 (manipulation_.rtde)->joint_target(manipulation_.array_scan_left, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+                ros::Duration(2).sleep();
                     if (!(manipulation_.service_client_free).call(srv_free))
                     {
                         (manipulation_.rtde)->joint_target(manipulation_.array_scan_right, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+                        ros::Duration(2).sleep();
                         if (!(manipulation_.service_client_free).call(srv_free))
                         {
                             (manipulation_.rtde)->joint_target(manipulation_.array_scan_mid, manipulation_.jnt_vel_, manipulation_.jnt_acc_);                   
+                            ros::Duration(2).sleep();
                             if(!(manipulation_.service_client_free).call(srv_free))
                             {
                                 return BT::NodeStatus::FAILURE;
@@ -907,10 +915,9 @@ void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation)
 
 int main(int argc, char **argv)
 {
-
     ros::init(argc, argv, "swot_manipulation_bt_joel");
-
     Manipulation manipulation;
+    manipulation.initialize();
     ros::MultiThreadedSpinner spinner(4);
     spinner.spin();
     
