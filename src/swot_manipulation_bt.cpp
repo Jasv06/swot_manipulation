@@ -63,19 +63,14 @@ class Manipulation
 
         double jnt_vel_;
         double jnt_acc_;
-
         int move_duration;
-        double blend_;
 
         double left_left_thresh = 0.2;
         double left_thresh = 0.1;
         double right_thresh = -0.1;
         double right_right_thresh = -0.2;
 
-        Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_limit(10.5), collision_detected(false), collision_activated(false), gripper_speed_(1.0), gripper_force_(60.0), jnt_vel_(1), jnt_acc_(1), move_duration(5), blend_(0.02)
-        {
-
-        }
+        Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_limit(10.5), collision_detected(false), collision_activated(false), gripper_speed_(1.0), gripper_force_(60.0), jnt_vel_(1), jnt_acc_(1), move_duration(5) {}
         
         void initialize()
         {
