@@ -51,39 +51,29 @@ class Manipulation
         double left_thresh;
         double right_thresh;
         double right_right_thresh;
-        array6d positions_6d;
-        array7d positions_7d;
+        std::vector<std::string> objects_in_trays;
 
     public:
         Manipulation();
-  
         bool callback_service_manipulation(swot_msgs::SwotManipulation::Request &req, swot_msgs::SwotManipulation::Response &res);
-    
         void callback_wrench(const geometry_msgs::WrenchStamped &msg);
         void set_last_pos(std::string last_pos);
         std::string get_last_pos() const;
         void set_grasping_area(std::string grasping_area);
         std::string get_grasping_area() const;
-
         void set_collision(bool collision);
         bool get_collision() const;
-
         void set_collision_activated(bool collision);
         bool get_collision_activated() const;
-        
         void set_tray(std::string tray);
         std::string get_tray() const;
-    
         void set_grasping_point(geometry_msgs::Pose grasping);
         geometry_msgs::Pose get_grasping_point() const;
-    
         swot_msgs::SwotManipulation::Request get_request() const;
         swot_msgs::SwotManipulation::Response get_response() const;
         ros::NodeHandle get_nh();
- 
         void tray_top();
+        void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation);
 };
-
-void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation);
 
 #endif
