@@ -20,6 +20,12 @@ typedef boost::array<double, 7> array7d;
 struct ConditionAction;
 struct Tray;
 
+/**
+*       @class Manipulation
+*       @brief Main class to handle the RoboCup manipulation tasks
+*       @details 
+*/
+
 class Manipulation
 {    
     private:
