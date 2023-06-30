@@ -38,7 +38,6 @@ class Manipulation
         ros::NodeHandle nh_;
         ros::Subscriber sub_wrench;
         geometry_msgs::Pose grasping_point;
-        bool initialized;
         std::string tray;
         std::vector<std::string> objects_in_trays;
         std::unique_ptr<URRTDE> rtde;
@@ -51,17 +50,19 @@ class Manipulation
         double gripper_force_;
         double jnt_vel_;
         double jnt_acc_;
-        int move_duration;
         double left_left_thresh;
         double left_thresh;
         double right_thresh;
         double right_right_thresh;
-        std::vector<std::string> objects_in_trays;
+        array6d target_position;
 
     public:
         Manipulation();
+        void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation);
         bool callback_service_manipulation(swot_msgs::SwotManipulation::Request &req, swot_msgs::SwotManipulation::Response &res);
         void callback_wrench(const geometry_msgs::WrenchStamped &msg);
+        void setTargetPosition(std::string target);
+        void sendTargetPosition();
         void set_last_pos(std::string last_pos);
         std::string get_last_pos() const;
         void set_grasping_area(std::string grasping_area);
@@ -78,7 +79,6 @@ class Manipulation
         swot_msgs::SwotManipulation::Response get_response() const;
         ros::NodeHandle get_nh();
         void tray_top();
-        void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation);
 };
 
 #endif
