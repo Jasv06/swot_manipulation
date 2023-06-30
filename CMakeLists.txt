@@ -50,6 +50,6 @@ include_directories(
 link_directories($ENV{HOME}/catkin_ws/devel/lib)
 
 ##declaration of executable files 
-add_executable(swot_manipulation_bt src/swot_manipulation_bt.cpp)
+add_executable(swot_manipulation_bt src/main.cpp)
 add_dependencies(swot_manipulation_bt ${${PROJECT_NAME}_EXPORTED_TARGETS}  ${catkin_EXPORTED_TARGETS})
 target_link_libraries(swot_manipulation_bt ${catkin_LIBRARIES} behaviortree_cpp_v3 robotiq_2f_gripper ur_pass_through ur_rtde)

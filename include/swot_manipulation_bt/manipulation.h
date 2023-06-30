@@ -23,7 +23,6 @@ struct Tray;
 class Manipulation
 {    
     private:
-
         std::string xml_file;
         std::string last_pos;    
         std::string grasping_area; 
