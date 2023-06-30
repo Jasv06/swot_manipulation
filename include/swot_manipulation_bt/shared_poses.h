@@ -2,5 +2,4 @@
 #define SHARED_POSES_H
 
 
-
 #endif
