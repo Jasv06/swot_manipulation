@@ -69,6 +69,14 @@ class NotPlace : public BT::ConditionNode
         virtual BT::NodeStatus tick() override;
 };
 
+/**
+ *      @class NotPP
+ *      @brief Condition node for checking if precision placement is not required.
+ *      @details This class is a condition node derived from the ConditionNode base class. It checks
+ *          if the precision placement task is not required in the current context. It performs a 
+ *          conditional task within the manipulation system by accessing the Manipulation instance.
+ */
+
 class NotPP : public BT::ConditionNode
 {
     private:
@@ -79,6 +87,14 @@ class NotPP : public BT::ConditionNode
         ~NotPP() override;
         virtual BT::NodeStatus tick() override;
 };
+
+/**
+ *      @class NotSH
+ *      @brief Condition node for checking if shelf placement is not needed.
+ *      @details This class is a condition node derived from the ConditionNode base class. It verifies
+ *          if shelf placement is not needed in the current context. It performs a conditional task within
+ *          the manipulation system by accessing the Manipulation instance.
+ */
 
 class NotSH : public BT::ConditionNode
 {
@@ -91,6 +107,14 @@ class NotSH : public BT::ConditionNode
         virtual BT::NodeStatus tick() override;
 };
 
+/**
+ *      @class NotTT
+ *      @brief Condition node for checking if rotation table placement is not required.
+ *      @details This class is a condition node derived from the ConditionNode base class. It examines
+ *          if rotating table placement is not required in the current context. It performs a conditional task within the
+ *          manipulation system by accessing the Manipulation instance.
+ */
+
 class NotTT : public BT::ConditionNode
 {
     private:
@@ -101,6 +125,14 @@ class NotTT : public BT::ConditionNode
         ~NotTT() override;
         virtual BT::NodeStatus tick() override;
 };
+
+/**
+ *      @class NotWS
+ *      @brief Condition node for checking if normal workspace placement is unnecessary.
+ *      @details This class is a condition node derived from the ConditionNode base class. It checks
+ *          if normal workspace placement is unnecessary in the current context. It performs a conditional 
+ *          task within the manipulation system by accessing the Manipulation instance.
+ */
 
 class NotWS : public BT::ConditionNode
 {
