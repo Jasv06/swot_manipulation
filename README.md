@@ -89,4 +89,4 @@ roslaunch swot_manipulation_bt swot_manipulation_bt_enhanced
 ### Example Video for picking
 If all the previous steps were followed correclty and carefully you should be able to see the following. (Click on the image below)
 
-[![Watch the video](images/robot.png)]()
+[![Watch the video](images/robot.png)](https://youtu.be/qMAvnAv7Lg0)
