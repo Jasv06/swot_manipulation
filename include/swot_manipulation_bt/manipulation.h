@@ -31,8 +31,8 @@ typedef boost::array<double, 7> array7d;
 *       @struct ConditionAction
 *       @brief Represents a condition-action pair for handling RoboCup manipulation tasks.
 *       @details This struct combines a condition function and an action function. The condition function
-*                determines whether the specified condition is met, and the action function is executed
-*                if the condition is true.
+*           determines whether the specified condition is met, and the action function is executed
+*           if the condition is true.
 */
 
 struct ConditionAction;
@@ -41,7 +41,7 @@ struct ConditionAction;
 *       @struct Tray
 *       @brief Represents a tray used for RoboCup manipulation tasks.
 *       @details This struct holds information about the top pose, load pose, save position, and tray object
-*                associated with a specific tray.
+*           associated with a specific tray.
 */
 
 struct Tray;
