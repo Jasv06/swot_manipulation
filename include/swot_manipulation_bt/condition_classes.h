@@ -28,7 +28,7 @@ class NotDrive : public BT::ConditionNode
     public:
         NotDrive(const std::string& name, Manipulation& manipulation);
         ~NotDrive() override;
-        virtual BT::NodeStatus tick() override;
+        BT::NodeStatus tick() override;
 };
 
 /**
@@ -47,7 +47,7 @@ class NotPick : public BT::ConditionNode
     public:
         NotPick(const std::string& name, Manipulation& manipulation);
         ~NotPick() override;
-        virtual BT::NodeStatus tick() override;
+        BT::NodeStatus tick() override;
 };
 
 /**
@@ -66,7 +66,7 @@ class NotPlace : public BT::ConditionNode
     public: 
         NotPlace(const std::string& name, Manipulation& manipulation);
         ~NotPlace() override;
-        virtual BT::NodeStatus tick() override;
+        BT::NodeStatus tick() override;
 };
 
 /**
@@ -85,7 +85,7 @@ class NotPP : public BT::ConditionNode
     public: 
         NotPP(const std::string& name, Manipulation& manipulation);
         ~NotPP() override;
-        virtual BT::NodeStatus tick() override;
+        BT::NodeStatus tick() override;
 };
 
 /**
@@ -104,7 +104,7 @@ class NotSH : public BT::ConditionNode
     public: 
         NotSH(const std::string& name, Manipulation& manipulation);
         ~NotSH() override;
-        virtual BT::NodeStatus tick() override;
+        BT::NodeStatus tick() override;
 };
 
 /**
@@ -123,7 +123,7 @@ class NotTT : public BT::ConditionNode
     public: 
         NotTT(const std::string& name, Manipulation& manipulation);
         ~NotTT() override;
-        virtual BT::NodeStatus tick() override;
+        BT::NodeStatus tick() override;
 };
 
 /**
@@ -142,7 +142,7 @@ class NotWS : public BT::ConditionNode
     public: 
         NotWS(const std::string& name, Manipulation& manipulation);
         ~NotWS() override;
-        virtual BT::NodeStatus tick() override;
+        BT::NodeStatus tick() override;
 };
 
 #endif
