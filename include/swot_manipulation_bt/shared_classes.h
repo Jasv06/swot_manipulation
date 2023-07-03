@@ -39,8 +39,8 @@ class PickPlaceObject : public BT::SyncActionNode
         Manipulation& manipulation_;
 
     public:
-        PickObject(const std::string& name, Manipulation& manipulation);
-        ~PickObject() override;      
+        PickPlaceObject(const std::string& name, Manipulation& manipulation);
+        ~PickPlaceObject() override;      
         virtual BT::NodeStatus tick() override;
     
 };
