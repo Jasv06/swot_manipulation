@@ -5,6 +5,8 @@
 *       @author Joel Santos
 */
 
+#include "swot_manipulation_bt/pick_classes.h"
+
 MoveToScan::MoveToScan(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
 MoveToScan::~MoveToScan() override = default;      
 BT::NodeStatus MoveToScan::tick() override

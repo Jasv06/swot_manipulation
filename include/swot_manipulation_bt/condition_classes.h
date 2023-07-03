@@ -10,7 +10,10 @@
 */
 
 #ifndef CONDITION_CLASSES_H
-#define CONDITINO_CLASSES_H
+#define CONDITION_CLASSES_H
+
+#include <behaviortree_cpp_v3/bt_factory.h>
+#include <behaviortree_cpp_v3/condition_node.h>
 
 /**
  *      @class NotDrive

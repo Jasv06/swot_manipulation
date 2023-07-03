@@ -8,6 +8,9 @@
 #ifndef PLACE_H
 #define PLACE_H
 
+#include <behaviortree_cpp_v3/bt_factory.h>
+#include <behaviortree_cpp_v3/action_node.h>
+
 /**
  *      @class CheckObjRequired
  *      @brief Synchronous action node for checking which object is required for placing.

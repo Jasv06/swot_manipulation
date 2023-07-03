@@ -8,6 +8,9 @@
 #ifndef SHARED_POSES_H
 #define SHARED_POSES_H
 
+#include <behaviortree_cpp_v3/bt_factory.h>
+#include <behaviortree_cpp_v3/action_node.h>
+
 /**
  *      @class GetGraspAndMoveGrasp
  *      @brief A synchronized action node for getting the grasping and moving point.

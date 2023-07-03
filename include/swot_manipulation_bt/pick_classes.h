@@ -8,6 +8,9 @@
 #ifndef PICK_H
 #define PICK_H
 
+#include <behaviortree_cpp_v3/bt_factory.h>
+#include <behaviortree_cpp_v3/action_node.h>
+
 /**
  *      @class MoveToScan
  *      @brief Action node for moving to the scanning position.

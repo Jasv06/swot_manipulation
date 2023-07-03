@@ -5,6 +5,8 @@
 *       @author Joel Santos
 */
 
+#include "swot_manipulation_bt/place_classes.h"
+
 CheckObjRequired::CheckObjRequired(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
 CheckObjRequired::~CheckObjRequired() override = default;      
 BT::NodeStatus CheckObjRequired::tick() override

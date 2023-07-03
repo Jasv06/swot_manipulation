@@ -5,6 +5,8 @@
 *       @author Joel Santos
 */
 
+#include "swot_manipulation_bt/shared_classes.h"
+
 GetGraspAndMoveGrasp::GetGraspAndMoveGrasp(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
 {
     conditionActions = {
