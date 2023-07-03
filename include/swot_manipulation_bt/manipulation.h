@@ -101,7 +101,7 @@ class Manipulation
         void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation);
         bool callback_service_manipulation(swot_msgs::SwotManipulation::Request &req, swot_msgs::SwotManipulation::Response &res);
         void callback_wrench(const geometry_msgs::WrenchStamped &msg);
-        void sendTargetPosition();
+        void sendTargetPosition6d();
         void tray_top();
         
         // Setter functions 
@@ -114,12 +114,12 @@ class Manipulation
         void set_object_in_trays(std::string,int);
         void rest_object_in_trays(int);
         void set_response_status(const std::string& status);
-        void setTargetPosition(std::string target);
+        void setTargetPosition6d(std::string target);
 
         // Getter functions
         std::string get_last_pos() const;
         std::string get_grasping_area() const;
-        bool get_collision() const;
+        bool get_collision_detected() const;
         bool get_collision_activated() const;
         ros::NodeHandle get_nh();
         geometry_msgs::Pose get_grasping_point() const;
@@ -137,7 +137,7 @@ class Manipulation
         double get_left_thresh() const;                             
         double get_right_thresh() const;                            
         double get_right_right_thresh() const;                     
-        array6d get_target_position() const;
+        const std::unique_ptr<URRTDE>& MyClass::getRTDE() const;
 };
 
 #endif
