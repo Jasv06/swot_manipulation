@@ -10,16 +10,23 @@
 
 #include "ros/ros.h"
 #include <ros/package.h>
+#include <swot_ur/ur_rtde.h>
 #include <swot_msgs/SwotManipulation.h>
+#include <swot_msgs/SwotObjectMatching2023.h>
+#include <swot_msgs/SwotFreeSpot.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/WrenchStamped.h>
 #include <tf2_ros/transform_listener.h>
 #include <algorithm>
 #include <vector>
 #include <memory>
+#include <iostream>
 #include <functional>
 #include <behaviortree_cpp_v3/bt_factory.h>
+#include <behaviortree_cpp_v3/condition_node.h>
+#include <behaviortree_cpp_v3/action_node.h>
 #include <geometry_msgs/TransformStamped.h>
+
 
 // Alias for an array of 6 doubles
 typedef boost::array<double, 6> array6d; 
@@ -87,9 +94,10 @@ class Manipulation
 
     public:  
         Manipulation();
-        virtual ~Manipulation();
-
+        ~Manipulation();
+        
         // Member functions
+        void initialize();
         void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation);
         bool callback_service_manipulation(swot_msgs::SwotManipulation::Request &req, swot_msgs::SwotManipulation::Response &res);
         void callback_wrench(const geometry_msgs::WrenchStamped &msg);
@@ -97,13 +105,13 @@ class Manipulation
         void tray_top();
         
         // Setter functions 
-        void set_last_pos(std::string last_pos);
+        void set_last_pos(std::string last_pose);
         void set_grasping_area(std::string grasping_area);
         void set_collision_detected(bool collision);
         void set_collision_activated(bool collision);
         void set_grasping_point(geometry_msgs::Pose grasping);
         void set_tray(std::string tray);
-        void set_object_in_trays(std::string);
+        void set_object_in_trays(std::string,int);
         void rest_object_in_trays(int);
         void set_response_status(const std::string& status);
         void setTargetPosition(std::string target);
