@@ -214,6 +214,6 @@ BT::NodeStatus MoveToDrivePose::tick() override
 {
     ROS_INFO("move to drive pos");
     (manipulation_.rtde)->joint_target(manipulation_.array_drive, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-    manipulation_.res_.status = "FINISHED";
+    manipulation_.set_response_status("FINISHED");
     return BT::NodeStatus::SUCCESS;
 }

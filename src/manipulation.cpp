@@ -308,7 +308,7 @@ void Manipulation::set_object_in_trays(std::string object, int tray_number)
  *      @param tray_number The tray number to reset.
  */
 
-void Manipulation::rest_object_in_trays(int tray_number)
+void Manipulation::reset_object_in_trays(int tray_number)
 {
     this->objects_in_trays[tray_number] = "";
 }
@@ -557,7 +557,7 @@ double Manipulation::get_right_thresh() const
  *      @brief Gets the right-right threshold.
  *      @return The right-right threshold.
  */
- 
+
 double Manipulation::get_right_right_thresh() const
 {
     return this->right_right_thresh;

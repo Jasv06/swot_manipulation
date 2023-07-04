@@ -24,7 +24,7 @@
 #include <behaviortree_cpp_v3/bt_factory.h>
 #include <behaviortree_cpp_v3/condition_node.h>
 #include <behaviortree_cpp_v3/action_node.h>
-#include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/TransformStamped.h
 
 
 // Alias for an array of 6 doubles
@@ -58,13 +58,13 @@ struct Tray;
 *       @brief Main class to handle the RoboCup manipulation tasks
 *       @details This class provides the functionality to handle manipulation tasks in the RoboCup environment.
 *           It encapsulates various operations such as object grasping, object placement, collision detection, and robot control.
-*           Users can interact with this class to perform manipulation actions and control the robot's behavior.
+*           One can interact with this class to perform manipulation actions and control the robot's behavior.
 */
 
 class Manipulation
 {    
     private:
-        std::string xml_file;                           /*! The path to the XML file containing manipulation configurations. */
+        std::string xml_file;                           /*! The path to the XML file containing manipulation configurations for the behavior tree to be structured. */
         std::string last_pos;                           /*! The last known position of the manipulator. */
         std::string grasping_area;                      /*! The designated area for grasping objects. */
         const double wrench_limit;                      /*! The maximum allowable wrench value for collision detection. */
@@ -92,7 +92,10 @@ class Manipulation
         array6d target_position;                        /*! The target position array for robot movement planning. */
 
     public:  
+        // Constructor
         Manipulation();
+
+        // Destructor
         ~Manipulation();
         
         // Member functions
@@ -110,8 +113,8 @@ class Manipulation
         void set_collision_activated(bool collision);
         void set_grasping_point(geometry_msgs::Pose grasping);
         void set_tray(std::string tray);
-        void set_object_in_trays(std::string,int);
-        void rest_object_in_trays(int);
+        void set_object_in_trays(std::string, int);
+        void reset_object_in_trays(int);
         void set_response_status(const std::string& status);
         void setTargetPosition6d(std::string target);
 
