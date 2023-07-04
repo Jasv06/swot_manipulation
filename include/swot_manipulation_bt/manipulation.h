@@ -74,7 +74,6 @@ class Manipulation
         ros::Subscriber sub_wrench;                     /*! ROS subscriber for wrench data. */
         geometry_msgs::Pose grasping_point;             /*! The pose of the grasping point. */
         std::string tray;                               /*! The currently selected tray for object placement. */
-        std::vector<std::string> objects_in_trays;      /*! The list of objects currently placed in trays. */
         std::unique_ptr<URRTDE> rtde;                   /*! The unique pointer to the URRTDE instance for robot control. */
         ros::ServiceServer service_server;              /*! ROS service server for handling manipulation requests. */
         ros::ServiceClient service_client_matching;     /*! ROS service client for object matching. */
@@ -140,6 +139,8 @@ class Manipulation
         double get_right_thresh() const;                            
         double get_right_right_thresh() const;                     
         const std::unique_ptr<URRTDE>& MyClass::getRTDE() const;
+
+        std::vector<std::string> objects_in_trays;      /*! The list of objects currently placed in trays. */
 
         // Array positions which can also be found in the csv file. 
         // This arrays will be substituted by the data.csv file where all this positions are also found.

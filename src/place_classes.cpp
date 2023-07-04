@@ -31,7 +31,7 @@ CheckObjRequired::~CheckObjRequired() override = default;
 
 BT::NodeStatus CheckObjRequired::tick() override
 {
-    manipulation_.set_collision(false);
+    manipulation_.set_collision_detected(false);
     if (manipulation_.get_request().save == "SAVE_1")
     {
         ROS_INFO("Object from tray 1 required");
@@ -75,12 +75,6 @@ CheckWSFree::~CheckWSFree() override = default;
 BT::NodeStatus CheckWSFree::tick() override
 {
     ROS_INFO("check ws free");
-    if(manipulation_.req_.task == "RED_CONTAINER" || manipulation_.req_.task == "BLUE_CONTAINER")
-    {
-
-    }
-    else
-    {
     swot_msgs::SwotFreeSpot srv_free;
     if (ros::service::waitForService("FreeSpotServer", ros::Duration(5.0)))
     {
@@ -109,7 +103,6 @@ BT::NodeStatus CheckWSFree::tick() override
     }
     manipulation_.set_grasping_point(srv_free.response.pose);
     std::cout << manipulation_.get_grasping_point() << std::endl;
-    }
     return BT::NodeStatus::SUCCESS;
 }
 
@@ -183,7 +176,7 @@ BT::NodeStatus PickFromTray::tick() override
     }
     ros::Duration(0.5).sleep();
 
-    manipulation_.set_collision(false);
+    manipulation_.set_collision_detected(false);
     array6d free_axis = {1,1,1,0,0,0};
     array6d wrench = {0,0,-20,0,0,0};
     (manipulation_.getRTDE())->force_target(true, free_axis, wrench, 1.0);
@@ -202,7 +195,7 @@ BT::NodeStatus PickFromTray::tick() override
     (manipulation_.getRTDE())->force_target(false, free_axis , wrench, 1.0);
     ROS_INFO("Force Mode deactivated");
     manipulation_.set_collision_activated(false);
-    manipulation_.set_collision(false);
+    manipulation_.set_collision_detected(false);
     ros::Duration(0.1).sleep();
     geometry_msgs::TransformStampedConstPtr pcp_pose_;
     pcp_pose_ = ros::topic::waitForMessage<geometry_msgs::TransformStamped>("/tcp_pose", ros::Duration(2.0));

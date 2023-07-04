@@ -31,7 +31,7 @@ MoveToScan::~MoveToScan() override = default;
 
 BT::NodeStatus MoveToScan::tick() override
 {
-    manipulation_.set_collision(false);
+    manipulation_.set_collision_detected(false);
     ROS_INFO("move to scan");
     (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_mid, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
     return BT::NodeStatus::SUCCESS; 
@@ -186,7 +186,7 @@ BT::NodeStatus DropObjectInTray::tick() override
         if (tray.trayObject.empty() && manipulation_.get_request().save == tray.savePosition) {
             (manipulation_.getRTDE())->joint_target(tray.topPose, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
             ros::Duration(1).sleep();                    
-            manipulation_.set_collision(false);
+            manipulation_.set_collision_detected(false);
             array6d free_axis = {1,1,1,0,0,0};
             array6d wrench = {0,0,-20,0,0,0};
             (manipulation_.getRTDE())->force_target(true, free_axis, wrench, 1.0);
@@ -205,7 +205,7 @@ BT::NodeStatus DropObjectInTray::tick() override
             (manipulation_.getRTDE())->force_target(false, free_axis , wrench, 1.0);
             ROS_INFO("Force Mode deactivated");
             manipulation_.set_collision_activated(false);
-            manipulation_.set_collision(false);
+            manipulation_.set_collision_detected(false);
 
             ros::Duration(0.1).sleep();
 

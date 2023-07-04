@@ -122,7 +122,7 @@ BT::NodeStatus PickPlaceObject::tick() override
         timer++;
     }
     manipulation_.set_collision_activated(false);
-    manipulation_.set_collision(false);
+    manipulation_.set_collision_detected(false);
     (manipulation_.getRTDE())->force_target(false, free_axis , wrench, 1.0);
     ROS_INFO("Force Mode deactivated");
 
