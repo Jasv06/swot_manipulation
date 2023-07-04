@@ -116,6 +116,7 @@ class Manipulation
         void reset_object_in_trays(int);
         void set_response_status(const std::string& status);
         void setTargetPosition6d(std::string target);
+        void set_target(array6d);
 
         // Getter functions
         std::string get_last_pos() const;

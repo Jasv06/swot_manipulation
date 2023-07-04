@@ -359,6 +359,11 @@ void Manipulation::setTargetPosition6d(std::string target)
     csvFile.close();
 }
 
+void Manipulation::set_target(array6d target)
+{
+    this->target_position = target;
+}
+
 // Getter functions -------------------------------------------
 
 /**
