@@ -218,15 +218,18 @@ void Manipulation::tray_top()
 {
     if (get_tray() == "SAVE_1")
     {
-        rtde->joint_target(array_tray1_top, jnt_vel_, jnt_acc_);    
+        setTargetPosition6d("array_tray1_top");
+        sendTargetPosition6d();    
     }
     else if (get_tray() == "SAVE_2")
     {
-        rtde->joint_target(array_tray2_top, jnt_vel_, jnt_acc_);          
+        setTargetPosition6d("array_tray2_top");
+        sendTargetPosition6d();         
     }
     else
     {
-        rtde->joint_target(array_tray3_top, jnt_vel_, jnt_acc_); 
+        setTargetPosition6d("array_tray3_top");
+        sendTargetPosition6d(); 
     }
 }
 
@@ -295,7 +298,7 @@ void Manipulation::set_tray(std::string tray)
 /**
  *      @brief Sets the object placed in the specified tray.
  *      @param object The object to set.
- *      @param tray_number The tray number where the object is placed.
+ *      @param tray_number The tray number where the object is placed. It can be 0,1 or 2.
  */
 
 void Manipulation::set_object_in_trays(std::string object, int tray_number)
@@ -330,7 +333,7 @@ void Manipulation::set_response_status(const std::string& status)
 
 void Manipulation::setTargetPosition6d(std::string target)
 {
-    std::string csvFilePath = "../csv/target_positions.csv";  // Path to the CSV file
+    std::string csvFilePath = "../csv_files/target_positions.csv";  // Path to the CSV file
 
     std::ifstream csvFile(csvFilePath);
     if (!csvFile.is_open()) {
@@ -345,7 +348,6 @@ void Manipulation::setTargetPosition6d(std::string target)
         std::getline(iss, columnName, ',');
 
         if (columnName == target) {
-
             // Extract values from each column and assign them to the targetValues array
             std::string columnValue;
             for (int i = 0; i < target_position.size(); ++i) {
@@ -570,5 +572,5 @@ double Manipulation::get_right_right_thresh() const
 
 std::unique_ptr<RTDEControlInterface> Manipulation::get_rtde() const
 {
-    return this->rtde;
+    return rtde;
 }
