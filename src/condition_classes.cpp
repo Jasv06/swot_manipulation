@@ -9,6 +9,8 @@
 
 /**
  *      @brief Constructor of Condition node class that checks if the requested mode is not "DRIVE".
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object to access the neccesary data.
  */
 
 NotDrive::NotDrive(const std::string& name, Manipulation& manipulation) : BT::ConditionNode(name, {}), manipulation_(manipulation) 
@@ -38,6 +40,8 @@ BT::NodeStatus NotDrive::tick() override
 
 /**
  *      @brief Constructor of the Condition node NotPick that checks if the requested mode is not "PICK".
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object to access the neccesary data.
  */
 
 NotPick::NotPick(const std::string& name, Manipulation& manipulation) : BT::ConditionNode(name, {}), manipulation_(manipulation) 
@@ -67,6 +71,8 @@ BT::NodeStatus NotPick::tick() override
 
 /**
  *      @brief Constructor of the Condition node that checks if the requested mode is not "PLACE".
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object to access the neccesary data.
  */
 
 NotPlace::NotPlace(const std::string& name, Manipulation& manipulation) : BT::ConditionNode(name, {}), manipulation_(manipulation) 
@@ -96,6 +102,8 @@ BT::NodeStatus NotPlace::tick() override
 
 /**
  *      @brief Constructor of the Condition node that checks if the requested task is not "PP".
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object to access the neccesary data.
  */
 
 NotPP::NotPP(const std::string& name, Manipulation& manipulation) : BT::ConditionNode(name, {}), manipulation_(manipulation)
@@ -125,6 +133,8 @@ BT::NodeStatus NotPP::tick() override
 
 /**
  *      @brief Constructor of the Condition node that checks if the requested task is not "SH".
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object to access the neccesary data.
  */
 NotSH::NotSH(const std::string& name, Manipulation& manipulation) : BT::ConditionNode(name, {}), manipulation_(manipulation) 
 {
@@ -153,6 +163,8 @@ BT::NodeStatus NotSH::tick() override
 
 /**
  *      @brief Condition node constructor that checks if the requested task is not "TT".
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object to access the neccesary data.
  */
 NotTT::NotTT(const std::string& name, Manipulation& manipulation) : BT::ConditionNode(name, {}), manipulation_(manipulation) 
 {
@@ -181,6 +193,8 @@ BT::NodeStatus NotTT::tick() override
 
 /**
  *      @brief Condition node constructor that checks if the requested task is not "WS".
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object to access the neccesary data.
  */
 NotWS::NotWS(const std::string& name, Manipulation& manipulation) : BT::ConditionNode(name, {}), manipulation_(manipulation) 
 {
