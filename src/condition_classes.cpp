@@ -8,14 +8,17 @@
 #include "swot_manipulation_bt/condition_classes.h"
 
 /**
- *      @class NotDrive
- *      @brief Condition node that checks if the requested mode is not "DRIVE".
+ *      @brief Constructor of Condition node class that checks if the requested mode is not "DRIVE".
  */
 
 NotDrive::NotDrive(const std::string& name, Manipulation& manipulation) : BT::ConditionNode(name, {}), manipulation_(manipulation) 
 {
 
 }
+
+/**
+ *      @brief Destructor of Condition node class NotDrive.
+ */
 
 NotDrive::~NotDrive() override = default;
 
@@ -34,14 +37,17 @@ BT::NodeStatus NotDrive::tick() override
 //--------------------------------------//
 
 /**
- *      @class NotPick
- *      @brief Condition node that checks if the requested mode is not "PICK".
+ *      @brief Constructor of the Condition node NotPick that checks if the requested mode is not "PICK".
  */
 
 NotPick::NotPick(const std::string& name, Manipulation& manipulation) : BT::ConditionNode(name, {}), manipulation_(manipulation) 
 {
 
 }
+
+/**
+ *      @brief Destructor of Condition node class NotPick.
+ */
 
 NotPick::~NotPick() override = default;
 
@@ -60,14 +66,17 @@ BT::NodeStatus NotPick::tick() override
 //--------------------------------------//
 
 /**
- *      @class NotPlace
- *      @brief Condition node that checks if the requested mode is not "PLACE".
+ *      @brief Constructor of the Condition node that checks if the requested mode is not "PLACE".
  */
 
 NotPlace::NotPlace(const std::string& name, Manipulation& manipulation) : BT::ConditionNode(name, {}), manipulation_(manipulation) 
 {
 
 }
+
+/**
+ *      @brief Destructor of Condition node class NotPlace.
+ */
 
 NotPlace::~NotPlace() override = default;
 
@@ -86,14 +95,17 @@ BT::NodeStatus NotPlace::tick() override
 //--------------------------------------//
 
 /**
- *      @class NotPP
- *      @brief Condition node that checks if the requested task is not "PP".
+ *      @brief Constructor of the Condition node that checks if the requested task is not "PP".
  */
 
 NotPP::NotPP(const std::string& name, Manipulation& manipulation) : BT::ConditionNode(name, {}), manipulation_(manipulation)
 {
 
 }
+
+/**
+ *      @brief Destructor of Condition node class NotPP.
+ */
 
 NotPP::~NotPP() override = default;
 
@@ -112,13 +124,16 @@ BT::NodeStatus NotPP::tick() override
 //--------------------------------------//
 
 /**
- *      @class NotSH
- *      @brief Condition node that checks if the requested task is not "SH".
+ *      @brief Constructor of the Condition node that checks if the requested task is not "SH".
  */
 NotSH::NotSH(const std::string& name, Manipulation& manipulation) : BT::ConditionNode(name, {}), manipulation_(manipulation) 
 {
 
 }
+
+/**
+ *      @brief Destructor of Condition node class NotSH.
+ */
 
 NotSH::~NotSH() override = default;
 
@@ -137,13 +152,16 @@ BT::NodeStatus NotSH::tick() override
 //--------------------------------------//
 
 /**
- *      @class NotTT
- *      @brief Condition node that checks if the requested task is not "TT".
+ *      @brief Condition node constructor that checks if the requested task is not "TT".
  */
 NotTT::NotTT(const std::string& name, Manipulation& manipulation) : BT::ConditionNode(name, {}), manipulation_(manipulation) 
 {
 
 }
+
+/**
+ *      @brief Destructor of Condition node class NotTT.
+ */
 
 NotTT::~NotTT() override = default;
 
@@ -162,13 +180,16 @@ BT::NodeStatus NotTT::tick() override
 //--------------------------------------//
 
 /**
- *      @class NotWS
- *      @brief Condition node that checks if the requested task is not "WS".
+ *      @brief Condition node constructor that checks if the requested task is not "WS".
  */
 NotWS::NotWS(const std::string& name, Manipulation& manipulation) : BT::ConditionNode(name, {}), manipulation_(manipulation) 
 {
 
 }
+
+/**
+ *      @brief Destructor of Condition node class NotWS.
+ */
 
 NotWS::~NotWS() override = default;
 
