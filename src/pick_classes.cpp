@@ -33,7 +33,7 @@ BT::NodeStatus MoveToScan::tick() override
 {
     manipulation_.set_collision(false);
     ROS_INFO("move to scan");
-    (manipulation_.rtde)->joint_target(manipulation_.array_scan_mid, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+    (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_mid, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
     return BT::NodeStatus::SUCCESS; 
 }  
 
@@ -66,15 +66,15 @@ BT::NodeStatus ScanWorkSpace::tick() override
     ROS_INFO("scan workspace");
     if(count == 0)
     {
-        (manipulation_.rtde)->joint_target(manipulation_.array_scan_left_yolo, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+        (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_left_yolo, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
     }
     else if(count == 1)
     {
-        (manipulation_.rtde)->joint_target(manipulation_.array_scan_right_yolo, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+        (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_right_yolo, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
     }
     else
     {
-        (manipulation_.rtde)->joint_target(manipulation_.array_scan_mid, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+        (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_mid, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
     }
 
     if(ros::service::waitForService("ObjectMatchingServer", ros::Duration(3.0)) == false)
@@ -83,7 +83,7 @@ BT::NodeStatus ScanWorkSpace::tick() override
         return BT::NodeStatus::FAILURE;   
     }
     ros::Duration(1).sleep();
-    if(!(manipulation_.service_client_matching).call(srv_match))
+    if(!(manipulation_.get_service_client_matching()).call(srv_match))
     {
         count++;
         ROS_WARN("Couldn't find ROS Service \"SwotObjectMatching\"");
@@ -133,7 +133,7 @@ BT::NodeStatus MoveUp::tick() override
     array7d target = {manipulation_.get_grasping_point().position.x, manipulation_.get_grasping_point().position.y, manipulation_.get_grasping_point().position.z + 0.07,
     manipulation_.get_grasping_point().orientation.x, manipulation_.get_grasping_point().orientation.y, manipulation_.get_grasping_point().orientation.z,
     manipulation_.get_grasping_point().orientation.w};
-    (manipulation_.rtde)->cart_target(1, target, manipulation_.jnt_vel_, manipulation_.jnt_acc_);           
+    (manipulation_.getRTDE())->cart_target(1, target, manipulation_.get_jnt_vel_(), manipulation_.getjnt_acc_());           
 
     std::string graspingArea = manipulation_.get_grasping_area();
     array6d defaultTarget = manipulation_.array_pick_mid;
@@ -141,11 +141,11 @@ BT::NodeStatus MoveUp::tick() override
     auto find = std::find_if(areaTargets.begin(), areaTargets.end(), [&](const auto& pair){return pair.first == graspingArea;});
     if(find != areaTargets.end())
     {
-        (manipulation_.rtde)->joint_target(find->second, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+        (manipulation_.getRTDE())->joint_target(find->second, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
     }
     else
     {
-        (manipulation_.rtde)->joint_target(defaultTarget, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+        (manipulation_.getRTDE())->joint_target(defaultTarget, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
     }
     return BT::NodeStatus::SUCCESS;
 } 
@@ -179,17 +179,17 @@ DropObjectInTray::~DropObjectInTray() override = default;
 BT::NodeStatus DropObjectInTray::tick() override
 {
     ROS_INFO("drop object in tray");
-    (manipulation_.rtde)->joint_target(manipulation_.array_rotate1, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
-    (manipulation_.rtde)->joint_target(manipulation_.array_rotate2, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+    (manipulation_.getRTDE())->joint_target(manipulation_.array_rotate1, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
+    (manipulation_.getRTDE())->joint_target(manipulation_.array_rotate2, manipulation_.get_jnt_vel_(), manipulation_.jnt_acc_());
 
     for (const auto& tray : trays) {
         if (tray.trayObject.empty() && manipulation_.get_request().save == tray.savePosition) {
-            (manipulation_.rtde)->joint_target(tray.topPose, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+            (manipulation_.getRTDE())->joint_target(tray.topPose, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
             ros::Duration(1).sleep();                    
             manipulation_.set_collision(false);
             array6d free_axis = {1,1,1,0,0,0};
             array6d wrench = {0,0,-20,0,0,0};
-            (manipulation_.rtde)->force_target(true, free_axis, wrench, 1.0);
+            (manipulation_.getRTDE())->force_target(true, free_axis, wrench, 1.0);
             ROS_INFO("Force Mode activated");
 
             ros::Duration(0.5).sleep();
@@ -202,7 +202,7 @@ BT::NodeStatus DropObjectInTray::tick() override
                 timer++;
             }
             
-            (manipulation_.rtde)->force_target(false, free_axis , wrench, 1.0);
+            (manipulation_.getRTDE())->force_target(false, free_axis , wrench, 1.0);
             ROS_INFO("Force Mode deactivated");
             manipulation_.set_collision_activated(false);
             manipulation_.set_collision(false);
@@ -214,13 +214,13 @@ BT::NodeStatus DropObjectInTray::tick() override
             array7d target = {pcp_pose_->transform.translation.x, pcp_pose_->transform.translation.y, pcp_pose_->transform.translation.z + 0.006, 
                             pcp_pose_->transform.rotation.x, pcp_pose_->transform.rotation.y, pcp_pose_->transform.rotation.z, 
                             pcp_pose_->transform.rotation.w};
-            (manipulation_.rtde)->cart_target(1, target, manipulation_.jnt_vel_*0.2, manipulation_.jnt_acc_*0.2);
+            (manipulation_.getRTDE())->cart_target(1, target, manipulation_.get_jnt_vel_()*0.2, manipulation_.get_jnt_acc_()*0.2);
             manipulation_.set_tray(tray.savePosition);
             tray.trayObject = manipulation_.get_request().object;
             break;
         }
     }
-    (manipulation_.rtde)->gripper_open(manipulation_.gripper_speed_, manipulation_.gripper_force_);
+    (manipulation_.getRTDE())->gripper_open(manipulation_.get_gripper_speed_(), manipulation_.get_gripper_force_());
     manipulation_.set_last_pos("tray");
     manipulation_.tray_top();
     return BT::NodeStatus::SUCCESS;

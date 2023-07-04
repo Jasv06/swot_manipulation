@@ -140,4 +140,30 @@ class Manipulation
         double get_right_thresh() const;                            
         double get_right_right_thresh() const;                     
         const std::unique_ptr<URRTDE>& MyClass::getRTDE() const;
+
+        // Array positions which can also be found in the csv file. 
+        // This arrays will be substituted by the data.csv file where all this positions are also found.
+        array6d array_scan_mid;
+        array6d array_scan_left;
+        array6d array_scan_left_yolo;
+        array6d array_scan_right_yolo;
+        array6d array_scan_right;
+        array6d array_pick_mid;
+        array6d array_pick_left_left;
+        array6d array_pick_left;
+        array6d array_pick_right;
+        array6d array_pick_right_right;
+        array6d array_rotate1;
+        array6d array_rotate2;
+        array6d array_rotate3;
+        array6d array_tray1_top;
+        array6d array_tray2_top;
+        array6d array_tray3_top;
+        array6d array_tray1_load;
+        array6d array_tray2_load;
+        array6d array_tray3_load;
+        array6d array_drive;
+        array6d free_backup_1;
+        array6d free_backup_2;
+        array6d free_SH_1;
 };
