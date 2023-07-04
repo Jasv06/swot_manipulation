@@ -9,7 +9,7 @@
 |-|------|
 |[Ubuntu 18.04](https://releases.ubuntu.com/18.04/)|[ROS Melodic](http://wiki.ros.org/melodic/Installation)|
 
-In case it is desired to use ROS noetic and ubuntu 20.04 please refer to the [branch bt_v4](https://github.com/Jasv06/swot_manipulation_bt/tree/bachelor_thesis). Note that the functionality is the same and the structure is similar. The main difference between this two are the usage of post and preconditions which was introduce in the newer versions of behavior trees.
+In case it is desired to use ROS noetic and ubuntu 20.04 please refer to the [branch bt_v4](https://github.com/Jasv06/swot_manipulation_bt/tree/bt_v4). Note that the functionality is the same and the structure is similar. The main difference between this two are the usage of post and preconditions which was introduce in the newer versions of behavior trees.
 ### Requirements: 
 
 You should have the swot package which can be downloaded from the [gitlab](https://gitlab.vlab.fm.fhws.de/swot/swot_platform/-/tree/main/), the [behavior tree package](https://github.com/BehaviorTree/BehaviorTree.CPP/tree/v3.8), and [c++ 17 or a newer version](https://en.cppreference.com/w/cpp/17) installed on your device. 
