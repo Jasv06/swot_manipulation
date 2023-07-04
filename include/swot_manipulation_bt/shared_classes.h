@@ -5,8 +5,7 @@
 *       @author Joel Santos
 */
 
-#ifndef SHARED_POSES_H
-#define SHARED_POSES_H
+#pragma once
 
 #include <behaviortree_cpp_v3/bt_factory.h>
 #include <behaviortree_cpp_v3/action_node.h>
@@ -84,5 +83,3 @@ class MoveToDrivePose : public BT::SyncActionNode
         ~MoveToDrivePose() override;      
         BT::NodeStatus tick() override;
 };
-
-#endif

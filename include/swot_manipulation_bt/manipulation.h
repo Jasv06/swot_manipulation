@@ -5,8 +5,7 @@
 *       @author Joel Santos
 */
 
-#ifndef MANIPULATION_H
-#define MANIPULATION_H
+#pragma once 
 
 #include "ros/ros.h"
 #include <ros/package.h>
@@ -139,5 +138,3 @@ class Manipulation
         double get_right_right_thresh() const;                     
         const std::unique_ptr<URRTDE>& MyClass::getRTDE() const;
 };
-
-#endif

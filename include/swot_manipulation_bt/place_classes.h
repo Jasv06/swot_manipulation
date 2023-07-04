@@ -5,8 +5,7 @@
 *       @author Joel Santos
 */
 
-#ifndef PLACE_H
-#define PLACE_H
+#pragma once
 
 #include <behaviortree_cpp_v3/bt_factory.h>
 #include <behaviortree_cpp_v3/action_node.h>
@@ -97,5 +96,3 @@ class MoveToDropPos : public BT::SyncActionNode
         ~MoveToDropPos() override;      
         BT::NodeStatus tick() override;
 };
-
-#endif

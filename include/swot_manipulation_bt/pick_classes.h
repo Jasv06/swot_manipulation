@@ -5,8 +5,7 @@
 *       @author Joel Santos
 */
 
-#ifndef PICK_H
-#define PICK_H
+#pragma once
 
 #include <behaviortree_cpp_v3/bt_factory.h>
 #include <behaviortree_cpp_v3/action_node.h>
@@ -84,6 +83,4 @@ class DropObjectInTray : public BT::SyncActionNode
         DropObjectInTray(const std::string& name, Manipulation& manipulation);
         ~DropObjectInTray() override;     
         BT::NodeStatus tick() override;
-};
-
-#endif 
+}; 

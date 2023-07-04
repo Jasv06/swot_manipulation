@@ -9,8 +9,7 @@
 *       @note In case of any issues are encountered with this branch do not hesistate in contacting the author at joel.santosvalle@gmail.com
 */
 
-#ifndef CONDITION_CLASSES_H
-#define CONDITION_CLASSES_H
+#pragma once
 
 #include <behaviortree_cpp_v3/bt_factory.h>
 #include <behaviortree_cpp_v3/condition_node.h>
@@ -148,5 +147,3 @@ class NotWS : public BT::ConditionNode
         ~NotWS() override;
         BT::NodeStatus tick() override;
 };
-
-#endif
