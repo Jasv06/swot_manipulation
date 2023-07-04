@@ -7,8 +7,28 @@
 
 #include "swot_manipulation_bt/pick_classes.h"
 
-MoveToScan::MoveToScan(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
+/**
+ *      @brief Constructor of the MoveToScan class used to initialize the corresponding member variables.
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object to access the neccesary data.
+ */
+
+MoveToScan::MoveToScan(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
+{
+
+}
+
+/**
+ * 	    @brief Destructor of class MoveToScan.
+ */
+
 MoveToScan::~MoveToScan() override = default;      
+
+/**
+ *      @brief Executes the tick operation of the node MoveToScan.
+ *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
+ */
+
 BT::NodeStatus MoveToScan::tick() override
 {
     manipulation_.set_collision(false);
@@ -17,9 +37,28 @@ BT::NodeStatus MoveToScan::tick() override
     return BT::NodeStatus::SUCCESS; 
 }  
 
+/**
+ *      @brief Constructor of the ScanWorkSpace class used to initialize the corresponding member variables.
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object.
+ */
 
-ScanWorkSpace::ScanWorkSpace(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation), count(0) {}
+ScanWorkSpace::ScanWorkSpace(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation), count(0) 
+{
+
+}
+
+/**
+ * 	    @brief Destructor of class ScanWorkSpace.
+ */
+
 ScanWorkSpace::~ScanWorkSpace() override = default;      
+
+/**
+ *      @brief Executes the tick operation of the node ScanWorkSpace.
+ *      @return The execution status of the node which in this case can be either SUCCESS or FAILURE.
+ */
+
 BT::NodeStatus ScanWorkSpace::tick() override
 {
     swot_msgs::SwotObjectMatching2023 srv_match;
@@ -60,6 +99,11 @@ BT::NodeStatus ScanWorkSpace::tick() override
     return BT::NodeStatus::SUCCESS;
 }
 
+/**
+ *      @brief Constructor of the MoveUp class used to initialize the corresponding member variables.
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object.
+ */
 
 MoveUp::MoveUp(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
 {
@@ -71,7 +115,18 @@ MoveUp::MoveUp(const std::string& name, Manipulation& manipulation) : BT::SyncAc
         {"right_right", manipulation_.array_pick_right_right}
     };
 }
+
+/**
+ * 	@brief Destructor of class MoveUp.
+ */
+
 MoveUp::~MoveUp() override = default;      
+
+/**
+ *      @brief Executes the tick operation of the node MoveUp.
+ *      @return The execution status of the node.
+ */
+
 BT::NodeStatus MoveUp::tick() override
 {
     ROS_INFO("move up ");           
@@ -95,6 +150,11 @@ BT::NodeStatus MoveUp::tick() override
     return BT::NodeStatus::SUCCESS;
 } 
 
+/**
+ *      @brief Constructor of the DropObjectInTray class used to initialize the corresponding member variables.
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object.
+ */
 
 DropObjectInTray::DropObjectInTray(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
 {
@@ -104,7 +164,18 @@ DropObjectInTray::DropObjectInTray(const std::string& name, Manipulation& manipu
         {manipulation_.array_tray3_top, manipulation_.array_tray3_load, "SAVE_3", objects_in_trays[2]}
     };
 }
+
+/**
+ * 	@brief Destructor of class DropObjectInTray.
+ */
+
 DropObjectInTray::~DropObjectInTray() override = default;     
+
+/**
+ *      @brief Executes the tick operation of the node DropObjectInTray.
+ *      @return The execution status of the node.
+ */
+
 BT::NodeStatus DropObjectInTray::tick() override
 {
     ROS_INFO("drop object in tray");

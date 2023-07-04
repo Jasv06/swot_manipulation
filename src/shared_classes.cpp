@@ -7,6 +7,12 @@
 
 #include "swot_manipulation_bt/shared_classes.h"
 
+/**
+ *      @brief Constructor of the GetGraspAndMoveGrasp class used to initialize the corresponding member variables.
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object to access the neccesary data.
+ */
+
 GetGraspAndMoveGrasp::GetGraspAndMoveGrasp(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
 {
     conditionActions = {
@@ -42,7 +48,18 @@ GetGraspAndMoveGrasp::GetGraspAndMoveGrasp(const std::string& name, Manipulation
     }
     }; 
 }
+
+/**
+ * 	    @brief Destructor of class GetGraspAndMoveGrasp.
+ */
+
 GetGraspAndMoveGrasp::~GetGraspAndMoveGrasp() override = default; 
+
+/**
+ *      @brief Executes the tick operation of the node GetGraspAndMoveGrasp.
+ *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
+ */
+
 BT::NodeStatus GetGraspAndMoveGrasp::tick() override
 {
     ROS_INFO("get grasp and move grasp");
@@ -59,9 +76,28 @@ BT::NodeStatus GetGraspAndMoveGrasp::tick() override
     return BT::NodeStatus::FAILURE;
 }
 
+/**
+ *      @brief Constructor of the PickPlaceObject class used to initialize the corresponding member variables.
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object to access the neccesary data.
+ */
 
-PickPlaceObject::PickPlaceObject(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}) , manipulation_(manipulation){}
+PickPlaceObject::PickPlaceObject(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}) , manipulation_(manipulation)
+{
+
+}
+
+/**
+ * 	    @brief Destructor of class PickPlaceObject.
+ */
+
 PickPlaceObject::~PickPlaceObject() override = default;      
+
+/**
+ *      @brief Executes the tick operation of the node PickPlaceObject.
+ *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
+ */
+
 BT::NodeStatus PickPlaceObject::tick() override
 {
     ROS_INFO("pick object");
@@ -111,10 +147,28 @@ BT::NodeStatus PickPlaceObject::tick() override
     return BT::NodeStatus::SUCCESS;
 }
 
+/**
+ *      @brief Constructor of the MoveHomePos class used to initialize the corresponding member variables.
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object to access the neccesary data.
+ */
 
+MoveHomePos::MoveHomePos(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
+{
 
-MoveHomePos::MoveHomePos(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
-MoveHomePos::~MoveHomePos() override = default;      
+}
+
+/**
+ * 	    @brief Destructor of class MoveHomePos.
+ */
+
+MoveHomePos::~MoveHomePos() override = default;    
+
+/**
+ *      @brief Executes the tick operation of the node MoveHomePos.
+ *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
+ */
+
 BT::NodeStatus MoveHomePos::tick() override
 {
     ROS_INFO("move home pos");
@@ -134,8 +188,28 @@ BT::NodeStatus MoveHomePos::tick() override
     }
 }
 
-MoveToDrivePose::MoveToDrivePose(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}) , manipulation_(manipulation){}
-MoveToDrivePose::~MoveToDrivePose() override = default;      
+/**
+ *      @brief Constructor of the MoveToDrivePose class used to initialize the corresponding member variables.
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object to access the neccesary data.
+ */
+
+MoveToDrivePose::MoveToDrivePose(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}) , manipulation_(manipulation)
+{
+
+}
+
+/**
+ * 	    @brief Destructor of class MoveToDrivePose.
+ */
+
+MoveToDrivePose::~MoveToDrivePose() override = default;  
+
+/**
+ *      @brief Executes the tick operation of the node MoveToDrivePose.
+ *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
+ */
+
 BT::NodeStatus MoveToDrivePose::tick() override
 {
     ROS_INFO("move to drive pos");

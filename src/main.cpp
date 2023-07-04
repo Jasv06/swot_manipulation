@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     #else
         std::cout << "Debug mode" << std::endl;
         // Initialize the manipulation class and its ROS services in debug mode
-        manipulation.initialize();
+        //manipulation.initialize();
     #endif
 
     return 0;

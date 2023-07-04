@@ -7,8 +7,28 @@
 
 #include "swot_manipulation_bt/place_classes.h"
 
-CheckObjRequired::CheckObjRequired(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
+/**
+ *      @brief Constructor of the CheckObjRequired class used to initialize the corresponding member variables.
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object to access the neccesary data.
+ */
+
+CheckObjRequired::CheckObjRequired(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
+{
+
+}
+
+/**
+ * 	    @brief Destructor of class CheckObjRequired.
+ */
+
 CheckObjRequired::~CheckObjRequired() override = default;      
+
+/**
+ *      @brief Executes the tick operation of the node CheckObjRequired.
+ *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
+ */
+
 BT::NodeStatus CheckObjRequired::tick() override
 {
     manipulation_.set_collision(false);
@@ -30,9 +50,28 @@ BT::NodeStatus CheckObjRequired::tick() override
     return BT::NodeStatus::SUCCESS;
 }     
 
+/**
+ *      @brief Constructor of the CheckWSFree class used to initialize the corresponding member variables.
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object to access the neccesary data.
+ */
 
-CheckWSFree::CheckWSFree(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
+CheckWSFree::CheckWSFree(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
+{
+
+}
+
+/**
+ * 	    @brief Destructor of class CheckWSFree.
+ */
+
 CheckWSFree::~CheckWSFree() override = default;      
+
+/**
+ *      @brief Executes the tick operation of the node CheckWSFree.
+ *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
+ */
+
 BT::NodeStatus CheckWSFree::tick() override
 {
     ROS_INFO("check ws free");
@@ -74,9 +113,28 @@ BT::NodeStatus CheckWSFree::tick() override
     return BT::NodeStatus::SUCCESS;
 }
 
+/**
+ *      @brief Constructor of the MoveToTray class used to initialize the corresponding member variables.
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object to access the neccesary data.
+ */
 
-MoveToTray::MoveToTray(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
-MoveToTray::~MoveToTray() override = default;      
+MoveToTray::MoveToTray(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
+{
+
+}
+
+/**
+ * 	    @brief Destructor of class MoveToTray.
+ */
+
+MoveToTray::~MoveToTray() override = default;   
+
+/**
+ *      @brief Executes the tick operation of the node MoveToTray.
+ *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
+ */
+
 BT::NodeStatus MoveToTray::tick() override
 {
     ROS_INFO("move to tray");
@@ -86,9 +144,28 @@ BT::NodeStatus MoveToTray::tick() override
     return BT::NodeStatus::SUCCESS;   
 }
 
+/**
+ *      @brief Constructor of the PickFromTray class used to initialize the corresponding member variables.
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object to access the neccesary data.
+ */
 
-PickFromTray::PickFromTray(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
-PickFromTray::~PickFromTray() override = default;      
+PickFromTray::PickFromTray(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
+{
+
+}
+
+/**
+ * 	    @brief Destructor of class PickFromTray.
+ */
+
+PickFromTray::~PickFromTray() override = default; 
+
+/**
+ *      @brief Executes the tick operation of the node PickFromTray.
+ *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
+ */
+
 BT::NodeStatus PickFromTray::tick() override
 {
     ROS_INFO("pick from tray");
@@ -140,8 +217,28 @@ BT::NodeStatus PickFromTray::tick() override
     return BT::NodeStatus::SUCCESS;
 }
 
-MoveToDropPos::MoveToDropPos(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) {}
-MoveToDropPos::~MoveToDropPos() override = default;      
+/**
+ *      @brief Constructor of the MoveToDropPos class used to initialize the corresponding member variables.
+ *      @param name The behavior tree node name.
+ *      @param manipulation The Manipulation class object to access the neccesary data.
+ */
+
+MoveToDropPos::MoveToDropPos(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
+{
+
+}
+
+/**
+ * 	    @brief Destructor of class MoveToDropPos.
+ */
+
+MoveToDropPos::~MoveToDropPos() override = default;
+
+/**
+ *      @brief Executes the tick operation of the node MoveToDropPos.
+ *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
+ */
+
 BT::NodeStatus MoveToDropPos::tick() override
 {
     ROS_INFO("move to drop pos");
