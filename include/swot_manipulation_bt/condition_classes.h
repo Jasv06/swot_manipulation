@@ -11,8 +11,6 @@
 
 #pragma once
 
-#include <behaviortree_cpp_v3/bt_factory.h>
-#include <behaviortree_cpp_v3/condition_node.h>
 #include "swot_manipulation_bt/manipulation.h"
 
 /**
