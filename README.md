@@ -9,7 +9,7 @@
 |-|------|
 |[Ubuntu 18.04](https://releases.ubuntu.com/18.04/)|[ROS Melodic](http://wiki.ros.org/melodic/Installation)|
 
-In case it is desired to migrate from ROS Melodic to ROS noetic or any ROS 2 distrutios please refer to the [migration guide](http://wiki.ros.org/melodic/Installation) from the behavior tree framework developers site. Keep in mind that most changes are incremental and back compatible with this repository.
+In case it is desired to use ROS noetic and ubuntu 20.04 please refer to the [branch bt_v4](https://github.com/Jasv06/swot_manipulation_bt/tree/bachelor_thesis). Note that the functionality is the same and the structure is similar. The main difference between this two are the usage of post and preconditions which was introduce in the newer versions of behavior trees.
 ### Requirements: 
 
 You should have the swot package which can be downloaded from the [gitlab](https://gitlab.vlab.fm.fhws.de/swot/swot_platform/-/tree/main/), the [behavior tree package](https://github.com/BehaviorTree/BehaviorTree.CPP/tree/v3.8), and [c++ 17 or a newer version](https://en.cppreference.com/w/cpp/17) installed on your device. 
@@ -18,7 +18,7 @@ You should have the swot package which can be downloaded from the [gitlab](https
 For guidance on installation, development, environmental setup, and troubleshooting, see the section "[Implementation](https://www.overleaf.com/read/ffcfzsjkwfws)" in Joel's bachelor thesis. This documentation includes a description of the sensors and the robot arm which were used to develop and test the behavior trees. A brief description of every node can found inside the respective folders. In case you desired to read a more detail explanation of every node please refer to the sub-section "Implemenation concept".
 
 ## Current features
-- The [behavior tree](/src/swot_manipulation_bt) which replicates the old manipulation workflow. It is important to note that instead of the multiple go-to statements the old script had, this script allows the user to addapt the code in very easy manner through the usage of classes.
+- The [behavior tree](/src) which replicates the old manipulation workflow. It is important to note that instead of the multiple go-to statements the old script had, this script allows the user to adapt the code in very easy manner through the usage of classes. Also, reactivity and modularity were increased in comparison with the original script. 
 
 ## Installation of this package
 **1.** Go to the source folder of your catkin workspace.
@@ -33,7 +33,7 @@ catkin_make
 source ~/catkin_ws/devel/setup.bash
 ```
 ## Running the behavior trees
-If you didn't add `source $YOUR_WORKSPACE/devel/setup.bash` and `source /opt/ros/noetic/setup.bash` to your `.bashrc`, remember to source it when you open a new terminal. Also, in the following example catkin_ws is the name of our workspace, but this could change depending on the name you gave to your workspace. Note that for the following example it is assumed that you have the correct set up to operate the robot and have already downloaded the package from the swot gitlab containing everything needed.
+If you didn't add `source $YOUR_WORKSPACE/devel/setup.bash` and `source /opt/ros/ROS_DISTR/setup.bash` to your `.bashrc`, remember to source it when you open a new terminal. Also, in the following example catkin_ws is the name of our workspace, but this could change depending on the name you gave to your workspace. Note that for the following example it is assumed that you have the correct set up to operate the robot and have already downloaded the package from the swot gitlab containing everything needed.
 
 ### Example for picking
 #### 1. Start the ROS master
@@ -75,16 +75,13 @@ roslaunch darknet_ros robocup_old_objects.launch
 #### 5. Starting the necessary ROS service for object matching
 Either in your computer or the onboard computer launch the following ROS service: 
 ```sh
-roslaunch swo_object_matching ObjectMatching.launch
+roslaunch swot_object_matching ObjectMatching.launch
+roslaunch swot_free_spot FreeSpot.launch
 ```
 #### 6. Start the manipulation of the robot
 Finally, open one last terminal, and type the following:
 ```sh
-roslaunch swot_manipulation_bt swot_manipulation_bt
-``` 
-Or
-```sh
-roslaunch swot_manipulation_bt swot_manipulation_bt_enhanced
+roslaunch swot_manipulation_bt manipulation_bt.launch
 ``` 
 ### Example Video
 If all the previous steps were followed correclty and carefully you should be able to see the following. (Click on the image below)
