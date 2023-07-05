@@ -21,11 +21,10 @@
 #include <memory>
 #include <iostream>
 #include <functional>
+#include <geometry_msgs/TransformStamped.h>
 #include <behaviortree_cpp_v3/bt_factory.h>
 #include <behaviortree_cpp_v3/condition_node.h>
 #include <behaviortree_cpp_v3/action_node.h>
-#include <geometry_msgs/TransformStamped.h
-
 
 // Alias for an array of 6 doubles
 typedef boost::array<double, 6> array6d; 
