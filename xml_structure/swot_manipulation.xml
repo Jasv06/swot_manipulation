@@ -58,7 +58,7 @@
     </BehaviorTree>
 
     <BehaviorTree ID="PickFromWS">
-        
+        </RetryUntilSuccessful>
             <Sequence>
                 <Action ID="MoveToScan"/>
                 <RetryUntilSuccessful num_attempts="3">
@@ -73,7 +73,7 @@
                 <Action ID="DropObjectInTray"/>
                 <Action ID="MoveHomePos"/>
             </Sequence>
-        
+        </RetryUntilSuccessful>
     </BehaviorTree>
  
     <BehaviorTree ID="PlaceInSH">
@@ -85,7 +85,7 @@
     </BehaviorTree>
     
     <BehaviorTree ID="PlaceInWS">
-    
+        <RetryUntilSuccessful num_attempts="3">
             <Sequence>
                 <Action ID="CheckObjRequired"/>
                 <RetryUntilSuccessful num_attempts="3">
@@ -98,7 +98,7 @@
                 <Action ID="PickPlaceObject"/>
                 <Action ID="MoveHomePos"/>
             </Sequence>
-        
+        </RetryUntilSuccessful>
     </BehaviorTree>
     
     <TreeNodesModel>
