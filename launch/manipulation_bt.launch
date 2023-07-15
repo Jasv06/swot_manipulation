@@ -1,11 +1,11 @@
 <launch>
-  <param name="debug" value="0" />
+  <!--param name="debug" value="0" /-->
   
   <node name="swot_manipulation_bt" pkg="swot_manipulation_bt" type="swot_manipulation_bt" output="screen">
-    <rosparam>
+    <!--rosparam-->
           <!-- Pass the value of the 'debug' parameter to the node as a parameter -->
-          <param name="debug" value="$(arg debug)" />
-    </rosparam>
+          <!--param name="debug" value="$(arg debug)" />
+    </rosparam-->
   </node>
   
   <node pkg="tf2_ros" type="static_transform_publisher" name="link1_broadcaster" args="0 0 0.157 0 0 0 1 wrist_3_link tool0_controller" />

@@ -22,30 +22,30 @@ CheckObjRequired::CheckObjRequired(const std::string& name, Manipulation& manipu
  * 	    @brief Destructor of class CheckObjRequired.
  */
 
-CheckObjRequired::~CheckObjRequired() override = default;      
+CheckObjRequired::~CheckObjRequired()  = default;      
 
 /**
  *      @brief Executes the tick operation of the node CheckObjRequired.
  *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
  */
 
-BT::NodeStatus CheckObjRequired::tick() override
+BT::NodeStatus CheckObjRequired::tick() 
 {
     manipulation_.set_collision_detected(false);
     if (manipulation_.get_request().save == "SAVE_1")
     {
         ROS_INFO("Object from tray 1 required");
-        objects_in_trays[0] = "";
+        manipulation_.reset_object_in_trays(0);
     }
     else if (manipulation_.get_request().save == "SAVE_2")
     {
         ROS_INFO("Object from tray 2 required");
-        objects_in_trays[1] = "";
+        manipulation_.reset_object_in_trays(1);
     }
     else
     {
         ROS_INFO("Object from tray 3 required");
-        objects_in_trays[2] = "";
+        manipulation_.reset_object_in_trays(2);
     }
     return BT::NodeStatus::SUCCESS;
 }     
@@ -65,14 +65,14 @@ CheckWSFree::CheckWSFree(const std::string& name, Manipulation& manipulation) : 
  * 	    @brief Destructor of class CheckWSFree.
  */
 
-CheckWSFree::~CheckWSFree() override = default;      
+CheckWSFree::~CheckWSFree()  = default;      
 
 /**
  *      @brief Executes the tick operation of the node CheckWSFree.
  *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
  */
 
-BT::NodeStatus CheckWSFree::tick() override
+BT::NodeStatus CheckWSFree::tick() 
 {
     ROS_INFO("check ws free");
     swot_msgs::SwotFreeSpot srv_free;
@@ -121,14 +121,14 @@ MoveToTray::MoveToTray(const std::string& name, Manipulation& manipulation) : BT
  * 	    @brief Destructor of class MoveToTray.
  */
 
-MoveToTray::~MoveToTray() override = default;   
+MoveToTray::~MoveToTray()  = default;   
 
 /**
  *      @brief Executes the tick operation of the node MoveToTray.
  *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
  */
 
-BT::NodeStatus MoveToTray::tick() override
+BT::NodeStatus MoveToTray::tick() 
 {
     ROS_INFO("move to tray");
     (manipulation_.getRTDE())->joint_target(manipulation_.array_rotate1, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
@@ -152,14 +152,14 @@ PickFromTray::PickFromTray(const std::string& name, Manipulation& manipulation) 
  * 	    @brief Destructor of class PickFromTray.
  */
 
-PickFromTray::~PickFromTray() override = default; 
+PickFromTray::~PickFromTray()  = default; 
 
 /**
  *      @brief Executes the tick operation of the node PickFromTray.
  *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
  */
 
-BT::NodeStatus PickFromTray::tick() override
+BT::NodeStatus PickFromTray::tick() 
 {
     ROS_INFO("pick from tray");
     if (manipulation_.get_tray() == "SAVE_1")
@@ -186,7 +186,7 @@ BT::NodeStatus PickFromTray::tick() override
     manipulation_.set_collision_activated(true);
 
     long int  timer = 0;
-    while ( (manipulation_.get_collision() == false) && (timer<100) )
+    while ( (manipulation_.get_collision_detected() == false) && (timer<100) )
     {
         ros::Duration(0.1).sleep();
         timer++;
@@ -225,14 +225,14 @@ MoveToDropPos::MoveToDropPos(const std::string& name, Manipulation& manipulation
  * 	    @brief Destructor of class MoveToDropPos.
  */
 
-MoveToDropPos::~MoveToDropPos() override = default;
+MoveToDropPos::~MoveToDropPos()  = default;
 
 /**
  *      @brief Executes the tick operation of the node MoveToDropPos.
  *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
  */
 
-BT::NodeStatus MoveToDropPos::tick() override
+BT::NodeStatus MoveToDropPos::tick() 
 {
     ROS_INFO("move to drop pos");
     (manipulation_.getRTDE())->joint_target(manipulation_.array_rotate2, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());

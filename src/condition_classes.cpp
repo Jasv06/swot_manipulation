@@ -22,14 +22,14 @@ NotDrive::NotDrive(const std::string& name, Manipulation& manipulation) : BT::Co
  *      @brief Destructor of Condition node class NotDrive.
  */
 
-NotDrive::~NotDrive() override = default;
+NotDrive::~NotDrive() = default;
 
 /**
  *      @brief Executes the tick operation of the node NotDrive.
  *      @return The execution status of the node.
  */
 
-BT::NodeStatus NotDrive::tick() override
+BT::NodeStatus NotDrive::tick() 
 {
     ROS_INFO("drive achieved");
     if(manipulation_.get_request().mode == "DRIVE") {return BT::NodeStatus::FAILURE;}
@@ -53,14 +53,14 @@ NotPick::NotPick(const std::string& name, Manipulation& manipulation) : BT::Cond
  *      @brief Destructor of Condition node class NotPick.
  */
 
-NotPick::~NotPick() override = default;
+NotPick::~NotPick() = default;
 
 /**
  *      @brief Executes the tick operation of the node NotPick.
  *      @return The execution status of the node.
  */
 
-BT::NodeStatus NotPick::tick() override
+BT::NodeStatus NotPick::tick() 
 {
     ROS_INFO("pick achieved");
     if(manipulation_.get_request().mode == "PICK") {return BT::NodeStatus::FAILURE;}
@@ -84,14 +84,14 @@ NotPlace::NotPlace(const std::string& name, Manipulation& manipulation) : BT::Co
  *      @brief Destructor of Condition node class NotPlace.
  */
 
-NotPlace::~NotPlace() override = default;
+NotPlace::~NotPlace()  = default;
 
 /**
  *      @brief Executes the tick operation of the node NotPlace.
  *      @return The execution status of the node.
  */
 
-BT::NodeStatus NotPlace::tick() override
+BT::NodeStatus NotPlace::tick() 
 {
     ROS_INFO("place achieved");
     if(manipulation_.get_request().mode == "PLACE") {return BT::NodeStatus::FAILURE;}
@@ -115,14 +115,14 @@ NotPP::NotPP(const std::string& name, Manipulation& manipulation) : BT::Conditio
  *      @brief Destructor of Condition node class NotPP.
  */
 
-NotPP::~NotPP() override = default;
+NotPP::~NotPP()  = default;
 
 /**
  *      @brief Executes the tick operation of the node NotPP.
  *      @return The execution status of the node.
  */
 
-BT::NodeStatus NotPP::tick() override
+BT::NodeStatus NotPP::tick() 
 {
     ROS_INFO("pp achieved");
     if(manipulation_.get_request().task == "PP") {return BT::NodeStatus::FAILURE;}
@@ -145,14 +145,14 @@ NotSH::NotSH(const std::string& name, Manipulation& manipulation) : BT::Conditio
  *      @brief Destructor of Condition node class NotSH.
  */
 
-NotSH::~NotSH() override = default;
+NotSH::~NotSH()  = default;
 
 /**
  *      @brief Executes the tick operation of the node NotSH.
  *      @return The execution status of the node.
  */
 
-BT::NodeStatus NotSH::tick() override
+BT::NodeStatus NotSH::tick() 
 {
     ROS_INFO("sh achieved");
     if(manipulation_.get_request().task == "SH") {return BT::NodeStatus::FAILURE;}
@@ -175,14 +175,14 @@ NotTT::NotTT(const std::string& name, Manipulation& manipulation) : BT::Conditio
  *      @brief Destructor of Condition node class NotTT.
  */
 
-NotTT::~NotTT() override = default;
+NotTT::~NotTT()  = default;
 
 /**
  *      @brief Executes the tick operation of the node NotTT.
  *      @return The execution status of the node.
  */
 
-BT::NodeStatus NotTT::tick() override
+BT::NodeStatus NotTT::tick() 
 {
     ROS_INFO("tt achieved");
     if(manipulation_.get_request().task == "TT") {return BT::NodeStatus::FAILURE;}
@@ -205,14 +205,14 @@ NotWS::NotWS(const std::string& name, Manipulation& manipulation) : BT::Conditio
  *      @brief Destructor of Condition node class NotWS.
  */
 
-NotWS::~NotWS() override = default;
+NotWS::~NotWS()  = default;
 
 /**
  *      @brief Executes the tick operation of the node NotWS.
  *      @return The execution status of the node.
  */
 
-BT::NodeStatus NotWS::tick() override
+BT::NodeStatus NotWS::tick() 
 {
     ROS_INFO("ws achieved");
     if(manipulation_.get_request().task == "WS") {return BT::NodeStatus::FAILURE;}

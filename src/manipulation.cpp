@@ -11,38 +11,12 @@
 #include "swot_manipulation_bt/place_classes.h"
 #include "swot_manipulation_bt/shared_classes.h"
 
-/**
-*       @struct ConditionAction
-*       @brief Represents a condition-action pair for handling RoboCup manipulation tasks.
-*       @details This struct combines a condition function and an action function. The condition function
-*           determines whether the specified condition is met, and the action function is executed
-*           if the condition is true.
-*/
-
-struct ConditionAction {
-    std::function<bool()> condition;        /**< The condition function. */
-    std::function<void()> action;           /**< The action function. */
-};
-
-/**
-*       @struct Tray
-*       @brief Represents a tray used for RoboCup manipulation tasks.
-*       @details This struct holds information about the top pose, load pose, save position, and tray object
-*           associated with a specific tray.
-*/
-
-struct Tray {
-    array6d topPose;                        /**< The top pose of the tray. */
-    array6d loadPose;                       /**< The load pose of the tray. */
-    std::string savePosition;               /**< The save position of the tray. */
-    std::string& trayObject;                /**< The object placed on the tray. */
-};
 
 /**
  *      @brief Constructor of class Manipulation used to initialize the corresponding member variables.
  */
 
-Manipulation::Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_limit(10.5), collision_detected(false), collision_activated(false), gripper_speed_(1.0), gripper_force_(60.0), jnt_vel_(1), jnt_acc_(1), move_duration(5),left_left_thresh(0.2), left_thresh(0.1), right_thresh(-0.1), right_right_thresh(-0.2)
+Manipulation::Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_limit(10.5), collision_detected(false), collision_activated(false), gripper_speed_(1.0), gripper_force_(60.0), jnt_vel_(1), jnt_acc_(1), left_left_thresh(0.2), left_thresh(0.1), right_thresh(-0.1), right_right_thresh(-0.2)
 {
     target_position = {2.40435886383057, -1.83808960537099, 0.975212875996725, -0.674065129165985, -1.63826924959292, -3.8627772966968};
 }
@@ -134,8 +108,8 @@ void Manipulation::registerNodes(BT::BehaviorTreeFactory& factory, Manipulation&
     BT::NodeBuilder builder_18 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<PickFromTray>(name,  std::ref(manipulation));};
     factory.registerBuilder<PickFromTray>("PickFromTray", builder_18);
 
-    BT::NodeBuilder builder_19 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<PickObject>(name,  std::ref(manipulation));};
-    factory.registerBuilder<PickObject>("PickObject", builder_19); 
+    BT::NodeBuilder builder_19 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<PickPlaceObject>(name,  std::ref(manipulation));};
+    factory.registerBuilder<PickPlaceObject>("PickPlaceObject", builder_19); 
 
     BT::NodeBuilder builder_20 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<ScanWorkSpace>(name,  std::ref(manipulation));};       
     factory.registerBuilder<ScanWorkSpace>("ScanWorkSpace", builder_20);
@@ -190,7 +164,7 @@ void Manipulation::callback_wrench(const geometry_msgs::WrenchStamped &msg)
             if (std::max({std::abs(msg.wrench.force.x), std::abs(msg.wrench.force.y), std::abs(msg.wrench.force.z)}) > wrench_limit)
             {
                 ROS_INFO("wrench_limit achieved");
-                set_collision(true);
+                set_collision_detected(true);
                 set_collision_activated(false);
             }
         }
@@ -572,32 +546,8 @@ double Manipulation::get_right_right_thresh() const
  *      @return The RTDE interface.
  */
 
-std::unique_ptr<RTDEControlInterface> Manipulation::get_rtde() const
+const std::unique_ptr<URRTDE>& Manipulation::getRTDE() const
 {
     return rtde;
 }
 
-// Array definitions
-array6d Manipulation::array_scan_mid = {2.40435886383057, -1.83808960537099, 0.975212875996725, -0.674065129165985, -1.63826924959292, -3.8627772966968};
-array6d Manipulation::array_scan_left = {3.681095838546753, -1.2161747378161927, 0.6712544600116175, -1.0322970908931275, -1.663314167653219, -2.6715996901141565};
-array6d Manipulation::array_scan_left_yolo = {3.31208157539368, -1.67535986522817, 1.43538600603213, -1.27126656592403, -1.62322599092592, -3.0253372828113};
-array6d Manipulation::array_scan_right_yolo = {2.03880262374878, -1.67188944439077, 1.43529826799502, -1.32640195012603, -1.58402139345278, -4.25680452982058};
-array6d Manipulation::array_scan_right = {1.9794570207595825, -1.405427412395813, 0.7290337721454065, -0.7683202785304566, -1.4733336607562464, -4.272872988377706};
-array6d Manipulation::array_pick_mid = {2.50433206558228, -1.73584236721181, 2.36165410677065, -2.17094959835195, -1.55130368867983, -3.78159839311709};
-array6d Manipulation::array_pick_left_left = {3.57079100608826, -1.25637282550845, 1.81794149080385, -2.13930000881338, -1.54926091829409, -2.72351652780642};
-array6d Manipulation::array_pick_left = {3.0599627494812, -1.64873184780263, 2.17455464998354, -2.03081049541616, -1.54161435762514, -3.26244932809939};
-array6d Manipulation::array_pick_right = {2.05809712409973, -1.44568693757568, 2.1275957266437, -2.25774492839956, -1.57374316850771, -4.27933890024294};
-array6d Manipulation::array_pick_right_right = {1.8982390165329, -1.10214848936115, 1.67234355608095, -2.18172802547597, -1.57016212144961, -4.43200451532473};
-array6d Manipulation::array_rotate1 = {2.3692173957824707, -2.3164030514159144, 1.3390710989581507, -0.9904833000949402, -2.1601603666888636, -2.726298157368795};
-array6d Manipulation::array_rotate2 = {0.9031553864479065, -2.4277192554869593, 1.0507047812091272, -0.964714304809906, -1.9267485777484339, -2.7257021109210413};
-array6d Manipulation::array_rotate3 = {-0.290535275136129, -1.32841757059608, 0.46738320985903, -0.702364699249603, -1.57764035860171, -3.45398217836489};
-array6d Manipulation::array_tray1_top = {0.064236424863339, -1.42052191615615, 0.902454201375143, -1.04965449989352, -1.59723025957216, -3.07310563722719};
-array6d Manipulation::array_tray2_top = {-0.255208794270651, -1.54578061894093, 1.05577546754946, -1.06061519802127, -1.55526000658144, -3.37846404710879};
-array6d Manipulation::array_tray3_top = {-0.53069526353945, -1.57270397762441, 1.04742652574648, -1.04646314800296, -1.56945592561831, -3.61158138910402};
-array6d Manipulation::array_tray1_load = {0.064320102334023, -1.53433151290331, 1.48070460954775, -1.51407157376919, -1.59717017809023, -3.07259160677065};
-array6d Manipulation::array_tray2_load = {-0.255173508320944, -1.6467939815917, 1.58283216158022, -1.48665781438861, -1.55522424379458, -3.37798530260195};
-array6d Manipulation::array_tray3_load = {-0.530647579823629, -1.6887427769103, 1.65178472200503, -1.53478486955676, -1.56944162050356, -3.6110408941852};
-array6d Manipulation::array_drive = {3.18401956558228, -2.55628885845327, 1.20438319841494, -0.691585080032684, -1.76227599779238, -3.09013063112368};
-array6d Manipulation::free_backup_1 = {3.5078, -1.3333, 1.7648, -2.033566, -1.58985, -4.33499};
-array6d Manipulation::free_backup_2 = {2.1859, -1.2849, 2.01598, -2.326377, -1.567803, -2.50999};
-array6d Manipulation::free_SH_1 = {3.1510367393493652, -1.4416437161019822, 1.5042608420001429, -2.213513513604635, -1.6092117468463343, -3.0877655188189905};

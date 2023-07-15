@@ -15,9 +15,9 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "swot_manipulation_bt_joel");
 
     // Remove current definition of DEBUG_MODE in case any other value has been assigned
-    #ifdef DEBUG_MODE   
-    #undef DEBUG_MODE
-    #endif
+    //#ifdef DEBUG_MODE   
+    //#undef DEBUG_MODE
+    //#endif
 
     // Create an instance of the Manipulation class
     // This instance calls the default constructor of the class
@@ -25,23 +25,23 @@ int main(int argc, char **argv)
 
     // Extract the value of the variable debug which was passed as a argument via the launch file
     // The variable debug is defined in "swot_manipulation_bt/debug_mode.h"
-    manipulation.get_nh().getParam("debug", debug);
+    //manipulation.get_nh().getParam("debug", debug);
     
     // Define DEBUG_MODE based on the debug parameter
-    #define DEBUG_MODE debug
+    //#define DEBUG_MODE debug
 
-    #if !DEBUG_MODE
+    //#if !DEBUG_MODE
         // Initialize the manipulation class and its ROS services
         manipulation.initialize();
         // Create a MultiThreadedSpinner with 4 threads
         ros::MultiThreadedSpinner spinner(4);
         // Spin the spinner to process callbacks in multiple threads
         spinner.spin();
-    #else
-        std::cout << "Debug mode" << std::endl;
+    //#else
+        //std::cout << "Debug mode" << std::endl;
         // Initialize the manipulation class and its ROS services in debug mode
         //manipulation.initialize();
-    #endif
+    //#endif
 
     return 0;
 }

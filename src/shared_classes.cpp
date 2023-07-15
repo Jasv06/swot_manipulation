@@ -20,35 +20,35 @@ GetGraspAndMoveGrasp::GetGraspAndMoveGrasp(const std::string& name, Manipulation
         [&]() {
             (manipulation_.getRTDE())->joint_target(manipulation_.array_pick_left_left, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
             manipulation_.set_grasping_area("left_left");
-            manipulation_.set_target(array_pick_left_left);
+            manipulation_.set_target(manipulation_.array_pick_left_left);
         }
     },
     { [&]() { return manipulation_.get_grasping_point().position.y < manipulation_.get_left_left_thresh() && manipulation_.get_grasping_point().position.y >= manipulation_.get_left_thresh();},
         [&]() {
             (manipulation_.getRTDE())->joint_target(manipulation_.array_pick_left, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
             manipulation_.set_grasping_area("left");
-            manipulation_.set_target(array_pick_left);
+            manipulation_.set_target(manipulation_.array_pick_left);
         }
     },
     { [&]() { return manipulation_.get_grasping_point().position.y < manipulation_.get_left_thresh() && manipulation_.get_grasping_point().position.y >= manipulation_.get_right_thresh();},
         [&]() {
             (manipulation_.getRTDE())->joint_target(manipulation_.array_pick_mid, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
             manipulation_.set_grasping_area("mid");
-            manipulation_.set_target(array_pick_mid);
+            manipulation_.set_target(manipulation_.array_pick_mid);
         }
     },
     { [&]() { return manipulation_.get_grasping_point().position.y < manipulation_.get_right_thresh() && manipulation_.get_grasping_point().position.y >= manipulation_.get_right_right_thresh();},
         [&]() {
             (manipulation_.getRTDE())->joint_target(manipulation_.array_pick_right, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
             manipulation_.set_grasping_area("right");
-            manipulation_.set_target(array_pick_right);
+            manipulation_.set_target(manipulation_.array_pick_right);
         }
     },
     { [&]() { return manipulation_.get_grasping_point().position.y < manipulation_.get_right_right_thresh();},
         [&]() {
             (manipulation_.getRTDE())->joint_target(manipulation_.array_pick_right_right, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
             manipulation_.set_grasping_area("right_right");
-            manipulation_.set_target(array_pick_right_right);
+            manipulation_.set_target(manipulation_.array_pick_right_right);
         }
     }
     }; 
@@ -58,14 +58,14 @@ GetGraspAndMoveGrasp::GetGraspAndMoveGrasp(const std::string& name, Manipulation
  * 	    @brief Destructor of class GetGraspAndMoveGrasp.
  */
 
-GetGraspAndMoveGrasp::~GetGraspAndMoveGrasp() override = default; 
+GetGraspAndMoveGrasp::~GetGraspAndMoveGrasp()  = default; 
 
 /**
  *      @brief Executes the tick operation of the node GetGraspAndMoveGrasp.
  *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
  */
 
-BT::NodeStatus GetGraspAndMoveGrasp::tick() override
+BT::NodeStatus GetGraspAndMoveGrasp::tick() 
 {
     ROS_INFO("get grasp and move grasp");
 
@@ -96,14 +96,14 @@ PickPlaceObject::PickPlaceObject(const std::string& name, Manipulation& manipula
  * 	    @brief Destructor of class PickPlaceObject.
  */
 
-PickPlaceObject::~PickPlaceObject() override = default;      
+PickPlaceObject::~PickPlaceObject()  = default;      
 
 /**
  *      @brief Executes the tick operation of the node PickPlaceObject.
  *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
  */
 
-BT::NodeStatus PickPlaceObject::tick() override
+BT::NodeStatus PickPlaceObject::tick() 
 {
     ROS_INFO("pick object");
     
@@ -121,7 +121,7 @@ BT::NodeStatus PickPlaceObject::tick() override
     ROS_INFO("Force Mode activated");
     manipulation_.set_collision_activated(true);
     long int timer = 0;
-    while ( (manipulation_.get_collision() == false) && (timer<100) )
+    while ( (manipulation_.get_collision_detected() == false) && (timer<100) )
     {
         ros::Duration(0.1).sleep();
         timer++;
@@ -172,14 +172,14 @@ MoveHomePos::MoveHomePos(const std::string& name, Manipulation& manipulation) : 
  * 	    @brief Destructor of class MoveHomePos.
  */
 
-MoveHomePos::~MoveHomePos() override = default;    
+MoveHomePos::~MoveHomePos()  = default;    
 
 /**
  *      @brief Executes the tick operation of the node MoveHomePos.
  *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
  */
 
-BT::NodeStatus MoveHomePos::tick() override
+BT::NodeStatus MoveHomePos::tick() 
 {
     ROS_INFO("move home pos");
     if(manipulation_.get_last_pos() == "tray")
@@ -192,7 +192,7 @@ BT::NodeStatus MoveHomePos::tick() override
     }
     else
     {  
-        (manipulation_.rtde)->joint_target(manipulation_.array_scan_mid, manipulation_.jnt_vel_, manipulation_.jnt_acc_);
+        (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_mid, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
         manipulation_.set_response_status("FINISHED");
         return BT::NodeStatus::SUCCESS;
     }
@@ -213,14 +213,14 @@ MoveToDrivePose::MoveToDrivePose(const std::string& name, Manipulation& manipula
  * 	    @brief Destructor of class MoveToDrivePose.
  */
 
-MoveToDrivePose::~MoveToDrivePose() override = default;  
+MoveToDrivePose::~MoveToDrivePose()  = default;  
 
 /**
  *      @brief Executes the tick operation of the node MoveToDrivePose.
  *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
  */
 
-BT::NodeStatus MoveToDrivePose::tick() override
+BT::NodeStatus MoveToDrivePose::tick() 
 {
     ROS_INFO("move to drive pos");
     (manipulation_.getRTDE())->joint_target(manipulation_.array_drive, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());

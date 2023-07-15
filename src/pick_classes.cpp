@@ -22,14 +22,14 @@ MoveToScan::MoveToScan(const std::string& name, Manipulation& manipulation) : BT
  * 	    @brief Destructor of class MoveToScan.
  */
 
-MoveToScan::~MoveToScan() override = default;      
+MoveToScan::~MoveToScan() = default;      
 
 /**
  *      @brief Executes the tick operation of the node MoveToScan.
  *      @return The execution status of the node which in this case can be SUCCESS or FAILURE.
  */
 
-BT::NodeStatus MoveToScan::tick() override
+BT::NodeStatus MoveToScan::tick() 
 {
     manipulation_.set_collision_detected(false);
     ROS_INFO("move to scan");
@@ -52,14 +52,14 @@ ScanWorkSpace::ScanWorkSpace(const std::string& name, Manipulation& manipulation
  * 	    @brief Destructor of class ScanWorkSpace.
  */
 
-ScanWorkSpace::~ScanWorkSpace() override = default;      
+ScanWorkSpace::~ScanWorkSpace()  = default;      
 
 /**
  *      @brief Executes the tick operation of the node ScanWorkSpace.
  *      @return The execution status of the node which in this case can be either SUCCESS or FAILURE.
  */
 
-BT::NodeStatus ScanWorkSpace::tick() override
+BT::NodeStatus ScanWorkSpace::tick() 
 {
     swot_msgs::SwotObjectMatching2023 srv_match;
     srv_match.request.object = manipulation_.get_request().object;
@@ -120,20 +120,20 @@ MoveUp::MoveUp(const std::string& name, Manipulation& manipulation) : BT::SyncAc
  * 	@brief Destructor of class MoveUp.
  */
 
-MoveUp::~MoveUp() override = default;      
+MoveUp::~MoveUp()  = default;      
 
 /**
  *      @brief Executes the tick operation of the node MoveUp.
  *      @return The execution status of the node.
  */
 
-BT::NodeStatus MoveUp::tick() override
+BT::NodeStatus MoveUp::tick() 
 {
     ROS_INFO("move up ");           
     array7d target = {manipulation_.get_grasping_point().position.x, manipulation_.get_grasping_point().position.y, manipulation_.get_grasping_point().position.z + 0.07,
     manipulation_.get_grasping_point().orientation.x, manipulation_.get_grasping_point().orientation.y, manipulation_.get_grasping_point().orientation.z,
     manipulation_.get_grasping_point().orientation.w};
-    (manipulation_.getRTDE())->cart_target(1, target, manipulation_.get_jnt_vel_(), manipulation_.getjnt_acc_());           
+    (manipulation_.getRTDE())->cart_target(1, target, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());           
 
     std::string graspingArea = manipulation_.get_grasping_area();
     array6d defaultTarget = manipulation_.array_pick_mid;
@@ -159,9 +159,9 @@ BT::NodeStatus MoveUp::tick() override
 DropObjectInTray::DropObjectInTray(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
 {
     trays = {
-        {manipulation_.array_tray1_top, manipulation_.array_tray1_load, "SAVE_1", objects_in_trays[0]},
-        {manipulation_.array_tray2_top, manipulation_.array_tray2_load, "SAVE_2", objects_in_trays[1]},
-        {manipulation_.array_tray3_top, manipulation_.array_tray3_load, "SAVE_3", objects_in_trays[2]}
+        {manipulation_.array_tray1_top, manipulation_.array_tray1_load, "SAVE_1", manipulation_.objects_in_trays[0]},
+        {manipulation_.array_tray2_top, manipulation_.array_tray2_load, "SAVE_2", manipulation_.objects_in_trays[1]},
+        {manipulation_.array_tray3_top, manipulation_.array_tray3_load, "SAVE_3", manipulation_.objects_in_trays[2]}
     };
 }
 
@@ -169,18 +169,18 @@ DropObjectInTray::DropObjectInTray(const std::string& name, Manipulation& manipu
  * 	@brief Destructor of class DropObjectInTray.
  */
 
-DropObjectInTray::~DropObjectInTray() override = default;     
+DropObjectInTray::~DropObjectInTray()  = default;     
 
 /**
  *      @brief Executes the tick operation of the node DropObjectInTray.
  *      @return The execution status of the node.
  */
 
-BT::NodeStatus DropObjectInTray::tick() override
+BT::NodeStatus DropObjectInTray::tick() 
 {
     ROS_INFO("drop object in tray");
     (manipulation_.getRTDE())->joint_target(manipulation_.array_rotate1, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
-    (manipulation_.getRTDE())->joint_target(manipulation_.array_rotate2, manipulation_.get_jnt_vel_(), manipulation_.jnt_acc_());
+    (manipulation_.getRTDE())->joint_target(manipulation_.array_rotate2, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
 
     for (const auto& tray : trays) {
         if (tray.trayObject.empty() && manipulation_.get_request().save == tray.savePosition) {
@@ -196,7 +196,7 @@ BT::NodeStatus DropObjectInTray::tick() override
             manipulation_.set_collision_activated(true);
 
             long int timer = 0;
-            while ( (manipulation_.get_collision() == false) && (timer<100) )
+            while ( (manipulation_.get_collision_detected() == false) && (timer<100) )
             {
                 ros::Duration(0.1).sleep();
                 timer++;
