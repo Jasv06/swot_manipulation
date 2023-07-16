@@ -134,6 +134,7 @@ class Manipulation
         void setTargetPosition6d(std::string target);
         void set_target(array6d);
         void set_count(int);
+        void increment_count();
 
         // Getter functions
         std::string get_last_pos() const;
