@@ -76,6 +76,7 @@ BT::NodeStatus ScanWorkSpace::tick()
     else
     {
         (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_mid, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
+        count = 0;
     }
 
     if(ros::service::waitForService("ObjectMatchingServer", ros::Duration(3.0)) == false)
