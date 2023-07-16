@@ -44,7 +44,7 @@ BT::NodeStatus MoveToScan::tick()
  *      @param manipulation The Manipulation class object.
  */
 
-ScanWorkSpace::ScanWorkSpace(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation), count(0) 
+ScanWorkSpace::ScanWorkSpace(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
 {
 
 }
@@ -65,18 +65,18 @@ BT::NodeStatus ScanWorkSpace::tick()
     swot_msgs::SwotObjectMatching2023 srv_match;
     srv_match.request.object = manipulation_.get_request().object;
     ROS_INFO("scan workspace");
-    if(count == 0)
+    if(manipulation_.get_count() == 0)
     {
         (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_left_yolo, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
     }
-    else if(count == 1)
+    else if(manipulation_.get_count() == 1)
     {
         (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_right_yolo, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
     }
     else
     {
         (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_mid, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
-        count = 0;
+        manipulation_.set_count(0);
     }
 
     if(ros::service::waitForService("ObjectMatchingServer", ros::Duration(3.0)) == false)
