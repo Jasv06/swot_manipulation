@@ -104,6 +104,7 @@ class Manipulation
         double right_thresh;                            /*! The threshold value for the right condition. */
         double right_right_thresh;                      /*! The threshold value for the right-right condition. */
         array6d target_position;                        /*! The target position array for robot movement planning. */
+        int count;
 
     public:  
         // Constructor
@@ -132,6 +133,7 @@ class Manipulation
         void set_response_status(const std::string& status);
         void setTargetPosition6d(std::string target);
         void set_target(array6d);
+        void set_count(int);
 
         // Getter functions
         std::string get_last_pos() const;
@@ -155,6 +157,7 @@ class Manipulation
         double get_right_thresh() const;                            
         double get_right_right_thresh() const;                     
         const std::unique_ptr<URRTDE>& getRTDE() const;
+        int get_count() const;
 
         std::vector<std::string> objects_in_trays;      /*! The list of objects currently placed in trays. */
 
