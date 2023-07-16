@@ -81,20 +81,20 @@ BT::NodeStatus ScanWorkSpace::tick()
 
     if(ros::service::waitForService("ObjectMatchingServer", ros::Duration(3.0)) == false)
     {
-        count++;
+        manipulation_.increment_count();
         return BT::NodeStatus::FAILURE;   
     }
     ros::Duration(1).sleep();
     if(!(manipulation_.get_service_client_matching()).call(srv_match))
     {
-        count++;
+        manipulation_.increment_count();
         ROS_WARN("Couldn't find ROS Service \"SwotObjectMatching\"");
         return BT::NodeStatus::FAILURE;
     }
     ros::Duration(1).sleep();
     if (srv_match.response.posture == "STANDING" || srv_match.response.posture == "FAILED")
     {
-        count++;
+        manipulation_.increment_count();
         return BT::NodeStatus::FAILURE;
     }
     manipulation_.set_grasping_point(srv_match.response.pose);
