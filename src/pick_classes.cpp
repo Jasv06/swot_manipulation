@@ -33,6 +33,7 @@ BT::NodeStatus MoveToScan::tick()
 {
     manipulation_.set_collision_detected(false);
     ROS_INFO("move to scan");
+    (manipulation_.getRTDE())->gripper_open(manipulation_.get_gripper_speed_(), manipulation_.get_gripper_force_());
     (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_mid, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
     return BT::NodeStatus::SUCCESS; 
 }  
