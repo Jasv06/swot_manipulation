@@ -36,7 +36,6 @@ class ScanWorkSpace : public BT::SyncActionNode
 {
     private:
         Manipulation& manipulation_;
-        int count;
 
     public:
         ScanWorkSpace(const std::string& name, Manipulation& manipulation);
