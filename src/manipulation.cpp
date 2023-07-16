@@ -338,6 +338,11 @@ void Manipulation::set_target(array6d target)
     this->target_position = target;
 }
 
+void Manipulation::set_count(int number)
+{
+    this->count = number;
+}
+
 // Getter functions -------------------------------------------
 
 /**
@@ -549,5 +554,10 @@ double Manipulation::get_right_right_thresh() const
 const std::unique_ptr<URRTDE>& Manipulation::getRTDE() const
 {
     return rtde;
+}
+
+int Manipulation::get_count() const
+{
+    return this->count;
 }
 
