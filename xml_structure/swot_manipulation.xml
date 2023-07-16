@@ -66,7 +66,6 @@
                 </RetryUntilSuccessful>
                 <Action ID="GetGraspAndMoveGrasp"/>
                 <Action ID="PickPlaceObject"/>
-                <Action ID="CheckObjectPicked"/>
                 <Action ID="MoveUp"/>
                 <Action ID="DropObjectInTray"/>
                 <Action ID="MoveHomePos"/>
@@ -101,7 +100,6 @@
     
     <TreeNodesModel>
         <Action ID="CheckObjRequired"/>
-        <Action ID="CheckObjectPicked"/>
         <Action ID="CheckWSFree"/>
         <Action ID="DropObjectInTray"/>
         <Action ID="GetGraspAndMoveGrasp"/>
@@ -121,7 +119,7 @@
         <SubTree ID="PickFromSH"/>
         <Action ID="PickFromTray"/>
         <SubTree ID="PickFromWS"/>
-        <Action ID="PickPlaceObject"/>
+        <Action ID="PickObject"/>
         <SubTree ID="PlaceInSH"/>
         <SubTree ID="PlaceInWS"/>
         <Action ID="ScanWorkSpace"/>
