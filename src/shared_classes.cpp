@@ -145,8 +145,10 @@ BT::NodeStatus PickPlaceObject::tick()
     {
         (manipulation_.getRTDE())->gripper_close(manipulation_.get_gripper_speed_(), manipulation_.get_gripper_force_());
         ros::Duration(0.5).sleep();
-        if(manipulation_.getRTDE()->get_gripper_position_per() < 3)
+        if(manipulation_.getRTDE()->get_gripper_position_per() < 2)
         {
+            (manipulation_.getRTDE())->gripper_open(manipulation_.get_gripper_speed_(), manipulation_.get_gripper_force_());
+            manipulation_.set_count(0);
             return BT::NodeStatus::FAILURE;
         }
     }
