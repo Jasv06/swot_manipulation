@@ -343,6 +343,11 @@ void Manipulation::set_count(int number)
     this->count = number;
 }
 
+void Manipulation::increment_count()
+{
+    this->count++;
+}
+
 // Getter functions -------------------------------------------
 
 /**
