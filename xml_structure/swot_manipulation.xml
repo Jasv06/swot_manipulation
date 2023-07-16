@@ -119,7 +119,7 @@
         <SubTree ID="PickFromSH"/>
         <Action ID="PickFromTray"/>
         <SubTree ID="PickFromWS"/>
-        <Action ID="PickObject"/>
+        <Action ID="PickPlaceObject"/>
         <SubTree ID="PlaceInSH"/>
         <SubTree ID="PlaceInWS"/>
         <Action ID="ScanWorkSpace"/>
