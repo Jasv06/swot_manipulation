@@ -148,6 +148,10 @@ BT::NodeStatus PickPlaceObject::tick()
         if(manipulation_.getRTDE()->get_gripper_position_per() < 2)
         {
             (manipulation_.getRTDE())->gripper_open(manipulation_.get_gripper_speed_(), manipulation_.get_gripper_force_());
+            array7d target = {manipulation_.get_grasping_point().position.x, manipulation_.get_grasping_point().position.y, manipulation_.get_grasping_point().position.z + 0.07,
+            manipulation_.get_grasping_point().orientation.x, manipulation_.get_grasping_point().orientation.y, manipulation_.get_grasping_point().orientation.z,
+            manipulation_.get_grasping_point().orientation.w};
+            (manipulation_.getRTDE())->cart_target(1, target, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
             manipulation_.set_count(0);
             return BT::NodeStatus::FAILURE;
         }
