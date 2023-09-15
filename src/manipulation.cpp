@@ -44,6 +44,7 @@ void Manipulation::initialize()
     service_client_free = nh_.serviceClient<swot_msgs::SwotFreeSpot>("FreeSpotServer");
     sub_wrench = nh_.subscribe("wrench", 1000, &Manipulation::callback_wrench, this);
     ROS_INFO("ROS service started"); 
+    std::cout << "Current gripper position: " << rtde.get_gripper_position_per() << std::endl;
 }
 
 /**
@@ -143,6 +144,7 @@ bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulation::Re
     nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation_bt/xml_structure/swot_manipulation.xml");
     auto tree = factory.createTreeFromFile(xml_file);
     tree.tickRoot();
+    set_response_status("FINISHED");
     return true;
 }
 
@@ -332,6 +334,21 @@ void Manipulation::setTargetPosition6d(std::string target)
 
     csvFile.close();
 }
+
+void Manipulation::send_target_position_6d()
+{
+
+}
+
+void Manipulation::get_mani_height()
+{
+
+}
+
+void Manipulation::get_worksapce_dimension_matching()
+{
+
+}                     
 
 void Manipulation::set_target(array6d target)
 {
