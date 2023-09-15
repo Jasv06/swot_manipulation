@@ -11,7 +11,7 @@
 #include <ros/package.h>
 #include <swot_ur/ur_rtde.h>
 #include <swot_msgs/SwotManipulation.h>
-#include <swot_msgs/SwotObjectMatching2023.h>
+#include <swot_msgs/SwotObjectMatching.h>
 #include <swot_msgs/SwotFreeSpot.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/WrenchStamped.h>
@@ -32,6 +32,9 @@ typedef boost::array<double, 6> array6d;
 
 // Alias for an array of 7 doubles
 typedef boost::array<double, 7> array7d; 
+
+// Alias for an array of 4 doubles
+typedef boost::array<double, 4> array4d;
 
 /**
 *       @struct ConditionAction
