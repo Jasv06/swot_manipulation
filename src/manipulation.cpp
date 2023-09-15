@@ -400,8 +400,16 @@ void Manipulation::get_mani_height(const std::string& name_of_the_object)
 
 void Manipulation::get_worksapce_dimension_matching()
 {
+    std::string csvFilePath;
+    if(this->workspace_match_or_free == "MATCHING")
+    {
+        csvFilePath = "../csv_files/workspace_dimensions_matching.csv";  // Path to the CSV file
+    }
+    else
+    {
+        csvFilePath = "../csv_files/workspace_dimensions_free.csv";  // Path to the CSV file
+    }
 
-    std::string csvFilePath = "../csv_files/workspace_dimensions_matching.csv";  // Path to the CSV file
     std::ifstream csvFile(csvFilePath);
     if (!csvFile.is_open()) {
         std::cerr << "Failed to open CSV file: " << csvFilePath << std::endl;
@@ -430,6 +438,11 @@ void Manipulation::get_worksapce_dimension_matching()
     }
     csvFile.close();
 }   
+
+void Manipulation::set_workspace_match_or_free(std::string type)
+{
+    workspace_match_or_free = type;
+}
 
 // Getter functions -------------------------------------------
 
@@ -649,33 +662,37 @@ int Manipulation::get_count() const
     return this->count;
 }
 
-int get_ws_height() const
+int Manipulation::get_ws_height() const
 {
     return this->ws_height;
 }
 
-std::string get_ws_name() const
+std::string Manipulation::get_ws_name() const
 {
     return this->ws_name;
 }
 
-std::string get_ws_type() const
+std::string Manipulation::get_ws_type() const
 {
     return this->ws_type;
 }
 
-std::string get_obj_name() const
+std::string Manipulation::get_obj_name() const
 {
     return this->obj_name;
 }
 
-double get_obj_mani_height() const
+double Manipulation::get_obj_mani_height() const
 {
     return this->obj_mani_height;
 }
 
-array4d get_ws_dim() const
+array4d Manipulation::get_ws_dim() const
 {
     return this->ws_dim;
 }
 
+std::string Manipulation::get_workspace_match_or_free() const
+{
+    return this->workspace_match_or_free;
+}

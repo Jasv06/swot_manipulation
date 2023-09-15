@@ -116,6 +116,7 @@ class Manipulation
         std::string obj_name;
         double obj_mani_height; //*
         array4d ws_dim; //*
+        std::string workspace_match_or_free;
 
     public:  
         // Constructor
@@ -146,9 +147,11 @@ class Manipulation
         void set_target(array6d);
         void set_count(int);
         void increment_count();
+
         void send_target_position_6d();
         void get_mani_height(std::string name_of_the_object);
         void get_worksapce_dimension_matching();
+        void set_workspace_match_or_free(std::string);
 
         // Getter functions
         std::string get_last_pos() const;
@@ -174,6 +177,7 @@ class Manipulation
         const std::unique_ptr<URRTDE>& getRTDE() const;
         int get_count() const;
 
+        std::string get_workspace_match_or_free() const;
         int get_ws_height() const;
         std::string get_ws_name() const;
         std::string get_ws_type() const;
