@@ -200,15 +200,15 @@ void Manipulation::tray_top()
 {
     if (get_tray() == "SAVE_1")
     {
-        rtde->joint_target(array_tray1_top, jnt_vel_, jnt_acc_);    
+        void setTargetPosition6d("array_tray1_top"); send_target_position_6d();
     }
     else if (get_tray() == "SAVE_2")
     {
-        rtde->joint_target(array_tray2_top, jnt_vel_, jnt_acc_);          
+        void setTargetPosition6d("array_tray2_top"); send_target_position_6d();
     }
     else
     {
-        rtde->joint_target(array_tray3_top, jnt_vel_, jnt_acc_); 
+        void setTargetPosition6d("array_tray3_top"); send_target_position_6d();
     }
 }
 
@@ -333,7 +333,6 @@ void Manipulation::setTargetPosition6d(std::string target)
             std::getline(linestream, col6, ',') &&
             std::getline(linestream, col7)) {
             if (col1 == target) {
-                std::cout << "joel "<<std::endl;
                 target_position[0] = col2;
                 target_position[1] = col3;
                 target_position[2] = col4;

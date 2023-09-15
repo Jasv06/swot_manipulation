@@ -107,15 +107,15 @@ class Manipulation
         double left_thresh;                             /*! The threshold value for the left condition. */
         double right_thresh;                            /*! The threshold value for the right condition. */
         double right_right_thresh;                      /*! The threshold value for the right-right condition. */
-        array6d target_position;                        /*! The target position array for robot movement planning. */
+        array6d target_position;   //*                     /*! The target position array for robot movement planning. */
         int count;
 
-        int ws_height;
+        int ws_height; //*
         std::string ws_name;
         std::string ws_type;
         std::string obj_name;
-        double obj_mani_height;
-        array4d ws_dim;
+        double obj_mani_height; //*
+        array4d ws_dim; //*
 
     public:  
         // Constructor
