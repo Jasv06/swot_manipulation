@@ -13,6 +13,7 @@
 #include <swot_msgs/SwotManipulation.h>
 #include <swot_msgs/SwotObjectMatching.h>
 #include <swot_msgs/SwotFreeSpot.h>
+#include <swot_msgs/SwotObjectPose.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/WrenchStamped.h>
 #include <tf2_ros/transform_listener.h>
@@ -27,6 +28,7 @@
 #include <behaviortree_cpp_v3/action_node.h>
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 
 // Alias for an array of 6 doubles
 typedef boost::array<double, 6> array6d; 
@@ -91,7 +93,8 @@ class Manipulation
         bool collision_activated;                       /*! Flag indicating if collision detection is activated. */
         ros::NodeHandle nh_;                            /*! The ROS NodeHandle for communication. */
         ros::Subscriber sub_wrench;                     /*! ROS subscriber for wrench data. */
-        geometry_msgs::Pose grasping_point;             /*! The pose of the grasping point. */
+        geometry_msgs::Pose grasping_point;             /*! The pose of the grasping points. */
+        std::vector<swot_msgs::SwotObjectPose> poses;   /*! The poses of the multiple grasping points. */
         std::string tray;                               /*! The currently selected tray for object placement. */
         std::unique_ptr<URRTDE> rtde;                   /*! The unique pointer to the URRTDE instance for robot control. */
         ros::ServiceServer service_server;              /*! ROS service server for handling manipulation requests. */
@@ -107,7 +110,7 @@ class Manipulation
         double left_thresh;                             /*! The threshold value for the left condition. */
         double right_thresh;                            /*! The threshold value for the right condition. */
         double right_right_thresh;                      /*! The threshold value for the right-right condition. */
-        array6d target_position;   //*                     /*! The target position array for robot movement planning. */
+        array6d target_position;   //*                  /*! The target position array for robot movement planning. */
         int count;
 
         int ws_height; //*
@@ -148,6 +151,7 @@ class Manipulation
         void set_count(int);
         void increment_count();
 
+        void set_grasping_point(int index, geometry_msgs::Pose grasping);
         void send_target_position_6d();
         void get_mani_height(std::string name_of_the_object);
         void get_worksapce_dimension_matching();
@@ -177,6 +181,7 @@ class Manipulation
         const std::unique_ptr<URRTDE>& getRTDE() const;
         int get_count() const;
 
+        geometry_msgs::Pose get_grasping_point_of_index(int index) const;
         std::string get_workspace_match_or_free() const;
         int get_ws_height() const;
         std::string get_ws_name() const;

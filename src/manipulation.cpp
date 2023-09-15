@@ -444,6 +444,20 @@ void Manipulation::set_workspace_match_or_free(std::string type)
     workspace_match_or_free = type;
 }
 
+void Manipulation::set_grasping_point(int index, geometry_msgs::Pose grasping)
+{
+    try
+    {
+        geometry_msgs::Pose value = poses.at(index);
+        poses[index] = grasping;
+    }
+    catch(const std::out_of_range& e)
+    {
+        std::cerr << "Out of range error: " << e.what() << std::endl;
+    }
+}
+
+
 // Getter functions -------------------------------------------
 
 /**
@@ -695,4 +709,18 @@ array4d Manipulation::get_ws_dim() const
 std::string Manipulation::get_workspace_match_or_free() const
 {
     return this->workspace_match_or_free;
+}
+
+geometry_msgs::Pose Manipulation::get_grasping_point_of_index(int index) const
+{
+    try
+    {
+        geometry_msgs::Pose value = poses.at(index);
+        return poses[index];
+    }
+    catch(const std::out_of_range& e)
+    {
+        std::cerr << "Out of range error: " << e.what() << std::endl;
+        throw std::runtime_error("Out of range error"); 
+    }
 }
