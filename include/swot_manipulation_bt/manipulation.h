@@ -26,6 +26,7 @@
 #include <behaviortree_cpp_v3/condition_node.h>
 #include <behaviortree_cpp_v3/action_node.h>
 #include <fstream>
+#include <sstream>
 
 // Alias for an array of 6 doubles
 typedef boost::array<double, 6> array6d; 
@@ -115,7 +116,7 @@ class Manipulation
         std::string obj_name;
         double obj_mani_height;
         array4d ws_dim;
-        
+
     public:  
         // Constructor
         Manipulation();
@@ -142,11 +143,11 @@ class Manipulation
         void reset_object_in_trays(int);
         void set_response_status(const std::string& status);
         void setTargetPosition6d(std::string target);
-        void send_target_position_6d();
         void set_target(array6d);
         void set_count(int);
         void increment_count();
-        void get_mani_height();
+        void send_target_position_6d();
+        void get_mani_height(std::string name_of_the_object);
         void get_worksapce_dimension_matching();
 
         // Getter functions
@@ -172,6 +173,13 @@ class Manipulation
         double get_right_right_thresh() const;                     
         const std::unique_ptr<URRTDE>& getRTDE() const;
         int get_count() const;
+
+        int get_ws_height() const;
+        std::string get_ws_name() const;
+        std::string get_ws_type() const;
+        std::string get_obj_name() const;
+        double get_obj_mani_height() const;
+        array4d get_ws_dim() const;
 
         std::vector<std::string> objects_in_trays;      /*! The list of objects currently placed in trays. */
 };

@@ -19,6 +19,7 @@
 Manipulation::Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_limit(10.5), collision_detected(false), collision_activated(false), gripper_speed_(1.0), gripper_force_(60.0), jnt_vel_(1), jnt_acc_(1), left_left_thresh(0.2), left_thresh(0.1), right_thresh(-0.1), right_right_thresh(-0.2), count(0)
 {
     target_position = {2.40435886383057, -1.83808960537099, 0.975212875996725, -0.674065129165985, -1.63826924959292, -3.8627772966968};
+    ws_dim = {0.15, 0.50, -0.45, 0.45};
 }
 
 /**
@@ -316,40 +317,31 @@ void Manipulation::setTargetPosition6d(std::string target)
 
     std::string line;
     while (std::getline(csvFile, line)) {
-        std::istringstream iss(line);
-        std::string columnName;
-        std::getline(iss, columnName, ',');
+        std::istringstream linestream(line);
+        std::string col1, col2,col3,col4,col5,col6,col7;
 
-        if (columnName == target) {
-            // Extract values from each column and assign them to the targetValues array
-            std::string columnValue;
-            for (int i = 0; i < target_position.size(); ++i) {
-                std::getline(iss, columnValue, ',');
-                target_position[i] = std::stod(columnValue);
+        if (std::getline(linestream, col1, ',') &&
+            std::getline(linestream, col2, ',') &&
+            std::getline(linestream, col3, ',') &&
+            std::getline(linestream, col4, ',') &&
+            std::getline(linestream, col5, ',') &&
+            std::getline(linestream, col6, ',') &&
+            std::getline(linestream, col7)) {
+            if (col1 == target) {
+                std::cout << "joel "<<std::endl;
+                target_position[0] = col2;
+                target_position[1] = col3;
+                target_position[2] = col4;
+                target_position[3] = col5;
+                target_position[4] = col6;
+                target_position[5] = col7;
             }
-
-            break;  // Found the target, so no need to continue searching
         }
     }
 
     csvFile.close();
 }
-
-void Manipulation::send_target_position_6d()
-{
-
-}
-
-void Manipulation::get_mani_height()
-{
-
-}
-
-void Manipulation::get_worksapce_dimension_matching()
-{
-
-}                     
-
+                  
 void Manipulation::set_target(array6d target)
 {
     this->target_position = target;
@@ -364,6 +356,76 @@ void Manipulation::increment_count()
 {
     this->count++;
 }
+
+void Manipulation::send_target_position_6d()
+{
+    //add check of position
+    getRTDE()->joint_target(target_position, get_jnt_vel_(), get_jnt_acc_());
+}
+
+void Manipulation::get_mani_height(const std::string& name_of_the_object)
+{
+    std::string csvFilePath = "../csv_files/manipulation_height.csv";  // Path to the CSV file
+
+    std::ifstream csvFile(csvFilePath);
+    if (!csvFile.is_open()) {
+        std::cerr << "Failed to open CSV file: " << csvFilePath << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(csvFile, line)) {
+        std::istringstream linestream(line);
+        std::string col1, col2;
+
+        if (std::getline(linestream, col1, ',') &&
+            std::getline(linestream, col2)) {
+            if (col1 == get_request().object) {
+                obj_mani_height = std::stod(col2);
+                csvFile.close(); // Close the file before returning
+                return;
+            }
+        }
+    }
+
+    // If we reach here, it means searchValue was not found in the CSV file.
+    std::cerr << "Value not found in the CSV file." << std::endl;
+    csvFile.close(); // Close the file before returning
+
+}
+
+void Manipulation::get_worksapce_dimension_matching()
+{
+
+    std::string csvFilePath = "../csv_files/workspace_dimensions_matching.csv";  // Path to the CSV file
+    std::ifstream csvFile(csvFilePath);
+    if (!csvFile.is_open()) {
+        std::cerr << "Failed to open CSV file: " << csvFilePath << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(csvFile, line)) {
+        std::istringstream linestream(line);
+        std::string col1, col2, col3, col4, col5, col6;
+
+        if (std::getline(linestream, col1, ',') &&
+            std::getline(linestream, col2, ',') &&
+            std::getline(linestream, col3, ',') &&
+            std::getline(linestream, col4, ',') &&
+            std::getline(linestream, col5, ',') &&
+            std::getline(linestream, col6)) {
+            if (col1 == get_request().task) {
+                ws_dim[0] = std::stod(col2);
+                ws_dim[1] = std::stod(col3);
+                ws_dim[2] = std::stod(col4);
+                ws_dim[3] = std::stod(col5);
+                ws_height = std::stod(col6);
+            }
+        }
+    }
+    csvFile.close();
+}   
 
 // Getter functions -------------------------------------------
 
@@ -581,5 +643,35 @@ const std::unique_ptr<URRTDE>& Manipulation::getRTDE() const
 int Manipulation::get_count() const
 {
     return this->count;
+}
+
+int get_ws_height() const
+{
+    return this->ws_height;
+}
+
+std::string get_ws_name() const
+{
+    return this->ws_name;
+}
+
+std::string get_ws_type() const
+{
+    return this->ws_type;
+}
+
+std::string get_obj_name() const
+{
+    return this->obj_name;
+}
+
+double get_obj_mani_height() const
+{
+    return this->obj_mani_height;
+}
+
+array4d get_ws_dim() const
+{
+    return this->ws_dim;
 }
 
