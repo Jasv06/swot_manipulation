@@ -20,6 +20,11 @@ Manipulation::Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_l
 {
     target_position = {2.40435886383057, -1.83808960537099, 0.975212875996725, -0.674065129165985, -1.63826924959292, -3.8627772966968};
     ws_dim = {0.15, 0.50, -0.45, 0.45};
+    ws_height = 10;
+    ws_name = "WS01";
+    ws_type = "WS";
+    obj_mani_height = 0.002;
+    obj_name = "M20";
 }
 
 /**
