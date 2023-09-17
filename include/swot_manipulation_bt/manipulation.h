@@ -11,6 +11,7 @@
 #include <ros/package.h>
 #include <swot_ur/ur_rtde.h>
 #include <swot_msgs/SwotManipulation.h>
+#include <swot_msgs/SwotManipulation2023.h>
 #include <swot_msgs/SwotObjectMatching.h>
 #include <swot_msgs/SwotFreeSpot.h>
 #include <swot_msgs/SwotObjectPose.h>
@@ -100,8 +101,8 @@ class Manipulation
         ros::ServiceServer service_server;              /*! ROS service server for handling manipulation requests. */
         ros::ServiceClient service_client_matching;     /*! ROS service client for object matching. */
         ros::ServiceClient service_client_free;         /*! ROS service client for object freeing. */
-        swot_msgs::SwotManipulation::Request req_;      /*! The request object for the SwotManipulation service. */
-        swot_msgs::SwotManipulation::Response res_;     /*! The response object for the SwotManipulation service. */
+        swot_msgs::SwotManipulation2023::Request req_;  /*! The request object for the SwotManipulation service. */
+        swot_msgs::SwotManipulation2023::Response res_; /*! The response object for the SwotManipulation service. */
         double gripper_speed_;                          /*! The speed of the gripper for object manipulation. */
         double gripper_force_;                          /*! The force applied by the gripper for object manipulation. */
         double jnt_vel_;                                /*! The velocity of the robot's joints. */
@@ -110,15 +111,15 @@ class Manipulation
         double left_thresh;                             /*! The threshold value for the left condition. */
         double right_thresh;                            /*! The threshold value for the right condition. */
         double right_right_thresh;                      /*! The threshold value for the right-right condition. */
-        array6d target_position;   //*                  /*! The target position array for robot movement planning. */
+        array6d target_position;                        /*! The target position array for robot movement planning. */
         int count;
 
-        int ws_height; //*
+        int ws_height;
         std::string ws_name;
         std::string ws_type;
         std::string obj_name;
-        double obj_mani_height; //*
-        array4d ws_dim; //*
+        double obj_mani_height; 
+        array4d ws_dim; 
         std::string workspace_match_or_free;
 
     public:  

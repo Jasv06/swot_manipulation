@@ -140,6 +140,7 @@ bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulation::Re
     this->req_ = req;
     this->res_ = res;
 
+    
     std::cout << get_request().mode << std::endl;
     std::cout << get_request().object << std::endl;
     std::cout << get_request().save << std::endl;
