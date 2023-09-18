@@ -121,7 +121,7 @@ class Manipulation
         double obj_mani_height; 
         array4d ws_dim; 
         std::string workspace_match_or_free;
-        std::vector<std::string> task_track;                                 /*! Possible values for this vector are FOUND, NOTFOUND, FULLFILLED, NOTFULLFILLED, PARTIALLYFULFILLED or UNKNOWN. */         
+        std::vector<std::string> task_track;                                 /*! Possible values for this vector are FOUND, NOTFOUND, FULLFILLED, NOTFULLFILLED, or UNKNOWN. */         
 
     public:  
         // Constructor
@@ -200,5 +200,6 @@ class Manipulation
         array6d array_tray1_load = {0.064320102334023, -1.53433151290331, 1.48070460954775, -1.51407157376919, -1.59717017809023, -3.07259160677065};
         array6d array_tray2_load = {-0.255173508320944, -1.6467939815917, 1.58283216158022, -1.48665781438861, -1.55522424379458, -3.37798530260195};
         array6d array_tray3_load = {-0.530647579823629, -1.6887427769103, 1.65178472200503, -1.53478486955676, -1.56944162050356, -3.6110408941852};
+        array6d array_scan_mid = {2.40435886383057, -1.83808960537099, 0.975212875996725, -0.674065129165985, -1.63826924959292, -3.8627772966968};
 
 };

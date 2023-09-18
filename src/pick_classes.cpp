@@ -54,7 +54,7 @@ BT::NodeStatus MoveToScan::tick()
 ScanWorkSpace::ScanWorkSpace(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
 {
     manipulation_.getTaskTrack().rezise(get_request_vector.size());
-    for(auto i = 0; i < manipulation_.get_request_vector().size(); i++)
+    for(auto i = 0; i < manipulation_.getTaskTrack().size(); i++)
     {
         manipulation_.getTaskTrack()[i] = "UNKNOWN";
     }
@@ -76,7 +76,14 @@ BT::NodeStatus ScanWorkSpace::tick()
     swot_msgs::SwotObjectMatching srv_match;
     for(auto i = 0; i < manipulation_.get_request_vector().size(); i++)
     {
-        srv.request.object[i] = manipulation_.get_request(i);
+        if(manipulation_.getTaskTrack()[i] == "UNKNOWN")
+        {
+            srv.request.object[i] = manipulation_.get_request(i);
+        }
+        else if(manipulation_.getTaskTrack()[i] == "UNKNOWN")
+        {
+
+        }
     }
     manipulation_.get_worksapce_dimension_matching("MATCHING");
     ROS_INFO("scan workspace");
