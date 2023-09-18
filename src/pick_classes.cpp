@@ -33,8 +33,15 @@ BT::NodeStatus MoveToScan::tick()
 {
     manipulation_.set_collision_detected(false);
     ROS_INFO("move to scan");
-    (manipulation_.getRTDE())->gripper_open(manipulation_.get_gripper_speed_(), manipulation_.get_gripper_force_());
-    (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_mid, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
+    if(manipulation_.get_count() == 0)
+    {
+        manipulation_.setTargetPosition6d("array_scan_left_yolo"); manipulation_.sendTargetPosition6d();
+    }
+    else if(manipulation_.get_count() == 1)
+    {
+        setTargetPosition6d("array_scan_right_yolo"); sendTargetPosition6d();
+        manipulation_.set_count(0);
+    }
     return BT::NodeStatus::SUCCESS; 
 }  
 
@@ -62,42 +69,36 @@ ScanWorkSpace::~ScanWorkSpace()  = default;
 
 BT::NodeStatus ScanWorkSpace::tick() 
 {
-    swot_msgs::SwotObjectMatching2023 srv_match;
-    srv_match.request.object = manipulation_.get_request().object;
+    swot_msgs::SwotObjectMatching srv_match;
+    for(auto i = 0; i < manipulation_.get_request_vector().size(); i++)
+    {
+        srv.request.object[i] = manipulation_.get_request(i);
+    }
+    manipulation_.get_worksapce_dimension_matching("MATCHING");
     ROS_INFO("scan workspace");
-    if(manipulation_.get_count() == 0)
-    {
-        (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_left_yolo, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
-    }
-    else if(manipulation_.get_count() == 1)
-    {
-        (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_right_yolo, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
-    }
-    else
-    {
-        (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_mid, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
-        manipulation_.set_count(0);
-    }
-
+    
     if(ros::service::waitForService("ObjectMatchingServer", ros::Duration(3.0)) == false)
     {
-        manipulation_.increment_count();
         return BT::NodeStatus::FAILURE;   
     }
-    ros::Duration(1).sleep();
     if(!(manipulation_.get_service_client_matching()).call(srv_match))
     {
-        manipulation_.increment_count();
         ROS_WARN("Couldn't find ROS Service \"SwotObjectMatching\"");
         return BT::NodeStatus::FAILURE;
     }
-    ros::Duration(1).sleep();
-    if (srv_match.response.posture == "STANDING" || srv_match.response.posture == "FAILED")
+    manipulation_.getTaskTrack().rezise(get_request_vector.size());
+    for(auto i = 0; i < get_request_vector().size(); i++)
     {
-        manipulation_.increment_count();
-        return BT::NodeStatus::FAILURE;
+        manipulation_.set_grasping_point(i, srv_match.response.poses[i].pose);
+        if(srv_match.response.poses[i].error_code == 0)
+        {
+            manipulation_.getTaskTrack()[i] = "FOUND";
+        }
+        else
+        {
+            manipulation_.getTaskTrack()[i] = "NOTFOUND";
+        }
     }
-    manipulation_.set_grasping_point(srv_match.response.pose);
     return BT::NodeStatus::SUCCESS;
 }
 

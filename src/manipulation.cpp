@@ -46,7 +46,7 @@ void Manipulation::initialize()
 {
     rtde = std::make_unique<URRTDE>(nh_);
     service_server = nh_.advertiseService("SwotManipulationBT", &Manipulation::callback_service_manipulation, this);
-    service_client_matching = nh_.serviceClient<swot_msgs::SwotObjectMatching2023>("ObjectMatchingServer");
+    service_client_matching = nh_.serviceClient<swot_msgs::SwotObjectMatching>("ObjectMatchingServer");
     service_client_free = nh_.serviceClient<swot_msgs::SwotFreeSpot>("FreeSpotServer");
     sub_wrench = nh_.subscribe("wrench", 1000, &Manipulation::callback_wrench, this);
     ROS_INFO("ROS service started"); 
@@ -137,8 +137,8 @@ void Manipulation::registerNodes(BT::BehaviorTreeFactory& factory, Manipulation&
 
 bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulation::Request &req, swot_msgs::SwotManipulation::Response &res)
 {
-    this->req_ = req;
-    this->res_ = res;
+    this->req_array_ = req;
+    this->res_array_ = res;
 
     
     std::cout << get_request().mode << std::endl;
@@ -151,7 +151,6 @@ bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulation::Re
     nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation_bt/xml_structure/swot_manipulation.xml");
     auto tree = factory.createTreeFromFile(xml_file);
     tree.tickRoot();
-    set_response_status("FINISHED");
     return true;
 }
 
@@ -201,15 +200,15 @@ void Manipulation::tray_top()
 {
     if (get_tray() == "SAVE_1")
     {
-        void setTargetPosition6d("array_tray1_top"); send_target_position_6d();
+        setTargetPosition6d("array_tray1_top"); sendTargetPosition6d();
     }
     else if (get_tray() == "SAVE_2")
     {
-        void setTargetPosition6d("array_tray2_top"); send_target_position_6d();
+        setTargetPosition6d("array_tray2_top"); sendTargetPosition6d();
     }
     else
     {
-        void setTargetPosition6d("array_tray3_top"); send_target_position_6d();
+        setTargetPosition6d("array_tray3_top"); sendTargetPosition6d();
     }
 }
 
@@ -301,9 +300,14 @@ void Manipulation::reset_object_in_trays(int tray_number)
  *      @param status The response status to set.
  */
 
-void Manipulation::set_response_status(const std::string& status)
+void Manipulation::set_response_status(const std::string& status, int index)
 {
-    this->res_.status = status;
+    // Check if index is within bounds
+    if (index < res_array_.size()) {
+        res_array_[index] = newResponse;
+    } else {
+        throw std::out_of_range("Index out of bounds");
+    }
 }
 
 /**
@@ -324,7 +328,7 @@ void Manipulation::setTargetPosition6d(std::string target)
     std::string line;
     while (std::getline(csvFile, line)) {
         std::istringstream linestream(line);
-        std::string col1, col2,col3,col4,col5,col6,col7;
+        std::string col1, col2, col3, col4, col5, col6, col7;
 
         if (std::getline(linestream, col1, ',') &&
             std::getline(linestream, col2, ',') &&
@@ -340,10 +344,13 @@ void Manipulation::setTargetPosition6d(std::string target)
                 target_position[3] = col5;
                 target_position[4] = col6;
                 target_position[5] = col7;
+                csvFile.close(); // Close the file before returning
+                return;
             }
         }
     }
-
+     // If we reach here, it means searchValue was not found in the CSV file.
+    std::cerr << "Value not found in the CSV file." << std::endl;
     csvFile.close();
 }
                   
@@ -360,12 +367,6 @@ void Manipulation::set_count(int number)
 void Manipulation::increment_count()
 {
     this->count++;
-}
-
-void Manipulation::send_target_position_6d()
-{
-    //add check of position
-    getRTDE()->joint_target(target_position, get_jnt_vel_(), get_jnt_acc_());
 }
 
 void Manipulation::get_mani_height(const std::string& name_of_the_object)
@@ -562,14 +563,23 @@ ros::ServiceClient Manipulation::get_service_client_free() const
     return this->service_client_free;
 }
 
+const std::vector<swot_msgs::SwotManipulation2023::Request>& Manipulation::get_request_vector() const {
+    return this->req_array_; 
+}
+
 /**
  *      @brief Gets the Manipulation service request.
  *      @return The Manipulation service request.
  */
 
-swot_msgs::SwotManipulation::Request Manipulation::get_request() const
+const swot_msgs::SwotManipulation2023::Request& Manipulation::get_request(int index) const
 {
-    return this->req_;
+    // Check if index is within bounds
+    if (index < req_array_.size()) {
+        return req_array_[index];
+    } else {
+        throw std::out_of_range("Index out of bounds");
+    }
 }
 
 /**
@@ -577,9 +587,14 @@ swot_msgs::SwotManipulation::Request Manipulation::get_request() const
  *      @return The Manipulation service response.
  */
 
-swot_msgs::SwotManipulation::Response Manipulation::get_response() const
+const swot_msgs::SwotManipulation2023::Response& Manipulation::get_response(int index) const
 {
-    return this->res_;
+    // Check if index is within bounds
+    if (index < res_array_.size()) {
+        return res_array_[index];
+    } else {
+        throw std::out_of_range("Index out of bounds");
+    }
 }
 
 /**
@@ -724,4 +739,8 @@ geometry_msgs::Pose Manipulation::get_grasping_point_of_index(int index) const
         std::cerr << "Out of range error: " << e.what() << std::endl;
         throw std::runtime_error("Out of range error"); 
     }
+}
+
+std::vector<std::string>& Manipulation::getTaskTrack(){
+    return this->task_track;
 }

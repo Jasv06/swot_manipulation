@@ -86,32 +86,32 @@ struct Tray {
 class Manipulation
 {    
     private:
-        std::string xml_file;                           /*! The path to the XML file containing manipulation configurations for the behavior tree to be structured. */
-        std::string last_pos;                           /*! The last known position of the manipulator. */
-        std::string grasping_area;                      /*! The designated area for grasping objects. */
-        const double wrench_limit;                      /*! The maximum allowable wrench value for collision detection. */
-        bool collision_detected;                        /*! Flag indicating if a collision has been detected. */
-        bool collision_activated;                       /*! Flag indicating if collision detection is activated. */
-        ros::NodeHandle nh_;                            /*! The ROS NodeHandle for communication. */
-        ros::Subscriber sub_wrench;                     /*! ROS subscriber for wrench data. */
-        geometry_msgs::Pose grasping_point;             /*! The pose of the grasping points. */
-        std::vector<swot_msgs::SwotObjectPose> poses;   /*! The poses of the multiple grasping points. */
-        std::string tray;                               /*! The currently selected tray for object placement. */
-        std::unique_ptr<URRTDE> rtde;                   /*! The unique pointer to the URRTDE instance for robot control. */
-        ros::ServiceServer service_server;              /*! ROS service server for handling manipulation requests. */
-        ros::ServiceClient service_client_matching;     /*! ROS service client for object matching. */
-        ros::ServiceClient service_client_free;         /*! ROS service client for object freeing. */
-        swot_msgs::SwotManipulation2023::Request req_;  /*! The request object for the SwotManipulation service. */
-        swot_msgs::SwotManipulation2023::Response res_; /*! The response object for the SwotManipulation service. */
-        double gripper_speed_;                          /*! The speed of the gripper for object manipulation. */
-        double gripper_force_;                          /*! The force applied by the gripper for object manipulation. */
-        double jnt_vel_;                                /*! The velocity of the robot's joints. */
-        double jnt_acc_;                                /*! The acceleration of the robot's joints. */
-        double left_left_thresh;                        /*! The threshold value for the left-left condition. */
-        double left_thresh;                             /*! The threshold value for the left condition. */
-        double right_thresh;                            /*! The threshold value for the right condition. */
-        double right_right_thresh;                      /*! The threshold value for the right-right condition. */
-        array6d target_position;                        /*! The target position array for robot movement planning. */
+        std::string xml_file;                                                   /*! The path to the XML file containing manipulation configurations for the behavior tree to be structured. */
+        std::string last_pos;                                                   /*! The last known position of the manipulator. */
+        std::string grasping_area;                                              /*! The designated area for grasping objects. */
+        const double wrench_limit;                                              /*! The maximum allowable wrench value for collision detection. */
+        bool collision_detected;                                                /*! Flag indicating if a collision has been detected. */
+        bool collision_activated;                                               /*! Flag indicating if collision detection is activated. */
+        ros::NodeHandle nh_;                                                    /*! The ROS NodeHandle for communication. */
+        ros::Subscriber sub_wrench;                                             /*! ROS subscriber for wrench data. */
+        geometry_msgs::Pose grasping_point;                                     /*! The pose of the grasping points. */
+        std::vector<swot_msgs::SwotObjectPose> poses;                           /*! The poses of the multiple grasping points. */
+        std::string tray;                                                       /*! The currently selected tray for object placement. */
+        std::unique_ptr<URRTDE> rtde;                                           /*! The unique pointer to the URRTDE instance for robot control. */
+        ros::ServiceServer service_server;                                      /*! ROS service server for handling manipulation requests. */
+        ros::ServiceClient service_client_matching;                             /*! ROS service client for object matching. */
+        ros::ServiceClient service_client_free;                                 /*! ROS service client for object freeing. */
+        std::vector<swot_msgs::SwotManipulation2023::Request> req_array_;       /*! The request object for the SwotManipulation service. */
+        std::vector<swot_msgs::SwotManipulation2023::Response> res_array_;      /*! The response object for the SwotManipulation service. */
+        double gripper_speed_;                                                  /*! The speed of the gripper for object manipulation. */
+        double gripper_force_;                                                  /*! The force applied by the gripper for object manipulation. */
+        double jnt_vel_;                                                        /*! The velocity of the robot's joints. */
+        double jnt_acc_;                                                        /*! The acceleration of the robot's joints. */
+        double left_left_thresh;                                                /*! The threshold value for the left-left condition. */
+        double left_thresh;                                                     /*! The threshold value for the left condition. */
+        double right_thresh;                                                    /*! The threshold value for the right condition. */
+        double right_right_thresh;                                              /*! The threshold value for the right-right condition. */
+        array6d target_position;                                                /*! The target position array for robot movement planning. */
         int count;
 
         int ws_height;
@@ -121,6 +121,7 @@ class Manipulation
         double obj_mani_height; 
         array4d ws_dim; 
         std::string workspace_match_or_free;
+        std::vector<std::string> task_track;                                 /*! Possible values for this vector are FOUND, NOTFOUND, FULLFILLED or NOTFULLFILLED. */         
 
     public:  
         // Constructor
@@ -146,17 +147,16 @@ class Manipulation
         void set_tray(std::string tray);
         void set_object_in_trays(std::string, int);
         void reset_object_in_trays(int);
-        void set_response_status(const std::string& status);
+        void set_response_status(const std::string& status, int index);
         void setTargetPosition6d(std::string target);
         void set_target(array6d);
         void set_count(int);
         void increment_count();
 
-        void set_grasping_point(int index, geometry_msgs::Pose grasping);
-        void send_target_position_6d();
         void get_mani_height(std::string name_of_the_object);
         void get_worksapce_dimension_matching();
         void set_workspace_match_or_free(std::string);
+        void set_grasping_point(int index, geometry_msgs::Pose grasping);
 
         // Getter functions
         std::string get_last_pos() const;
@@ -169,8 +169,9 @@ class Manipulation
         std::string get_tray() const;
         ros::ServiceClient get_service_client_matching() const;
         ros::ServiceClient get_service_client_free() const; 
-        swot_msgs::SwotManipulation::Request get_request() const;
-        swot_msgs::SwotManipulation::Response get_response() const;
+        const std::vector<swot_msgs::SwotManipulation2023::Request>& get_request_vector() const;
+        const swot_msgs::SwotManipulation2023::Request& get_request(int index) const;
+        const swot_msgs::SwotManipulation2023::Response& get_response(int index) const;
         double get_gripper_speed_() const;                          
         double get_gripper_force_() const;                         
         double get_jnt_vel_() const;                               
@@ -182,14 +183,22 @@ class Manipulation
         const std::unique_ptr<URRTDE>& getRTDE() const;
         int get_count() const;
 
-        geometry_msgs::Pose get_grasping_point_of_index(int index) const;
-        std::string get_workspace_match_or_free() const;
         int get_ws_height() const;
         std::string get_ws_name() const;
         std::string get_ws_type() const;
         std::string get_obj_name() const;
         double get_obj_mani_height() const;
         array4d get_ws_dim() const;
+        std::string get_workspace_match_or_free() const;
+        geometry_msgs::Pose get_grasping_point_of_index(int index) const;
+        std::vector<std::string>& getTaskTrack();
 
         std::vector<std::string> objects_in_trays;      /*! The list of objects currently placed in trays. */
+        array6d array_tray1_top = {0.027344752103090286, -1.3828709882548829, 0.7994797865497034,  -0.9756995004466553, -1.5633075873004358, -3.091755453740255};
+        array6d array_tray2_top = {-0.2560957113849085, -1.5176499386182805, 0.9604175726519983, -1.0044456881335755, -1.5703113714801233, -3.387533966694967};
+        array6d array_tray3_top = {-0.5458563009845179, -1.5639600318721314, 1.020019833241598,  -1.0378867548755188, -1.5619009176837366, -3.6705244223224085};
+        array6d array_tray1_load = {0.064320102334023, -1.53433151290331, 1.48070460954775, -1.51407157376919, -1.59717017809023, -3.07259160677065};
+        array6d array_tray2_load = {-0.255173508320944, -1.6467939815917, 1.58283216158022, -1.48665781438861, -1.55522424379458, -3.37798530260195};
+        array6d array_tray3_load = {-0.530647579823629, -1.6887427769103, 1.65178472200503, -1.53478486955676, -1.56944162050356, -3.6110408941852};
+
 };
