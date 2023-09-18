@@ -25,6 +25,11 @@ Manipulation::Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_l
     ws_type = "WS";
     obj_mani_height = 0.002;
     obj_name = "M20";
+    getTaskTrack().rezise(get_request_vector().size());
+    for(auto i = 0; i < getTaskTrack().size(); i++)
+    {
+        getTaskTrack()[i] = "UNKNOWN";
+    }
 }
 
 /**

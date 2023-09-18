@@ -53,11 +53,7 @@ BT::NodeStatus MoveToScan::tick()
 
 ScanWorkSpace::ScanWorkSpace(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
 {
-    manipulation_.getTaskTrack().rezise(get_request_vector.size());
-    for(auto i = 0; i < manipulation_.getTaskTrack().size(); i++)
-    {
-        manipulation_.getTaskTrack()[i] = "UNKNOWN";
-    }
+    
 }
 
 /**
