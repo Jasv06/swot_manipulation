@@ -112,7 +112,7 @@ class Manipulation
         double right_thresh;                                                    /*! The threshold value for the right condition. */
         double right_right_thresh;                                              /*! The threshold value for the right-right condition. */
         array6d target_position;                                                /*! The target position array for robot movement planning. */
-        int count;
+        int count;                                                              /*! Count can either be 0, 1 or 2. */
 
         int ws_height;
         std::string ws_name;
@@ -171,7 +171,7 @@ class Manipulation
         ros::ServiceClient get_service_client_free() const; 
         const std::vector<swot_msgs::SwotManipulation2023::Request>& get_request_vector() const;
         const swot_msgs::SwotManipulation2023::Request& get_request(int index) const;
-        const swot_msgs::SwotManipulation2023::Response& get_response(int index) const;
+        swot_msgs::SwotManipulation2023::Response& get_response(int index);
         double get_gripper_speed_() const;                          
         double get_gripper_force_() const;                         
         double get_jnt_vel_() const;                               

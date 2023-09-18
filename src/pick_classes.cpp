@@ -31,16 +31,22 @@ MoveToScan::~MoveToScan() = default;
 
 BT::NodeStatus MoveToScan::tick() 
 {
-    manipulation_.set_collision_detected(false);
     ROS_INFO("move to scan");
-    if(manipulation_.get_count() == 0)
+    manipulation_.set_collision_detected(false);
+    switch(manipulation_.get_count())
     {
-        manipulation_.setTargetPosition6d("array_scan_left_yolo"); manipulation_.sendTargetPosition6d();
-    }
-    else if(manipulation_.get_count() == 1)
-    {
-        setTargetPosition6d("array_scan_right_yolo"); sendTargetPosition6d();
-        manipulation_.set_count(0);
+        case 1:
+            manipulation_.setTargetPosition6d("array_scan_right_yolo"); manipulation_.sendTargetPosition6d();
+            break;
+        case 2:
+            array7d target = {manipulation_.get_grasping_point().position.x, manipulation_.get_grasping_point().position.y, manipulation_.get_grasping_point().position.z + 0.15,
+            manipulation_.get_grasping_point().orientation.x, manipulation_.get_grasping_point().orientation.y, manipulation_.get_grasping_point().orientation.z,
+            manipulation_.get_grasping_point().orientation.w};
+            (manipulation_.getRTDE())->cart_target(1, target, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
+            break;
+        default:
+            manipulation_.setTargetPosition6d("array_scan_left_yolo"); manipulation_.sendTargetPosition6d();
+            break;
     }
     return BT::NodeStatus::SUCCESS; 
 }  
@@ -69,21 +75,20 @@ ScanWorkSpace::~ScanWorkSpace()  = default;
 
 BT::NodeStatus ScanWorkSpace::tick() 
 {
+    ROS_INFO("scan workspace");
     swot_msgs::SwotObjectMatching srv_match;
     for(auto i = 0; i < manipulation_.get_request_vector().size(); i++)
     {
-        if(manipulation_.getTaskTrack()[i] == "UNKNOWN")
+        if(manipulation_.getTaskTrack()[i] == "UNKNOWN" || manipulation_.getTaskTrack()[i] == "NOTFOUND" || manipulation_.getTaskTrack()[i] == "NOTFULFILLED")
         {
-            srv.request.object[i] = manipulation_.get_request(i);
-        }
-        else if(manipulation_.getTaskTrack()[i] == "UNKNOWN")
-        {
-
+            srv_match.request.object[i] = manipulation_.get_request(i);
         }
     }
     manipulation_.get_worksapce_dimension_matching("MATCHING");
-    ROS_INFO("scan workspace");
-    
+    for(auto i = 0; i < 4; i++)
+    {
+        srv_match.request.ws_dimensions[i] = manipulation_.get_ws_dim();
+    }    
     if(ros::service::waitForService("ObjectMatchingServer", ros::Duration(3.0)) == false)
     {
         return BT::NodeStatus::FAILURE;   
@@ -95,6 +100,7 @@ BT::NodeStatus ScanWorkSpace::tick()
     }
     for(auto i = 0; i < get_request_vector().size(); i++)
     {
+        //Regardless of the grasping point given the error code is checked later to make sure the right pose is used
         manipulation_.set_grasping_point(i, srv_match.response.poses[i].pose);
         if(srv_match.response.poses[i].error_code == 0)
         {
@@ -116,12 +122,22 @@ BT::NodeStatus ScanWorkSpace::tick()
 
 MoveUp::MoveUp(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
 {
-    areaTargets = {
-        {"left_left", manipulation_.array_pick_left_left},
-        {"left", manipulation_.array_pick_left},
-        {"mid", manipulation_.array_pick_mid},
-        {"right", manipulation_.array_pick_right},
-        {"right_right", manipulation_.array_pick_right_right}
+    conditionActions = {
+    { [&]() { return manipulation_.get_grasping_area() == "left_left"},
+      [&]() { setTargetPosition6d("array_pick_left_left"); sendTargetPosition6d();}
+    },
+    { [&]() { return manipulation_.get_grasping_area() == "left"},
+      [&]() { setTargetPosition6d("array_pick_left"); sendTargetPosition6d();}
+    },
+    { [&]() { return manipulation_.get_grasping_area() == "mid"},
+      [&]() { setTargetPosition6d("array_pick_mid"); sendTargetPosition6d();}
+    },
+    { [&]() { return manipulation_.get_grasping_area() == "right"},
+      [&]() { setTargetPosition6d("array_pick_right"); sendTargetPosition6d();}
+    },
+    { [&]() { return manipulation_.get_grasping_area() == "right_right"},
+      [&]() { setTargetPosition6d("array_pick_right_right"); sendTargetPosition6d();}
+    }
     };
 }
 

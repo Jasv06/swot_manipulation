@@ -464,7 +464,6 @@ void Manipulation::set_grasping_point(int index, geometry_msgs::Pose grasping)
     }
 }
 
-
 // Getter functions -------------------------------------------
 
 /**
@@ -592,7 +591,7 @@ const swot_msgs::SwotManipulation2023::Request& Manipulation::get_request(int in
  *      @return The Manipulation service response.
  */
 
-const swot_msgs::SwotManipulation2023::Response& Manipulation::get_response(int index) const
+swot_msgs::SwotManipulation2023::Response& Manipulation::get_response(int index)
 {
     // Check if index is within bounds
     if (index < res_array_.size()) {

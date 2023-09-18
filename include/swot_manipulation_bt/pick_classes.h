@@ -54,7 +54,7 @@ class MoveUp : public BT::SyncActionNode
 {
     private:
         Manipulation& manipulation_;
-        std::vector<std::pair<std::string, array6d>> areaTargets;
+        std::vector<ConditionAction> conditionActions;
 
     public:
         MoveUp(const std::string& name, Manipulation& manipulation);
