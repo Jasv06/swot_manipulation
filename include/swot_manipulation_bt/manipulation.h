@@ -32,6 +32,7 @@
 #include <stdexcept>
 #include <utility>
 #include <string>
+#include <iterator>
 
 // Alias for an array of 6 doubles
 typedef boost::array<double, 6> array6d; 

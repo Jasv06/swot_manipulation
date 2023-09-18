@@ -6,7 +6,6 @@
 */
 
 #include "swot_manipulation_bt/manipulation.h"
-#include "swot_manipulation_bt/condition_classes.h"
 #include "swot_manipulation_bt/pick_classes.h"
 #include "swot_manipulation_bt/place_classes.h"
 #include "swot_manipulation_bt/shared_classes.h"
@@ -66,65 +65,44 @@ void Manipulation::initialize()
 
 void Manipulation::registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation)
 {
-    BT::NodeBuilder builder_1 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<NotPick>(name,  std::ref(manipulation));};
-    factory.registerBuilder<NotPick>("NotPick", builder_1);
+    BT::NodeBuilder builder_1 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<CheckObjRequired>(name,  std::ref(manipulation));};
+    factory.registerBuilder<CheckObjRequired>("CheckObjRequired", builder_1);
 
-    BT::NodeBuilder builder_2 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<NotDrive>(name,  std::ref(manipulation));};
-    factory.registerBuilder<NotDrive>("NotDrive", builder_2);
+    BT::NodeBuilder builder_2 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<CheckWSFree>(name, std::ref(manipulation));};
+    factory.registerBuilder<CheckWSFree>("CheckWSFree", builder_2);
 
-    BT::NodeBuilder builder_3 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<NotPlace>(name,  std::ref(manipulation));};
-    factory.registerBuilder<NotPlace>("NotPlace", builder_3);        
+    BT::NodeBuilder builder_3 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<DropObjectInTray>(name,  std::ref(manipulation));};
+    factory.registerBuilder<DropObjectInTray>("DropObjectInTray", builder_3);
+
+    BT::NodeBuilder builder_4 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<GetGraspAndMoveGrasp>(name,  std::ref(manipulation));};
+    factory.registerBuilder<GetGraspAndMoveGrasp>("GetGraspAndMoveGrasp", builder_4);
+
+    BT::NodeBuilder builder_5 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveHomePos>(name,  std::ref(manipulation));};
+    factory.registerBuilder<MoveHomePos>("MoveHomePos", builder_5);
+
+    BT::NodeBuilder builder_6 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveToDrivePose>(name,  std::ref(manipulation));};
+    factory.registerBuilder<MoveToDrivePose>("MoveToDrivePose", builder_6);
+
+    BT::NodeBuilder builder_7 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveToDropPos>(name,  std::ref(manipulation));};
+    factory.registerBuilder<MoveToDropPos>("MoveToDropPos", builder_7); 
         
-    BT::NodeBuilder builder_4 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<NotPP>(name,  std::ref(manipulation));};
-    factory.registerBuilder<NotPP>("NotPP", builder_4);
-        
-    BT::NodeBuilder builder_5 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<NotWS>(name,  std::ref(manipulation));};
-    factory.registerBuilder<NotWS>("NotWS", builder_5);
+    BT::NodeBuilder builder_8 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveToScan>(name,  std::ref(manipulation));};
+    factory.registerBuilder<MoveToScan>("MoveToScan", builder_8);
 
-    BT::NodeBuilder builder_6 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<NotSH>(name,  std::ref(manipulation));};
-    factory.registerBuilder<NotSH>("NotSH", builder_6);
+    BT::NodeBuilder builder_9 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveToTray>(name,  std::ref(manipulation));};
+    factory.registerBuilder<MoveToTray>("MoveToTray", builder_9);
 
-    BT::NodeBuilder builder_7 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<NotTT>(name,  std::ref(manipulation));};
-    factory.registerBuilder<NotTT>("NotTT", builder_7);
+    BT::NodeBuilder builder_10 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveUp>(name,  std::ref(manipulation));};       
+    factory.registerBuilder<MoveUp>("MoveUp", builder_10);
 
-    BT::NodeBuilder builder_8 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<CheckObjRequired>(name,  std::ref(manipulation));};
-    factory.registerBuilder<CheckObjRequired>("CheckObjRequired", builder_8);
+    BT::NodeBuilder builder_11 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<PickFromTray>(name,  std::ref(manipulation));};
+    factory.registerBuilder<PickFromTray>("PickFromTray", builder_11);
 
-    BT::NodeBuilder builder_9 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<CheckWSFree>(name, std::ref(manipulation));};
-    factory.registerBuilder<CheckWSFree>("CheckWSFree", builder_9);
+    BT::NodeBuilder builder_12 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<PickPlaceObject>(name,  std::ref(manipulation));};
+    factory.registerBuilder<PickPlaceObject>("PickPlaceObject", builder_12); 
 
-    BT::NodeBuilder builder_10 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<DropObjectInTray>(name,  std::ref(manipulation));};
-    factory.registerBuilder<DropObjectInTray>("DropObjectInTray", builder_10);
-
-    BT::NodeBuilder builder_11 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<GetGraspAndMoveGrasp>(name,  std::ref(manipulation));};
-    factory.registerBuilder<GetGraspAndMoveGrasp>("GetGraspAndMoveGrasp", builder_11);
-
-    BT::NodeBuilder builder_12 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveHomePos>(name,  std::ref(manipulation));};
-    factory.registerBuilder<MoveHomePos>("MoveHomePos", builder_12);
-
-    BT::NodeBuilder builder_13 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveToDrivePose>(name,  std::ref(manipulation));};
-    factory.registerBuilder<MoveToDrivePose>("MoveToDrivePose", builder_13);
-
-    BT::NodeBuilder builder_14 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveToDropPos>(name,  std::ref(manipulation));};
-    factory.registerBuilder<MoveToDropPos>("MoveToDropPos", builder_14); 
-        
-    BT::NodeBuilder builder_15 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveToScan>(name,  std::ref(manipulation));};
-    factory.registerBuilder<MoveToScan>("MoveToScan", builder_15);
-
-    BT::NodeBuilder builder_16 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveToTray>(name,  std::ref(manipulation));};
-    factory.registerBuilder<MoveToTray>("MoveToTray", builder_16);
-
-    BT::NodeBuilder builder_17 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveUp>(name,  std::ref(manipulation));};       
-    factory.registerBuilder<MoveUp>("MoveUp", builder_17);
-
-    BT::NodeBuilder builder_18 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<PickFromTray>(name,  std::ref(manipulation));};
-    factory.registerBuilder<PickFromTray>("PickFromTray", builder_18);
-
-    BT::NodeBuilder builder_19 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<PickPlaceObject>(name,  std::ref(manipulation));};
-    factory.registerBuilder<PickPlaceObject>("PickPlaceObject", builder_19); 
-
-    BT::NodeBuilder builder_20 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<ScanWorkSpace>(name,  std::ref(manipulation));};       
-    factory.registerBuilder<ScanWorkSpace>("ScanWorkSpace", builder_20);
+    BT::NodeBuilder builder_13 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<ScanWorkSpace>(name,  std::ref(manipulation));};       
+    factory.registerBuilder<ScanWorkSpace>("ScanWorkSpace", builder_13);
 }
 
 /**
@@ -140,10 +118,14 @@ void Manipulation::registerNodes(BT::BehaviorTreeFactory& factory, Manipulation&
  *
 */
 
-bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulation::Request &req, swot_msgs::SwotManipulation::Response &res)
+bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulation2023::Request &req, swot_msgs::SwotManipulation2023::Response &res)
 {
-    this->req_array_ = req;
-    this->res_array_ = res;
+    for(const auto& element : req)
+    {
+        req_array_.push_back(element);
+    }
+    std::cout << req_array_[0].object << std::endl;
+    std::cout << req_array_[1].object << std::endl;
 
     for(auto i = 0; i < req_array_.size(); i++)
     {
