@@ -121,7 +121,7 @@ class Manipulation
         double obj_mani_height; 
         array4d ws_dim; 
         std::string workspace_match_or_free;
-        std::vector<std::string> task_track;                                 /*! Possible values for this vector are FOUND, NOTFOUND, FULLFILLED or NOTFULLFILLED. */         
+        std::vector<std::string> task_track;                                 /*! Possible values for this vector are FOUND, NOTFOUND, FULLFILLED, NOTFULLFILLED, PARTIALLYFULFILLED or UNKNOWN. */         
 
     public:  
         // Constructor

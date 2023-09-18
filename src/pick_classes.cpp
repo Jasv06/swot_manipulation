@@ -53,7 +53,11 @@ BT::NodeStatus MoveToScan::tick()
 
 ScanWorkSpace::ScanWorkSpace(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
 {
-
+    manipulation_.getTaskTrack().rezise(get_request_vector.size());
+    for(auto i = 0; i < manipulation_.get_request_vector().size(); i++)
+    {
+        manipulation_.getTaskTrack()[i] = "UNKNOWN";
+    }
 }
 
 /**
@@ -86,7 +90,6 @@ BT::NodeStatus ScanWorkSpace::tick()
         ROS_WARN("Couldn't find ROS Service \"SwotObjectMatching\"");
         return BT::NodeStatus::FAILURE;
     }
-    manipulation_.getTaskTrack().rezise(get_request_vector.size());
     for(auto i = 0; i < get_request_vector().size(); i++)
     {
         manipulation_.set_grasping_point(i, srv_match.response.poses[i].pose);
