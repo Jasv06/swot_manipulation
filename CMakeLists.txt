@@ -35,7 +35,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Declare things to be passed to dependent projects
 catkin_package(
  INCLUDE_DIRS include
- LIBRARIES condition_classes swot_manipulation_bt manipulation pick_classes place_classes shared_classes
+ LIBRARIES swot_manipulation_bt manipulation pick_classes place_classes shared_classes
  CATKIN_DEPENDS roscpp swot_ur swot_msgs behaviortree_cpp
 )
 
@@ -59,7 +59,6 @@ set(REQUIRED_FILES
   src/pick_classes.cpp
   src/place_classes.cpp
   src/shared_classes.cpp
-  src/condition_classes.cpp
 )
 
 add_library(${PROJECT_NAME}_lib

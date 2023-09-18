@@ -30,6 +30,8 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
+#include <string>
 
 // Alias for an array of 6 doubles
 typedef boost::array<double, 6> array6d; 
@@ -94,8 +96,6 @@ class Manipulation
         bool collision_activated;                                               /*! Flag indicating if collision detection is activated. */
         ros::NodeHandle nh_;                                                    /*! The ROS NodeHandle for communication. */
         ros::Subscriber sub_wrench;                                             /*! ROS subscriber for wrench data. */
-        geometry_msgs::Pose grasping_point;                                     /*! The pose of the grasping points. */
-        std::vector<swot_msgs::SwotObjectPose> poses;                           /*! The poses of the multiple grasping points. */
         std::string tray;                                                       /*! The currently selected tray for object placement. */
         std::unique_ptr<URRTDE> rtde;                                           /*! The unique pointer to the URRTDE instance for robot control. */
         ros::ServiceServer service_server;                                      /*! ROS service server for handling manipulation requests. */
@@ -121,7 +121,9 @@ class Manipulation
         double obj_mani_height; 
         array4d ws_dim; 
         std::string workspace_match_or_free;
-        std::vector<std::string> task_track;                                 /*! Possible values for this vector are FOUND, NOTFOUND, FULLFILLED, NOTFULLFILLED, or UNKNOWN. */         
+        std::vector<std::string> task_track;                                 /*! Possible values for this vector are FOUND, NOTFOUND, FULLFILLED, NOTFULLFILLED, or UNKNOWN. */ 
+        std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>> pick_tracker;
+        std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>> place_tracker;
 
     public:  
         // Constructor
@@ -143,7 +145,6 @@ class Manipulation
         void set_grasping_area(std::string grasping_area);
         void set_collision_detected(bool collision);
         void set_collision_activated(bool collision);
-        void set_grasping_point(geometry_msgs::Pose grasping);
         void set_tray(std::string tray);
         void set_object_in_trays(std::string, int);
         void reset_object_in_trays(int);
@@ -156,7 +157,6 @@ class Manipulation
         void get_mani_height(std::string name_of_the_object);
         void get_worksapce_dimension_matching();
         void set_workspace_match_or_free(std::string);
-        void set_grasping_point(int index, geometry_msgs::Pose grasping);
 
         // Getter functions
         std::string get_last_pos() const;
@@ -164,7 +164,6 @@ class Manipulation
         bool get_collision_detected() const;
         bool get_collision_activated() const;
         ros::NodeHandle get_nh();
-        geometry_msgs::Pose get_grasping_point() const;
         std::string get_object_in_tray(int) const;
         std::string get_tray() const;
         ros::ServiceClient get_service_client_matching() const;
@@ -190,7 +189,6 @@ class Manipulation
         double get_obj_mani_height() const;
         array4d get_ws_dim() const;
         std::string get_workspace_match_or_free() const;
-        geometry_msgs::Pose get_grasping_point_of_index(int index) const;
         std::vector<std::string>& getTaskTrack();
 
         std::vector<std::string> objects_in_trays;      /*! The list of objects currently placed in trays. */
@@ -202,4 +200,8 @@ class Manipulation
         array6d array_tray3_load = {-0.530647579823629, -1.6887427769103, 1.65178472200503, -1.53478486955676, -1.56944162050356, -3.6110408941852};
         array6d array_scan_mid = {2.40435886383057, -1.83808960537099, 0.975212875996725, -0.674065129165985, -1.63826924959292, -3.8627772966968};
 
+        std::pair<std::string, bool>& getPickTracker(int index);
+        std::pair<std::string, bool>& getPlaceTracker(int index);
+        void setPickTrackerBool(int index, bool newValue);
+        void setPlaceTrackerBool(int index, bool newValue);
 };

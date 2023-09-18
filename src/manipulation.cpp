@@ -145,11 +145,17 @@ bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulation::Re
     this->req_array_ = req;
     this->res_array_ = res;
 
-    
-    std::cout << get_request().mode << std::endl;
-    std::cout << get_request().object << std::endl;
-    std::cout << get_request().save << std::endl;
-    std::cout << get_request().task << std::endl;
+    for(auto i = 0; i < req_array_.size(); i++)
+    {
+        if(req_array_[i].mode == "PICK")
+        {
+            pick_tracker.push_back(std::make_pair(std::to_string(i) + req_array_[i].object,false));
+        }
+        if(req_array_[i].mode == "PLACE")
+        {
+            place_tracker.push_back(std::make_pair(std::to_string(i) + req_array_[i].object,false));
+        }
+    }
     rtde->gripper_open(gripper_speed_, gripper_force_);
     BT::BehaviorTreeFactory factory;
     registerNodes(factory, *this);   
@@ -257,16 +263,6 @@ void Manipulation::set_collision_detected(bool collision)
 void Manipulation::set_collision_activated(bool collision)
 {
     this->collision_activated = collision;
-}
-
-/**
- *      @brief Sets the grasping point.
- *      @param grasping The grasping point to set.
- */
-
-void Manipulation::set_grasping_point(geometry_msgs::Pose grasping)
-{
-    this->grasping_point = grasping;
 }
 
 /**
@@ -451,19 +447,6 @@ void Manipulation::set_workspace_match_or_free(std::string type)
     workspace_match_or_free = type;
 }
 
-void Manipulation::set_grasping_point(int index, geometry_msgs::Pose grasping)
-{
-    try
-    {
-        geometry_msgs::Pose value = poses.at(index);
-        poses[index] = grasping;
-    }
-    catch(const std::out_of_range& e)
-    {
-        std::cerr << "Out of range error: " << e.what() << std::endl;
-    }
-}
-
 // Getter functions -------------------------------------------
 
 /**
@@ -514,16 +497,6 @@ bool Manipulation::get_collision_activated() const
 ros::NodeHandle Manipulation::get_nh()
 {
     return this->nh_;
-}
-
-/**
- *      @brief Gets the grasping point.
- *      @return The grasping point.
- */
-
-geometry_msgs::Pose Manipulation::get_grasping_point() const
-{
-    return this->grasping_point;
 }
 
 /**
@@ -731,20 +704,20 @@ std::string Manipulation::get_workspace_match_or_free() const
     return this->workspace_match_or_free;
 }
 
-geometry_msgs::Pose Manipulation::get_grasping_point_of_index(int index) const
-{
-    try
-    {
-        geometry_msgs::Pose value = poses.at(index);
-        return poses[index];
-    }
-    catch(const std::out_of_range& e)
-    {
-        std::cerr << "Out of range error: " << e.what() << std::endl;
-        throw std::runtime_error("Out of range error"); 
-    }
-}
-
 std::vector<std::string>& Manipulation::getTaskTrack(){
     return this->task_track;
+}
+
+
+std::pair<std::string, bool>& Manipulation::getPickTracker(int index) {
+    return pick_tracker[index];
+}
+std::pair<std::string, bool>& Manipulation::getPlaceTracker(int index) {
+    return place_tracker[index];
+}
+void Manipulation::setPickTrackerBool(int index, bool newValue) {
+    pick_tracker[index].second = newValue;
+}
+void Manipulation::setPlaceTrackerBool(int index, bool newValue) {
+    place_tracker[index].second = newValue;
 }
