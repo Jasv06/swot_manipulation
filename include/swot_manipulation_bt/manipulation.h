@@ -191,6 +191,7 @@ class Manipulation
         std::string get_workspace_match_or_free() const;
         std::vector<std::string>& getTaskTrack();
 
+        std::string object_in_gripper;
         std::vector<std::string> objects_in_trays;      /*! The list of objects currently placed in trays. */
         array6d array_tray1_top = {0.027344752103090286, -1.3828709882548829, 0.7994797865497034,  -0.9756995004466553, -1.5633075873004358, -3.091755453740255};
         array6d array_tray2_top = {-0.2560957113849085, -1.5176499386182805, 0.9604175726519983, -1.0044456881335755, -1.5703113714801233, -3.387533966694967};

@@ -32,6 +32,10 @@ MoveToScan::~MoveToScan() = default;
 BT::NodeStatus MoveToScan::tick() 
 {
     ROS_INFO("move to scan");
+    if(manipulation_.get_request_vector()[manipulation_.get_task_count()].mode != "PICK")
+    {
+        return BT::NodeStatus::FAILURE;
+    }
     manipulation_.set_collision_detected(false);
     if(manipulation_.get_count() == 0)
     {
@@ -77,7 +81,8 @@ BT::NodeStatus ScanWorkSpace::tick()
             srv_match.request.object[i] = manipulation_.get_request(i).object;
         }
     }
-    manipulation_.get_worksapce_dimension_matching("MATCHING");
+    manipulation_.set_workspace_match_or_free("MATCHING");
+    manipulation_.get_worksapce_dimension_matching();
     for(auto i = 0; i < 4; i++)
     {
         srv_match.request.ws_dimensions[i] = manipulation_.get_ws_dim()[i];
@@ -154,7 +159,7 @@ BT::NodeStatus MoveUp::tick()
     geometry_msgs::Pose grasping_point;
     for(auto i = 0; i < manipulation_.getPickTracker().size(); i++)
     {
-        if(manipulation_.getPickTracker()[i].first[1] == '1')
+        if(manipulation_.getPickTracker()[i].first[1] == '1' && manipulation_.getPickTracker()[i].first.substr(2) == manipulation_.object_in_gripper)
         {
             grasping_point = manipulation_.getPickTracker()[i].second.pose;
         }
