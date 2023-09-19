@@ -1,7 +1,7 @@
 /**
 *       manipulation.cpp
 *
-*       @date 14.07.2023
+*       @date 19.09.2023
 *       @author Joel Santos
 */
 
@@ -24,6 +24,7 @@ Manipulation::Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_l
     ws_type = "WS";
     obj_mani_height = 0.002;
     obj_name = "M20";
+    task_count = 0;
     getTaskTrack().rezise(get_request_vector().size());
     for(auto i = 0; i < getTaskTrack().size(); i++)
     {
@@ -131,11 +132,11 @@ bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulation2023
     {
         if(req_array_[i].mode == "PICK")
         {
-            pick_tracker.push_back(std::make_pair(std::to_string(i) + req_array_[i].object,false));
+            pick_tracker.push_back(std::make_pair(std::to_string(i) + "0" + req_array_[i].object,false));
         }
         if(req_array_[i].mode == "PLACE")
         {
-            place_tracker.push_back(std::make_pair(std::to_string(i) + req_array_[i].object,false));
+            place_tracker.push_back(std::make_pair(std::to_string(i) + "0" + req_array_[i].object,false));
         }
     }
     rtde->gripper_open(gripper_speed_, gripper_force_);
@@ -258,27 +259,6 @@ void Manipulation::set_tray(std::string tray)
 }
 
 /**
- *      @brief Sets the object placed in the specified tray.
- *      @param object The object to set.
- *      @param tray_number The tray number where the object is placed. It can be 0,1 or 2.
- */
-
-void Manipulation::set_object_in_trays(std::string object, int tray_number)
-{
-    this->objects_in_trays[tray_number] = object;
-}
-
-/**
- *      @brief Resets the object placed in the specified tray.
- *      @param tray_number The tray number to reset.
- */
-
-void Manipulation::reset_object_in_trays(int tray_number)
-{
-    this->objects_in_trays[tray_number] = "";
-}
-
-/**
  *      @brief Sets the response status.
  *      @param status The response status to set.
  */
@@ -321,12 +301,12 @@ void Manipulation::setTargetPosition6d(std::string target)
             std::getline(linestream, col6, ',') &&
             std::getline(linestream, col7)) {
             if (col1 == target) {
-                target_position[0] = col2;
-                target_position[1] = col3;
-                target_position[2] = col4;
-                target_position[3] = col5;
-                target_position[4] = col6;
-                target_position[5] = col7;
+                target_position[0] = std::stod(col2);
+                target_position[1] = std::stod(col3);
+                target_position[2] = std::stod(col4);
+                target_position[3] = std::stod(col5);
+                target_position[4] = std::stod(col6);
+                target_position[5] = std::stod(col7);
                 csvFile.close(); // Close the file before returning
                 return;
             }
@@ -482,17 +462,6 @@ ros::NodeHandle Manipulation::get_nh()
 }
 
 /**
- *      @brief Gets the object placed in the specified tray.
- *      @param tray_number The tray number.
- *      @return The object placed in the tray.
- */
- 
-std::string Manipulation::get_object_in_tray(int tray_number) const
-{
-    return this->objects_in_trays[tray_number];
-}
-
-/**
  *      @brief Gets the current tray.
  *      @return The current tray.
  */
@@ -548,12 +517,7 @@ const swot_msgs::SwotManipulation2023::Request& Manipulation::get_request(int in
 
 swot_msgs::SwotManipulation2023::Response& Manipulation::get_response(int index)
 {
-    // Check if index is within bounds
-    if (index < res_array_.size()) {
-        return res_array_[index];
-    } else {
-        throw std::out_of_range("Index out of bounds");
-    }
+    return res_array_[index];
 }
 
 /**
@@ -651,32 +615,32 @@ int Manipulation::get_count() const
     return this->count;
 }
 
-int Manipulation::get_ws_height() const
+int& Manipulation::get_ws_height()
 {
     return this->ws_height;
 }
 
-std::string Manipulation::get_ws_name() const
+std::string& Manipulation::get_ws_name()
 {
     return this->ws_name;
 }
 
-std::string Manipulation::get_ws_type() const
+std::string& Manipulation::get_ws_type()
 {
     return this->ws_type;
 }
 
-std::string Manipulation::get_obj_name() const
+std::string& Manipulation::get_obj_name()
 {
     return this->obj_name;
 }
 
-double Manipulation::get_obj_mani_height() const
+double& Manipulation::get_obj_mani_height()
 {
     return this->obj_mani_height;
 }
 
-array4d Manipulation::get_ws_dim() const
+array4d& Manipulation::get_ws_dim()
 {
     return this->ws_dim;
 }
@@ -686,7 +650,8 @@ std::string Manipulation::get_workspace_match_or_free() const
     return this->workspace_match_or_free;
 }
 
-std::vector<std::string>& Manipulation::getTaskTrack(){
+std::vector<std::string>& Manipulation::getTaskTrack()
+{
     return this->task_track;
 }
 
@@ -697,9 +662,8 @@ std::pair<std::string, bool>& Manipulation::getPickTracker(int index) {
 std::pair<std::string, bool>& Manipulation::getPlaceTracker(int index) {
     return place_tracker[index];
 }
-void Manipulation::setPickTrackerBool(int index, bool newValue) {
-    pick_tracker[index].second = newValue;
-}
-void Manipulation::setPlaceTrackerBool(int index, bool newValue) {
-    place_tracker[index].second = newValue;
+
+int& Manipulation::get_task_count()
+{
+    return this->task_count;
 }

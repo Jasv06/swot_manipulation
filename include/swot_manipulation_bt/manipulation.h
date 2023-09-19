@@ -1,7 +1,7 @@
 /**
 *       manipulation.h
 *
-*       @date 14.07.2023
+*       @date 19.09.2023
 *       @author Joel Santos
 */
 
@@ -10,8 +10,8 @@
 #include "ros/ros.h"
 #include <ros/package.h>
 #include <swot_ur/ur_rtde.h>
-#include <swot_msgs/SwotManipulation.h>
-#include <swot_msgs/SwotManipulation2023.h>
+#include <swot_msgs/SwotManipulation.h> //message
+#include <swot_msgs/SwotManipulation2023.h> //service
 #include <swot_msgs/SwotObjectMatching.h>
 #include <swot_msgs/SwotFreeSpot.h>
 #include <swot_msgs/SwotObjectPose.h>
@@ -24,9 +24,9 @@
 #include <iostream>
 #include <functional>
 #include <geometry_msgs/TransformStamped.h>
-#include <behaviortree_cpp_v3/bt_factory.h>
-#include <behaviortree_cpp_v3/condition_node.h>
-#include <behaviortree_cpp_v3/action_node.h>
+#include <behaviortree_cpp/bt_factory.h>
+#include <behaviortree_cpp/condition_node.h>
+#include <behaviortree_cpp/action_node.h>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -122,9 +122,10 @@ class Manipulation
         double obj_mani_height; 
         array4d ws_dim; 
         std::string workspace_match_or_free;
-        std::vector<std::string> task_track;                                 /*! Possible values for this vector are FOUND, NOTFOUND, FULLFILLED, NOTFULLFILLED, or UNKNOWN. */ 
-        std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>> pick_tracker;
-        std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>> place_tracker;
+        std::vector<std::string> task_track;                                             /*! Possible values for this vector are FOUND, NOTFOUND, FULLFILLED, NOTFULLFILLED, or UNKNOWN. */ 
+        std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>> pick_tracker;     /*! The initial string starts with a number which is the number of task in the current workspace, then 0 or 1 depending if the task was completed and then tha name of the object, for example, 20M20. */ 
+        std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>> place_tracker;    /*! The initial string starts with a number which is the number of task in the current workspace, then 0 or 1 depending if the task was completed and then tha name of the object, for example, 20M20. */
+        int task_count;
 
     public:  
         // Constructor
@@ -136,7 +137,7 @@ class Manipulation
         // Member functions
         void initialize();
         void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation);
-        bool callback_service_manipulation(swot_msgs::SwotManipulation::Request &req, swot_msgs::SwotManipulation::Response &res);
+        bool callback_service_manipulation(swot_msgs::SwotManipulation2023::Request &req, swot_msgs::SwotManipulation2023::Response &res);
         void callback_wrench(const geometry_msgs::WrenchStamped &msg);
         void sendTargetPosition6d();
         void tray_top();
@@ -147,8 +148,6 @@ class Manipulation
         void set_collision_detected(bool collision);
         void set_collision_activated(bool collision);
         void set_tray(std::string tray);
-        void set_object_in_trays(std::string, int);
-        void reset_object_in_trays(int);
         void set_response_status(const std::string& status, int index);
         void setTargetPosition6d(std::string target);
         void set_target(array6d);
@@ -165,7 +164,6 @@ class Manipulation
         bool get_collision_detected() const;
         bool get_collision_activated() const;
         ros::NodeHandle get_nh();
-        std::string get_object_in_tray(int) const;
         std::string get_tray() const;
         ros::ServiceClient get_service_client_matching() const;
         ros::ServiceClient get_service_client_free() const; 
@@ -183,12 +181,13 @@ class Manipulation
         const std::unique_ptr<URRTDE>& getRTDE() const;
         int get_count() const;
 
-        int get_ws_height() const;
-        std::string get_ws_name() const;
-        std::string get_ws_type() const;
-        std::string get_obj_name() const;
-        double get_obj_mani_height() const;
-        array4d get_ws_dim() const;
+        int& get_ws_height();
+        std::string& get_ws_name();
+        std::string& get_ws_type();
+        std::string& get_obj_name();
+        double& get_obj_mani_height();
+        array4d& get_ws_dim();
+
         std::string get_workspace_match_or_free() const;
         std::vector<std::string>& getTaskTrack();
 
@@ -203,6 +202,5 @@ class Manipulation
 
         std::pair<std::string, bool>& getPickTracker(int index);
         std::pair<std::string, bool>& getPlaceTracker(int index);
-        void setPickTrackerBool(int index, bool newValue);
-        void setPlaceTrackerBool(int index, bool newValue);
+        int& get_task_count();
 };
