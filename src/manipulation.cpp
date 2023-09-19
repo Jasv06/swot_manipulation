@@ -121,6 +121,7 @@ void Manipulation::registerNodes(BT::BehaviorTreeFactory& factory, Manipulation&
 
 bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulation2023::Request &req, swot_msgs::SwotManipulation2023::Response &res)
 {
+    swot_msgs::SwotObjectPose defaultpose;
     for(const auto& element : req)
     {
         req_array_.push_back(element);
@@ -128,15 +129,15 @@ bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulation2023
     std::cout << req_array_[0].object << std::endl;
     std::cout << req_array_[1].object << std::endl;
 
-    for(auto i = 0; i < req_array_.size(); i++)
+    for(auto i = 0; i < manipulation_.get_request_vector().size(); i++)
     {
         if(req_array_[i].mode == "PICK")
         {
-            pick_tracker.push_back(std::make_pair(std::to_string(i) + "0" + req_array_[i].object,false));
+            pick_tracker.push_back(std::make_pair(std::to_string(i) + "0" + req_array_[i].object, defaultpose));
         }
         if(req_array_[i].mode == "PLACE")
         {
-            place_tracker.push_back(std::make_pair(std::to_string(i) + "0" + req_array_[i].object,false));
+            place_tracker.push_back(std::make_pair(std::to_string(i) + "0" + req_array_[i].object, defaultpose));
         }
     }
     rtde->gripper_open(gripper_speed_, gripper_force_);
@@ -341,7 +342,7 @@ void Manipulation::get_mani_height(const std::string& name_of_the_object)
         std::cerr << "Failed to open CSV file: " << csvFilePath << std::endl;
         return;
     }
-
+    int calc = 0;
     std::string line;
     while (std::getline(csvFile, line)) {
         std::istringstream linestream(line);
@@ -349,7 +350,7 @@ void Manipulation::get_mani_height(const std::string& name_of_the_object)
 
         if (std::getline(linestream, col1, ',') &&
             std::getline(linestream, col2)) {
-            if (col1 == get_request().object) {
+            if (col1 == get_request(calc++).object) {
                 obj_mani_height = std::stod(col2);
                 csvFile.close(); // Close the file before returning
                 return;
@@ -381,6 +382,7 @@ void Manipulation::get_worksapce_dimension_matching()
         return;
     }
 
+    int calc = 0;
     std::string line;
     while (std::getline(csvFile, line)) {
         std::istringstream linestream(line);
@@ -392,7 +394,7 @@ void Manipulation::get_worksapce_dimension_matching()
             std::getline(linestream, col4, ',') &&
             std::getline(linestream, col5, ',') &&
             std::getline(linestream, col6)) {
-            if (col1 == get_request().task) {
+            if (col1 == get_request(calc++).task) {
                 ws_dim[0] = std::stod(col2);
                 ws_dim[1] = std::stod(col3);
                 ws_dim[2] = std::stod(col4);
@@ -656,11 +658,12 @@ std::vector<std::string>& Manipulation::getTaskTrack()
 }
 
 
-std::pair<std::string, bool>& Manipulation::getPickTracker(int index) {
-    return pick_tracker[index];
+std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>>& Manipulation::getPickTracker() {
+    return this->pick_tracker;
 }
-std::pair<std::string, bool>& Manipulation::getPlaceTracker(int index) {
-    return place_tracker[index];
+std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>>& Manipulation::getPlaceTracker()
+{
+    return this->place_tracker;
 }
 
 int& Manipulation::get_task_count()

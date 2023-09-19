@@ -200,7 +200,7 @@ class Manipulation
         array6d array_tray3_load = {-0.530647579823629, -1.6887427769103, 1.65178472200503, -1.53478486955676, -1.56944162050356, -3.6110408941852};
         array6d array_scan_mid = {2.40435886383057, -1.83808960537099, 0.975212875996725, -0.674065129165985, -1.63826924959292, -3.8627772966968};
 
-        std::pair<std::string, bool>& getPickTracker(int index);
-        std::pair<std::string, bool>& getPlaceTracker(int index);
+        std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>>& getPickTracker();
+        std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>>& getPlaceTracker();
         int& get_task_count();
 };
