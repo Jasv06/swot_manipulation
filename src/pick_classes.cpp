@@ -5,7 +5,7 @@
 *       @author Joel Santos
 */
 
-#include "swot_manipulation_bt/pick_classes.h"
+#include "swot_manipulation/pick_classes.h"
 
 /**
  *      @brief Constructor of the MoveToScan class used to initialize the corresponding member variables.
@@ -99,7 +99,7 @@ BT::NodeStatus ScanWorkSpace::tick()
     }
     for(auto i = 0; i < manipulation_.getPickTracker().size(); i++)
     {
-        pick_tracker[i].second = srv_match.response.poses[i];
+        manipulation_.pick_tracker[i].second = srv_match.response.poses[i];
     }
     for(auto i = 0; i < manipulation_.getPickTracker().size() ; i++)
     {
@@ -124,19 +124,19 @@ BT::NodeStatus ScanWorkSpace::tick()
 MoveUp::MoveUp(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
 {
     conditionActions = {
-    { [&]() { return manipulation_.get_grasping_area() == "left_left"},
+    { [&]() { return manipulation_.get_grasping_area() == "left_left";},
       [&]() { manipulation_.setTargetPosition6d("array_pick_left_left"); manipulation_.sendTargetPosition6d();}
     },
-    { [&]() { return manipulation_.get_grasping_area() == "left"},
+    { [&]() { return manipulation_.get_grasping_area() == "left";},
       [&]() { manipulation_.setTargetPosition6d("array_pick_left"); manipulation_.sendTargetPosition6d();}
     },
-    { [&]() { return manipulation_.get_grasping_area() == "mid"},
+    { [&]() { return manipulation_.get_grasping_area() == "mid";},
       [&]() { manipulation_.setTargetPosition6d("array_pick_mid"); manipulation_.sendTargetPosition6d();}
     },
-    { [&]() { return manipulation_.get_grasping_area() == "right"},
+    { [&]() { return manipulation_.get_grasping_area() == "right";},
       [&]() { manipulation_.setTargetPosition6d("array_pick_right"); manipulation_.sendTargetPosition6d();}
     },
-    { [&]() { return manipulation_.get_grasping_area() == "right_right"},
+    { [&]() { return manipulation_.get_grasping_area() == "right_right";},
       [&]() { manipulation_.setTargetPosition6d("array_pick_right_right"); manipulation_.sendTargetPosition6d();}
     }
     };

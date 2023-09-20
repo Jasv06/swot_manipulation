@@ -6,13 +6,13 @@
 */
 
 #include <iostream>
-#include "swot_manipulation_bt/manipulation.h"
-#include "swot_manipulation_bt/debug_mode.h"
+#include "swot_manipulation/manipulation.h"
+#include "swot_manipulation/debug_mode.h"
 
 int main(int argc, char **argv)
 {
     // Initialize ROS
-    ros::init(argc, argv, "swot_manipulation_bt_joel");
+    ros::init(argc, argv, "swot_manipulation");
 
     // Remove current definition of DEBUG_MODE in case any other value has been assigned
     //#ifdef DEBUG_MODE   
@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     Manipulation manipulation;
 
     // Extract the value of the variable debug which was passed as a argument via the launch file
-    // The variable debug is defined in "swot_manipulation_bt/debug_mode.h"
+    // The variable debug is defined in "swot_manipulation/debug_mode.h"
     //manipulation.get_nh().getParam("debug", debug);
     
     // Define DEBUG_MODE based on the debug parameter

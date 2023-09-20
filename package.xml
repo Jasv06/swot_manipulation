@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>swot_manipulation_bt</name>
+  <name>swot_manipulation</name>
   <version>0.0.0</version>
   <description>The swot_manipulation_bt package</description>
   

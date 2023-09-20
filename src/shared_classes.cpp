@@ -5,7 +5,7 @@
 *       @author Joel Santos
 */
 
-#include "swot_manipulation_bt/shared_classes.h"
+#include "swot_manipulation/shared_classes.h"
 
 /**
  *      @brief Constructor of the GetGraspAndMoveGrasp class used to initialize the corresponding member variables.
@@ -46,7 +46,7 @@ BT::NodeStatus GetGraspAndMoveGrasp::tick()
     }
 
     conditionActions = {
-    { [&]() { return manipulation_.grasping_point.position.y >= manipulation_.get_left_left_thresh();},
+    { [&]() { return grasping_point.position.y >= get_left_left_thresh();},
       [&]() { manipulation_.set_grasping_area("left_left");
               manipulation_.setTargetPosition6d("array_pick_left_left"); manipulation_.sendTargetPosition6d();}
     },

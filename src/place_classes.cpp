@@ -5,7 +5,7 @@
 *       @author Joel Santos
 */
 
-#include "swot_manipulation_bt/place_classes.h"
+#include "swot_manipulation/place_classes.h"
 
 /**
  *      @brief Constructor of the CheckObjRequired class used to initialize the corresponding member variables.

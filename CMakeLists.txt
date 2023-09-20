@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(swot_manipulation_bt)
+project(swot_manipulation)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -35,7 +35,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Declare things to be passed to dependent projects
 catkin_package(
  INCLUDE_DIRS include
- LIBRARIES swot_manipulation_bt manipulation pick_classes place_classes shared_classes
+ LIBRARIES swot_manipulation manipulation pick_classes place_classes shared_classes
  CATKIN_DEPENDS roscpp swot_ur swot_msgs behaviortree_cpp
 )
 
@@ -44,10 +44,10 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${swot_ur_INCLUDE_DIRS}
-  ${CMAKE_SOURCE_DIR}/src/swot_manipulation_bt/include
+  ${CMAKE_SOURCE_DIR}/src/swot_manipulation/include
 )
 
-install(DIRECTORY include/swot_manipulation_bt/
+install(DIRECTORY include/swot_manipulation/
    DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 )
 
@@ -67,6 +67,6 @@ add_library(${PROJECT_NAME}_lib
 add_dependencies(${PROJECT_NAME}_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(${PROJECT_NAME}_lib ${catkin_LIBRARIES} behaviortree_cpp robotiq_2f_gripper ur_pass_through ur_rtde)
 
-add_executable(swot_manipulation_bt src/main.cpp)
-add_dependencies(swot_manipulation_bt ${${PROJECT_NAME}_EXPORTED_TARGETS}  ${catkin_EXPORTED_TARGETS})
-target_link_libraries(swot_manipulation_bt ${catkin_LIBRARIES} behaviortree_cpp ur_rtde robotiq_2f_gripper ur_pass_through ${PROJECT_NAME}_lib)
+add_executable(swot_manipulation src/main.cpp)
+add_dependencies(swot_manipulation ${${PROJECT_NAME}_EXPORTED_TARGETS}  ${catkin_EXPORTED_TARGETS})
+target_link_libraries(swot_manipulation ${catkin_LIBRARIES} behaviortree_cpp ur_rtde robotiq_2f_gripper ur_pass_through ${PROJECT_NAME}_lib)

@@ -5,10 +5,10 @@
 *       @author Joel Santos
 */
 
-#include "swot_manipulation_bt/manipulation.h"
-#include "swot_manipulation_bt/pick_classes.h"
-#include "swot_manipulation_bt/place_classes.h"
-#include "swot_manipulation_bt/shared_classes.h"
+#include "swot_manipulation/manipulation.h"
+#include "swot_manipulation/pick_classes.h"
+#include "swot_manipulation/place_classes.h"
+#include "swot_manipulation/shared_classes.h"
 
 
 /**
@@ -119,7 +119,7 @@ void Manipulation::registerNodes(BT::BehaviorTreeFactory& factory, Manipulation&
  *
 */
 
-bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulation2023::Request &req, swot_msgs::SwotManipulation2023::Response &res)
+bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulations::Request &req, swot_msgs::SwotManipulations::Response &res)
 {
     swot_msgs::SwotObjectPose defaultpose;
     for(const auto& element : req)
@@ -143,7 +143,7 @@ bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulation2023
     rtde->gripper_open(gripper_speed_, gripper_force_);
     BT::BehaviorTreeFactory factory;
     registerNodes(factory, *this);   
-    nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation_bt/xml_structure/swot_manipulation.xml");
+    nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation/xml_structure/swot_manipulation.xml");
     auto tree = factory.createTreeFromFile(xml_file);
     tree.tickRoot();
     return true;
@@ -493,7 +493,7 @@ ros::ServiceClient Manipulation::get_service_client_free() const
     return this->service_client_free;
 }
 
-const std::vector<swot_msgs::SwotManipulation2023::Request>& Manipulation::get_request_vector() const {
+const std::vector<swot_msgs::SwotManipulations::Request>& Manipulation::get_request_vector() const {
     return this->req_array_; 
 }
 
@@ -502,7 +502,7 @@ const std::vector<swot_msgs::SwotManipulation2023::Request>& Manipulation::get_r
  *      @return The Manipulation service request.
  */
 
-const swot_msgs::SwotManipulation2023::Request& Manipulation::get_request(int index) const
+const swot_msgs::SwotManipulations::Request& Manipulation::get_request(int index) const
 {
     // Check if index is within bounds
     if (index < req_array_.size()) {
@@ -517,7 +517,7 @@ const swot_msgs::SwotManipulation2023::Request& Manipulation::get_request(int in
  *      @return The Manipulation service response.
  */
 
-swot_msgs::SwotManipulation2023::Response& Manipulation::get_response(int index)
+swot_msgs::SwotManipulations::Response& Manipulation::get_response(int index)
 {
     return res_array_[index];
 }
