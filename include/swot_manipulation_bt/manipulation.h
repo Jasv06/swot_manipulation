@@ -10,8 +10,8 @@
 #include "ros/ros.h"
 #include <ros/package.h>
 #include <swot_ur/ur_rtde.h>
-#include <swot_msgs/SwotManipulation.h> //message
-#include <swot_msgs/SwotManipulation2023.h> //service
+#include <swot_msgs/SwotManipulation.h>                     //change accordingly
+#include <swot_msgs/SwotManipulation2023.h>                 //change accordingly
 #include <swot_msgs/SwotObjectMatching.h>
 #include <swot_msgs/SwotFreeSpot.h>
 #include <swot_msgs/SwotObjectPose.h>
@@ -36,10 +36,8 @@
 
 // Alias for an array of 6 doubles
 typedef boost::array<double, 6> array6d; 
-
 // Alias for an array of 7 doubles
 typedef boost::array<double, 7> array7d; 
-
 // Alias for an array of 4 doubles
 typedef boost::array<double, 4> array4d;
 
@@ -102,8 +100,8 @@ class Manipulation
         ros::ServiceServer service_server;                                      /*! ROS service server for handling manipulation requests. */
         ros::ServiceClient service_client_matching;                             /*! ROS service client for object matching. */
         ros::ServiceClient service_client_free;                                 /*! ROS service client for object freeing. */
-        std::vector<swot_msgs::SwotManipulation2023::Request> req_array_;       /*! The request object for the SwotManipulation service. */
-        std::vector<swot_msgs::SwotManipulation2023::Response> res_array_;      /*! The response object for the SwotManipulation service. */
+        std::vector<swot_msgs::SwotManipulation2023::Request> req_array_;   //change accordingly                            /*! The request object for the SwotManipulation service. */
+        std::vector<swot_msgs::SwotManipulation2023::Response> res_array_;  //change accordingly                            /*! The response object for the SwotManipulation service. */
         double gripper_speed_;                                                  /*! The speed of the gripper for object manipulation. */
         double gripper_force_;                                                  /*! The force applied by the gripper for object manipulation. */
         double jnt_vel_;                                                        /*! The velocity of the robot's joints. */
