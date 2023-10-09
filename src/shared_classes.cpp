@@ -46,23 +46,23 @@ BT::NodeStatus GetGraspAndMoveGrasp::tick()
     }
 
     conditionActions = {
-    { [&]() { return grasping_point.position.y >= get_left_left_thresh();},
+    { [&]() { return grasping_point.position.y >= manipulation_.get_left_left_thresh();},
       [&]() { manipulation_.set_grasping_area("left_left");
               manipulation_.setTargetPosition6d("array_pick_left_left"); manipulation_.sendTargetPosition6d();}
     },
-    { [&]() { return manipulation_.grasping_point.position.y < manipulation_.get_left_left_thresh() && manipulation_.grasping_point.position.y >= manipulation_.get_left_thresh();},
+    { [&]() { return grasping_point.position.y < manipulation_.get_left_left_thresh() && grasping_point.position.y >= manipulation_.get_left_thresh();},
       [&]() { manipulation_.set_grasping_area("left");
               manipulation_.setTargetPosition6d("array_pick_left"); manipulation_.sendTargetPosition6d();}
     },
-    { [&]() { return manipulation_.grasping_point.position.y < manipulation_.get_left_thresh() && manipulation_.grasping_point.position.y >= manipulation_.get_right_thresh();},
+    { [&]() { return grasping_point.position.y < manipulation_.get_left_thresh() && grasping_point.position.y >= manipulation_.get_right_thresh();},
       [&]() { manipulation_.set_grasping_area("mid");
               manipulation_.setTargetPosition6d("array_pick_mid"); manipulation_.sendTargetPosition6d();}
     },
-    { [&]() { return manipulation_.grasping_point.position.y < manipulation_.get_right_thresh() && manipulation_.grasping_point.position.y >= manipulation_.get_right_right_thresh();},
+    { [&]() { return grasping_point.position.y < manipulation_.get_right_thresh() && grasping_point.position.y >= manipulation_.get_right_right_thresh();},
       [&]() { manipulation_.set_grasping_area("right");
               manipulation_.setTargetPosition6d("array_pick_right"); manipulation_.sendTargetPosition6d();}
     },
-    { [&]() { return manipulation_.grasping_point.position.y < manipulation_.get_right_right_thresh();},
+    { [&]() { return grasping_point.position.y < manipulation_.get_right_right_thresh();},
       [&]() { manipulation_.set_grasping_area("right_right");
               manipulation_.setTargetPosition6d("array_pick_right_right"); manipulation_.sendTargetPosition6d();
         }
@@ -154,7 +154,7 @@ BT::NodeStatus PickPlaceObject::tick()
     (manipulation_.getRTDE())->cart_target(1, target_2, manipulation_.get_jnt_vel_()*0.2, manipulation_.get_jnt_acc_()*0.2);
         
     ros::Duration(0.5).sleep();
-    if(manipulation_.get_request().mode == "PICK")
+    if(manipulation_.get_request_vector()[manipulation_.get_task_count()].tasks[manipulation_.get_task_count()].mode == "PICK")
     {
         (manipulation_.getRTDE())->gripper_close(manipulation_.get_gripper_speed_(), manipulation_.get_gripper_force_());
         ros::Duration(0.5).sleep();
@@ -167,7 +167,7 @@ BT::NodeStatus PickPlaceObject::tick()
             return BT::NodeStatus::FAILURE;
         }
     }
-    if(manipulation_.get_request().mode == "PLACE")
+    if(manipulation_.get_request_vector()[manipulation_.get_task_count()].tasks[manipulation_.get_task_count()].mode == "PLACE")
     {
         (manipulation_.getRTDE())->gripper_open(manipulation_.get_gripper_speed_(), manipulation_.get_gripper_force_());
     }           
@@ -240,7 +240,7 @@ MoveToDrivePose::~MoveToDrivePose()  = default;
 BT::NodeStatus MoveToDrivePose::tick() 
 {
     ROS_INFO("move to drive pos");
-    if(manipulation_.get_request_vector()[manipulation_.get_task_count()].mode != "DRIVE")
+    if(manipulation_.get_request_vector()[manipulation_.get_task_count()].tasks[manipulation_.get_task_count()].mode != "DRIVE")
     {
         return BT::NodeStatus::FAILURE;
     }

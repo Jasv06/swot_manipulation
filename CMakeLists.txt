@@ -65,8 +65,8 @@ add_library(${PROJECT_NAME}_lib
   ${REQUIRED_FILES}
 )
 add_dependencies(${PROJECT_NAME}_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME}_lib ${catkin_LIBRARIES} behaviortree_cpp robotiq_2f_gripper ur_pass_through ur_rtde)
+target_link_libraries(${PROJECT_NAME}_lib ${catkin_LIBRARIES} behaviortree_cpp ur_pass_through ur_rtde)
 
 add_executable(swot_manipulation src/main.cpp)
 add_dependencies(swot_manipulation ${${PROJECT_NAME}_EXPORTED_TARGETS}  ${catkin_EXPORTED_TARGETS})
-target_link_libraries(swot_manipulation ${catkin_LIBRARIES} behaviortree_cpp ur_rtde robotiq_2f_gripper ur_pass_through ${PROJECT_NAME}_lib)
+target_link_libraries(swot_manipulation ${catkin_LIBRARIES} behaviortree_cpp ur_rtde ur_pass_through ${PROJECT_NAME}_lib)

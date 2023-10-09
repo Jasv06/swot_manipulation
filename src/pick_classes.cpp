@@ -32,7 +32,7 @@ MoveToScan::~MoveToScan() = default;
 BT::NodeStatus MoveToScan::tick() 
 {
     ROS_INFO("move to scan");
-    if(manipulation_.get_request_vector()[manipulation_.get_task_count()].mode != "PICK")
+    if(manipulation_.get_request_vector()[manipulation_.get_task_count()].tasks[manipulation_.get_task_count()].mode != "PICK")
     {
         return BT::NodeStatus::FAILURE;
     }
@@ -78,7 +78,7 @@ BT::NodeStatus ScanWorkSpace::tick()
     {
         if(manipulation_.getTaskTrack()[i] == "UNKNOWN" || manipulation_.getTaskTrack()[i] == "NOTFOUND" || manipulation_.getTaskTrack()[i] == "NOTFULFILLED")
         {
-            srv_match.request.object[i] = manipulation_.get_request(i).object;
+            srv_match.request.objects[i] = manipulation_.get_request(i).tasks[i].object;
         }
     }
     manipulation_.set_workspace_match_or_free("MATCHING");
@@ -99,7 +99,7 @@ BT::NodeStatus ScanWorkSpace::tick()
     }
     for(auto i = 0; i < manipulation_.getPickTracker().size(); i++)
     {
-        manipulation_.pick_tracker[i].second = srv_match.response.poses[i];
+        manipulation_.getPickTracker()[i].second = srv_match.response.poses[i];
     }
     for(auto i = 0; i < manipulation_.getPickTracker().size() ; i++)
     {
@@ -213,7 +213,7 @@ BT::NodeStatus DropObjectInTray::tick()
     manipulation_.setTargetPosition6d("array_rotate2"); manipulation_.sendTargetPosition6d();
 
     for (const auto& tray : trays) {
-        if (tray.trayObject.empty() && manipulation_.get_request().save == tray.savePosition) {
+        if (tray.trayObject.empty() && manipulation_.get_request_vector()[manipulation_.get_task_count()].tasks[manipulation_.get_task_count()].save == tray.savePosition) {
             (manipulation_.getRTDE())->joint_target(tray.topPose, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
             ros::Duration(1).sleep();                    
             manipulation_.set_collision_detected(false);
@@ -246,7 +246,7 @@ BT::NodeStatus DropObjectInTray::tick()
                             pcp_pose_->transform.rotation.w};
             (manipulation_.getRTDE())->cart_target(1, target, manipulation_.get_jnt_vel_()*0.2, manipulation_.get_jnt_acc_()*0.2);
             manipulation_.set_tray(tray.savePosition);
-            tray.trayObject = manipulation_.get_request().object;
+            tray.trayObject = manipulation_.get_request_vector()[manipulation_.get_task_count()].tasks[manipulation_.get_task_count()].object;
             break;
         }
     }

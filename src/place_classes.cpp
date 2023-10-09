@@ -32,7 +32,7 @@ CheckObjRequired::~CheckObjRequired()  = default;
 BT::NodeStatus CheckObjRequired::tick() 
 {
     manipulation_.set_collision_detected(false);
-    if(manipulation_.get_request_vector()[manipulation_.get_task_count()].mode != "PLACE")
+    if(manipulation_.get_request_vector()[manipulation_.get_task_count()].tasks[manipulation_.get_task_count()].mode != "PLACE")
     {
         return BT::NodeStatus::FAILURE;
     }

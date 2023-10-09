@@ -25,7 +25,7 @@ Manipulation::Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_l
     obj_mani_height = 0.002;
     obj_name = "M20";
     task_count = 0;
-    getTaskTrack().rezise(get_request_vector().size());
+    getTaskTrack().resize(get_request_vector().size());
     for(auto i = 0; i < getTaskTrack().size(); i++)
     {
         getTaskTrack()[i] = "UNKNOWN";
@@ -55,7 +55,6 @@ void Manipulation::initialize()
     service_client_free = nh_.serviceClient<swot_msgs::SwotFreeSpot>("FreeSpotServer");
     sub_wrench = nh_.subscribe("wrench", 1000, &Manipulation::callback_wrench, this);
     ROS_INFO("ROS service started"); 
-    std::cout << "Current gripper position: " << rtde.get_gripper_position_per() << std::endl;
 }
 
 /**
@@ -119,25 +118,36 @@ void Manipulation::registerNodes(BT::BehaviorTreeFactory& factory, Manipulation&
  *
 */
 
-bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulations::Request &req, swot_msgs::SwotManipulations::Response &res)
+bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulations::Request& req, swot_msgs::SwotManipulations::Response& res)
 {
     swot_msgs::SwotObjectPose defaultpose;
-    for(const auto& element : req)
-    {
-        req_array_.push_back(element);
-    }
-    std::cout << req_array_[0].object << std::endl;
-    std::cout << req_array_[1].object << std::endl;
+    
+    int size_of_req = sizeof(req.tasks)/sizeof(req.tasks[0]);
 
-    for(auto i = 0; i < manipulation_.get_request_vector().size(); i++)
+    for(size_t i = 0; i < size_of_req; i++)
     {
-        if(req_array_[i].mode == "PICK")
+        swot_msgs::SwotManipulations::Request mani;
+
+        for(size_t j = 0; i != j; j++)
         {
-            pick_tracker.push_back(std::make_pair(std::to_string(i) + "0" + req_array_[i].object, defaultpose));
+            mani.tasks[j] = req.tasks[j];
         }
-        if(req_array_[i].mode == "PLACE")
+
+        req_array_.push_back(mani);
+    }
+
+    std::cout << req_array_[0].tasks[get_task_count()].object << std::endl;
+    std::cout << req_array_[1].tasks[get_task_count()].object << std::endl;
+
+    for(auto i = 0; i < get_request_vector().size(); i++)
+    {
+        if(req_array_[i].tasks[get_task_count()].mode == "PICK")
         {
-            place_tracker.push_back(std::make_pair(std::to_string(i) + "0" + req_array_[i].object, defaultpose));
+            pick_tracker.push_back(std::make_pair(std::to_string(i) + "0" + req_array_[i].tasks[get_task_count()].object, defaultpose));
+        }
+        if(req_array_[i].tasks[get_task_count()].mode == "PLACE")
+        {
+            place_tracker.push_back(std::make_pair(std::to_string(i) + "0" + req_array_[i].tasks[get_task_count()].object, defaultpose));
         }
     }
     rtde->gripper_open(gripper_speed_, gripper_force_);
@@ -145,7 +155,7 @@ bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulations::R
     registerNodes(factory, *this);   
     nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation/xml_structure/swot_manipulation.xml");
     auto tree = factory.createTreeFromFile(xml_file);
-    tree.tickRoot();
+    tree.tickOnce();
     return true;
 }
 
@@ -264,14 +274,9 @@ void Manipulation::set_tray(std::string tray)
  *      @param status The response status to set.
  */
 
-void Manipulation::set_response_status(const std::string& status, int index)
+void Manipulation::set_response_status(std::string status)
 {
-    // Check if index is within bounds
-    if (index < res_array_.size()) {
-        res_array_[index] = newResponse;
-    } else {
-        throw std::out_of_range("Index out of bounds");
-    }
+    this->res_.status = status;
 }
 
 /**
@@ -350,7 +355,7 @@ void Manipulation::get_mani_height(const std::string& name_of_the_object)
 
         if (std::getline(linestream, col1, ',') &&
             std::getline(linestream, col2)) {
-            if (col1 == get_request(calc++).object) {
+            if (col1 == get_request(calc++).tasks[get_task_count()].object) {
                 obj_mani_height = std::stod(col2);
                 csvFile.close(); // Close the file before returning
                 return;
@@ -394,7 +399,7 @@ void Manipulation::get_worksapce_dimension_matching()
             std::getline(linestream, col4, ',') &&
             std::getline(linestream, col5, ',') &&
             std::getline(linestream, col6)) {
-            if (col1 == get_request(calc++).task) {
+            if (col1 == get_request(calc++).tasks[get_task_count()].task) {
                 ws_dim[0] = std::stod(col2);
                 ws_dim[1] = std::stod(col3);
                 ws_dim[2] = std::stod(col4);
@@ -517,9 +522,9 @@ const swot_msgs::SwotManipulations::Request& Manipulation::get_request(int index
  *      @return The Manipulation service response.
  */
 
-swot_msgs::SwotManipulations::Response& Manipulation::get_response(int index)
+swot_msgs::SwotManipulations::Response& Manipulation::get_response()
 {
-    return res_array_[index];
+    return res_;
 }
 
 /**

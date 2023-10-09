@@ -7,7 +7,6 @@
 
 #include <iostream>
 #include "swot_manipulation/manipulation.h"
-#include "swot_manipulation/debug_mode.h"
 
 int main(int argc, char **argv)
 {

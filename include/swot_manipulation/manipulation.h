@@ -102,8 +102,8 @@ class Manipulation
         ros::ServiceServer service_server;                                      /*! ROS service server for handling manipulation requests. */
         ros::ServiceClient service_client_matching;                             /*! ROS service client for object matching. */
         ros::ServiceClient service_client_free;                                 /*! ROS service client for object freeing. */
-        std::vector<swot_msgs::SwotManipulations::Request> req_array_;       /*! The request object for the SwotManipulation service. */
-        std::vector<swot_msgs::SwotManipulations::Response> res_array_;      /*! The response object for the SwotManipulation service. */
+        std::vector<swot_msgs::SwotManipulations::Request> req_array_;          /*! The request object for the SwotManipulation service. */
+        swot_msgs::SwotManipulations::Response res_;                            /*! The response object for the SwotManipulation service. */
         double gripper_speed_;                                                  /*! The speed of the gripper for object manipulation. */
         double gripper_force_;                                                  /*! The force applied by the gripper for object manipulation. */
         double jnt_vel_;                                                        /*! The velocity of the robot's joints. */
@@ -148,13 +148,13 @@ class Manipulation
         void set_collision_detected(bool collision);
         void set_collision_activated(bool collision);
         void set_tray(std::string tray);
-        void set_response_status(const std::string& status, int index);
+        void set_response_status(std::string status);
         void setTargetPosition6d(std::string target);
         void set_target(array6d);
         void set_count(int);
         void increment_count();
 
-        void get_mani_height(std::string name_of_the_object);
+        void get_mani_height(const std::string& name_of_the_object);
         void get_worksapce_dimension_matching();
         void set_workspace_match_or_free(std::string);
 
@@ -169,7 +169,7 @@ class Manipulation
         ros::ServiceClient get_service_client_free() const; 
         const std::vector<swot_msgs::SwotManipulations::Request>& get_request_vector() const;
         const swot_msgs::SwotManipulations::Request& get_request(int index) const;
-        swot_msgs::SwotManipulations::Response& get_response(int index);
+        swot_msgs::SwotManipulations::Response& get_response();
         double get_gripper_speed_() const;                          
         double get_gripper_force_() const;                         
         double get_jnt_vel_() const;                               
