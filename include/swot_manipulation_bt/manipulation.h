@@ -76,6 +76,58 @@ struct Tray {
 };
 
 /**
+*       @struct ManipulationHeight
+*       @brief Custom struct used to represent the data obtained from the manipulation_height.csv file.
+*       @details This struct combines a vector of string object and a vector of doubles. The string object (object_name) represents 
+*           the name of the object which is to be picked, and the double object (height) represents the
+*           height at which the object is to be picked.
+*/
+
+struct ManipulationHeight {
+    std::vector<std::string> object_names;        
+    std::vector<double> manipulation_heights;                  
+};
+
+/**
+*       @struct Positions
+*       @brief Custom Struct used to represent the data obtained from the positions.csv file.
+*       @details This struct combines a vector of strings and positions of type array4d. The position_names
+*           represent the posible positions the robot can take before obtaining the coordinate to which an object 
+*           is to be picked or dropped, and the positions object represent the actual coordinates to which the robot will move. 
+*/
+
+struct Positions {
+    std::vector<std::string> position_names;
+    std::vector<array4d> positions;
+};
+
+/**
+*       @struct WorkSpaceDimensionsFree
+*       @brief Custom Struct used to represent the data obtained from the workspace_dimensions_free.csv file.
+*       @details This struct combines a vector of strings and a vector which contains array elements of type double.
+*           The workspace_names represent the workspace number to which the robot can navigate. The object workspace_dimensions
+*           represent the dimensions every free workspace has.
+*/
+
+struct WorkSpaceDimensionsFree {
+    std::vector<std::string> workspace_number;
+    std::vector<std::array<double, 5>> workspace_dimensions;
+};
+
+/**
+*       @struct WorkSpaceDimensionsMatching
+*       @brief Custom Struct used to represent the data obtained from the workspace_dimensions_matching.csv file.
+*       @details This struct combines a vector of strings and a vector which contains array elements of type double.
+*           The workspace_names represent the workspace number to which the robot can navigate. The object workspace_dimensions
+*           represent the dimensions every free workspace has.
+*/
+
+struct WorkSpaceDimensionsMatching {
+    std::vector<std::string> workspace_number;
+    std::vector<std::array<double, 5>> workspace_dimensions;
+};
+
+/**
 *
 *       @class Manipulation
 *       @brief Main class to handle the RoboCup manipulation tasks
