@@ -209,7 +209,6 @@ class Manipulation
         void set_target(array6d);
         void set_count(int);
         void increment_count();
-
         void get_mani_height(); 
         void get_workspace_dimension_matching(); 
         void get_workspace_dimension_free(); 
