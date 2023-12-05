@@ -123,6 +123,8 @@ bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulations::R
     
     int size_of_req = sizeof(req.tasks)/sizeof(req.tasks[0]);
 
+    std::cout << size_of_req << std::endl;
+
     for(size_t i = 0; i < size_of_req; i++)
     {
         swot_msgs::SwotManipulations::Request mani;
