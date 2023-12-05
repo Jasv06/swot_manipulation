@@ -37,14 +37,17 @@ BT::NodeStatus MoveToScan::tick()
         return BT::NodeStatus::FAILURE;
     }
     manipulation_.set_collision_detected(false);
+    std::string scan;
     if(manipulation_.get_count() == 0)
     {
-        manipulation_.setTargetPosition6d("array_scan_left_yolo"); manipulation_.sendTargetPosition6d();
+        scan = "array_scan_left_yolo_" + get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(req_array_[0].tasks[get_task_count()].task)];
+        manipulation_.sendTargetPosition6d(scan);
     }
     if(manipulation_.get_count() == 1)
     {
-        manipulation_.setTargetPosition6d("array_scan_right_yolo"); manipulation_.sendTargetPosition6d();
+        manipulation_.sendTargetPosition6d("array_scan_right_yolo_");
     }
+
     return BT::NodeStatus::SUCCESS; 
 }  
 

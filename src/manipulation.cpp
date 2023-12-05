@@ -760,3 +760,15 @@ WorkSpaceDimensionsMatching Manipulation::get_workspace_dimensions_matching_obje
 {
     return this->workspace_dimensions_matching_object;
 }
+
+int Manipulation::index(std::string ws_name)
+{
+    for(int i = 0; i < 16; i++)
+    {
+        if(ws_name == workspace_dimensions_matching_object.workspace_dimensions[i][4])
+        {
+            return i;
+        }
+    }
+    return 0;
+}

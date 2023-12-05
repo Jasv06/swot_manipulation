@@ -252,4 +252,6 @@ class Manipulation
         Positions get_manipulation_poses();
         WorkSpaceDimensionsFree get_workspace_dimensions_free_object();
         WorkSpaceDimensionsMatching get_workspace_dimensions_matching_object();
+
+        int index(std::string);
 };
