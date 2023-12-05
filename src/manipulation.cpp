@@ -381,7 +381,7 @@ void Manipulation::get_mani_height()
 
     for (int i = 0; i < 6; i++) {
         std::cout << manipulation_height_object.object_names[i] << std::endl;
-        std::cout << manipulation_height_object.positions[i] << std::endl;
+        std::cout << manipulation_height_object.manipulation_heights[i] << std::endl;
         
     }
     return;
@@ -423,7 +423,7 @@ void Manipulation::get_workspace_dimension_matching()
 
     for (int i = 0; i < 6; i++) {
         std::cout << workspace_dimensions_matching_object.workspace_number[i] << std::endl;
-        for(int j = 0; j < 6; j++)
+        for(int j = 0; j < 5; j++)
         {
             std::cout << workspace_dimensions_matching_object.workspace_dimensions[i][j] << std::endl;
         }  
@@ -467,7 +467,7 @@ void Manipulation::get_workspace_dimension_free()
 
     for (int i = 0; i < 6; i++) {
         std::cout << workspace_dimensions_free_object.workspace_number[i] << std::endl;
-        for(int j = 0; j < 6; j++)
+        for(int j = 0; j < 5; j++)
         {
             std::cout << workspace_dimensions_free_object.workspace_dimensions[i][j] << std::endl;
         }  
