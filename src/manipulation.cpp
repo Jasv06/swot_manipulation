@@ -193,7 +193,7 @@ void Manipulation::callback_wrench(const geometry_msgs::WrenchStamped &msg)
  *          This function sends the target position (6D) to the robot using the RTDE interface.
  */
 
-void Manipulation::sendTargetPosition6d()
+void Manipulation::sendTargetPosition6d(std::string target_point)
 {
     rtde->joint_target(target_position, jnt_vel_, jnt_acc_);
 }

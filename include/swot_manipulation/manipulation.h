@@ -100,7 +100,7 @@ struct ManipulationHeight {
 
 struct Positions {
     std::vector<std::string> position_names;
-    std::vector<array4d> positions;
+    std::vector<array6d> positions;
 };
 
 /**
@@ -195,7 +195,7 @@ class Manipulation
         void registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation);
         bool callback_service_manipulation(swot_msgs::SwotManipulations::Request &req, swot_msgs::SwotManipulations::Response &res);
         void callback_wrench(const geometry_msgs::WrenchStamped &msg);
-        void sendTargetPosition6d();
+        void sendTargetPosition6d(std::string target_point);
         void tray_top();
         
         // Setter functions 
