@@ -1,7 +1,7 @@
 /**
 *       manipulation.h
 *
-*       @date 19.09.2023
+*       @date 19.10.2023
 *       @author Joel Santos
 */
 
@@ -10,8 +10,8 @@
 #include "ros/ros.h"
 #include <ros/package.h>
 #include <swot_ur/ur_rtde.h>
-#include <swot_msgs/SwotManipulation.h> //message
-#include <swot_msgs/SwotManipulations.h> //service
+#include <swot_msgs/SwotManipulation.h>                     
+#include <swot_msgs/SwotManipulation2023.h>                 
 #include <swot_msgs/SwotObjectMatching.h>
 #include <swot_msgs/SwotFreeSpot.h>
 #include <swot_msgs/SwotObjectPose.h>
@@ -78,6 +78,58 @@ struct Tray {
 };
 
 /**
+*       @struct ManipulationHeight
+*       @brief Custom struct used to represent the data obtained from the manipulation_height.csv file.
+*       @details This struct combines a vector of string object and a vector of doubles. The string object (object_name) represents 
+*           the name of the object which is to be picked, and the double object (height) represents the
+*           height at which the object is to be picked.
+*/
+
+struct ManipulationHeight {
+    std::vector<std::string> object_names;        
+    std::vector<double> manipulation_heights;                  
+};
+
+/**
+*       @struct Positions
+*       @brief Custom Struct used to represent the data obtained from the positions.csv file.
+*       @details This struct combines a vector of strings and positions of type array4d. The position_names
+*           represent the posible positions the robot can take before obtaining the coordinate to which an object 
+*           is to be picked or dropped, and the positions object represent the actual coordinates to which the robot will move. 
+*/
+
+struct Positions {
+    std::vector<std::string> position_names;
+    std::vector<array4d> positions;
+};
+
+/**
+*       @struct WorkSpaceDimensionsFree
+*       @brief Custom Struct used to represent the data obtained from the workspace_dimensions_free.csv file.
+*       @details This struct combines a vector of strings and a vector which contains array elements of type double.
+*           The workspace_names represent the workspace number to which the robot can navigate. The object workspace_dimensions
+*           represent the dimensions every free workspace has.
+*/
+
+struct WorkSpaceDimensionsFree {
+    std::vector<std::string> workspace_number;
+    std::vector<std::array<double, 5>> workspace_dimensions;
+};
+
+/**
+*       @struct WorkSpaceDimensionsMatching
+*       @brief Custom Struct used to represent the data obtained from the workspace_dimensions_matching.csv file.
+*       @details This struct combines a vector of strings and a vector which contains array elements of type double.
+*           The workspace_names represent the workspace number to which the robot can navigate. The object workspace_dimensions
+*           represent the dimensions every free workspace has.
+*/
+
+struct WorkSpaceDimensionsMatching {
+    std::vector<std::string> workspace_number;
+    std::vector<std::array<double, 5>> workspace_dimensions;
+};
+
+/**
 *
 *       @class Manipulation
 *       @brief Main class to handle the RoboCup manipulation tasks
@@ -126,6 +178,11 @@ class Manipulation
         std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>> pick_tracker;     /*! The initial string starts with a number which is the number of task in the current workspace, then 0 or 1 depending if the task was completed and then tha name of the object, for example, 20M20. */ 
         std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>> place_tracker;    /*! The initial string starts with a number which is the number of task in the current workspace, then 0 or 1 depending if the task was completed and then tha name of the object, for example, 20M20. */
         int task_count;
+
+        ManipulationHeight manipulation_height_object;
+        Positions manipulation_poses;
+        WorkSpaceDimensionsFree workspace_dimensions_free_object;
+        WorkSpaceDimensionsMatching workspace_dimensions_matching_object;
 
     public:  
         // Constructor
@@ -180,28 +237,22 @@ class Manipulation
         double get_right_right_thresh() const;                     
         const std::unique_ptr<URRTDE>& getRTDE() const;
         int get_count() const;
-
         int& get_ws_height();
         std::string& get_ws_name();
         std::string& get_ws_type();
         std::string& get_obj_name();
         double& get_obj_mani_height();
         array4d& get_ws_dim();
-
         std::string get_workspace_match_or_free() const;
         std::vector<std::string>& getTaskTrack();
-
         std::string object_in_gripper;
-        std::vector<std::string> objects_in_trays;      /*! The list of objects currently placed in trays. */
-        array6d array_tray1_top = {0.027344752103090286, -1.3828709882548829, 0.7994797865497034,  -0.9756995004466553, -1.5633075873004358, -3.091755453740255};
-        array6d array_tray2_top = {-0.2560957113849085, -1.5176499386182805, 0.9604175726519983, -1.0044456881335755, -1.5703113714801233, -3.387533966694967};
-        array6d array_tray3_top = {-0.5458563009845179, -1.5639600318721314, 1.020019833241598,  -1.0378867548755188, -1.5619009176837366, -3.6705244223224085};
-        array6d array_tray1_load = {0.064320102334023, -1.53433151290331, 1.48070460954775, -1.51407157376919, -1.59717017809023, -3.07259160677065};
-        array6d array_tray2_load = {-0.255173508320944, -1.6467939815917, 1.58283216158022, -1.48665781438861, -1.55522424379458, -3.37798530260195};
-        array6d array_tray3_load = {-0.530647579823629, -1.6887427769103, 1.65178472200503, -1.53478486955676, -1.56944162050356, -3.6110408941852};
-        array6d array_scan_mid = {2.40435886383057, -1.83808960537099, 0.975212875996725, -0.674065129165985, -1.63826924959292, -3.8627772966968};
-
+        std::vector<std::string> objects_in_trays;      
         std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>>& getPickTracker();
         std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>>& getPlaceTracker();
         int& get_task_count();
+
+        ManipulationHeight get_manipulation_height_object();
+        Positions get_manipulation_poses();
+        WorkSpaceDimensionsFree get_workspace_dimensions_free_object();
+        WorkSpaceDimensionsMatching get_workspace_dimensions_matching_object();
 };
