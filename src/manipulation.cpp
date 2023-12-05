@@ -772,3 +772,15 @@ int Manipulation::index(std::string ws_name)
     }
     return 0;
 }
+
+int Manipulation::index_height(std::string obj_name)
+{
+    for(int i = 1; i <= 18; i++)
+    {
+        if(obj_name == workspace_dimensions_matching_object.workspace_dimensions[i][4])
+        {
+            return i;
+        }
+    }
+    return 0;
+}

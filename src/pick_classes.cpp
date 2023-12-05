@@ -251,7 +251,7 @@ BT::NodeStatus DropObjectInTray::tick()
 
             geometry_msgs::TransformStampedConstPtr pcp_pose_;
             pcp_pose_ = ros::topic::waitForMessage<geometry_msgs::TransformStamped>("/tcp_pose", ros::Duration(2.0));
-            array7d target = {pcp_pose_->transform.translation.x, pcp_pose_->transform.translation.y, pcp_pose_->transform.translation.z + 0.006, 
+            array7d target = {pcp_pose_->transform.translation.x, pcp_pose_->transform.translation.y, pcp_pose_->transform.translation.z + manipulation_.get_manipulation_height_object().manipulation_heights[manipulation_.index_height(manipulation_.get_request_vector()[].tasks[manipulation_.get_task_count()].object)], 
                             pcp_pose_->transform.rotation.x, pcp_pose_->transform.rotation.y, pcp_pose_->transform.rotation.z, 
                             pcp_pose_->transform.rotation.w};
             (manipulation_.getRTDE())->cart_target(1, target, manipulation_.get_jnt_vel_()*0.2, manipulation_.get_jnt_acc_()*0.2);
