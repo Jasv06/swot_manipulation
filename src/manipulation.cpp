@@ -17,7 +17,7 @@
 
 Manipulation::Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_limit(10.5), collision_detected(false), collision_activated(false), gripper_speed_(1.0), gripper_force_(60.0), jnt_vel_(1), jnt_acc_(1), left_left_thresh(0.2), left_thresh(0.1), right_thresh(-0.1), right_right_thresh(-0.2), count(0)
 {
-    target_position = {2.40435886383057, -1.83808960537099, 0.975212875996725, -0.674065129165985, -1.63826924959292, -3.8627772966968};
+    target_position = {2.7868363857269287, -1.927878042260641, 1.708729092274801, -1.4058648657849808, -1.6280115286456507, -3.468132559453146};
     ws_dim = {0.15, 0.50, -0.45, 0.45};
     ws_height = 10;
     ws_name = "WS01";
@@ -25,11 +25,6 @@ Manipulation::Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_l
     obj_mani_height = 0.002;
     obj_name = "M20";
     task_count = 0;
-    getTaskTrack().resize(get_request_vector().size());
-    for(auto i = 0; i < getTaskTrack().size(); i++)
-    {
-        getTaskTrack()[i] = "UNKNOWN";
-    }
 }
 
 /**
@@ -140,8 +135,15 @@ bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulations::R
         req_array_.push_back(mani);
     }
 
+    /*The print statements below can be deleted*/
     std::cout << req_array_[0].tasks[get_task_count()].object << std::endl;
     std::cout << req_array_[1].tasks[get_task_count()].object << std::endl;
+
+    getTaskTrack().resize(get_request_vector().size());
+    for(auto i = 0; i < getTaskTrack().size(); i++)
+    {
+        getTaskTrack()[i] = "UNKNOWN";
+    }
 
     for(auto i = 0; i < get_request_vector().size(); i++)
     {
@@ -427,7 +429,7 @@ void Manipulation::get_workspace_dimension_matching()
     return;
 }   
 
-void Manipulation::get_workspace_dimension_matching()
+void Manipulation::get_workspace_dimension_free()
 {
     std::string csvFilePath;
     csvFilePath = "../csv_files/workspace_dimensions_free.csv";  // Path to the CSV file
