@@ -284,7 +284,7 @@ void Manipulation::set_response_status(std::string status)
  *      @param target The target position (6D) to set.
  */
 
-void Manipulation::setTargetPosition6d(std::string target)
+void Manipulation::setTargetPosition6d()
 {
     std::string csvFilePath = "../csv_files/target_positions.csv";  // Path to the CSV file
 
@@ -295,32 +295,36 @@ void Manipulation::setTargetPosition6d(std::string target)
     }
 
     std::string line;
+    // Read the CSV file line by line
     while (std::getline(csvFile, line)) {
-        std::istringstream linestream(line);
-        std::string col1, col2, col3, col4, col5, col6, col7;
+        std::istringstream iss(line);
+        std::string token;
+        array6d rowData;
+        
+        // Read the first column (string) into position_names
+        std::getline(iss, token, ',');
+        manipulation_poses.position_names.push_back(token);
 
-        if (std::getline(linestream, col1, ',') &&
-            std::getline(linestream, col2, ',') &&
-            std::getline(linestream, col3, ',') &&
-            std::getline(linestream, col4, ',') &&
-            std::getline(linestream, col5, ',') &&
-            std::getline(linestream, col6, ',') &&
-            std::getline(linestream, col7)) {
-            if (col1 == target) {
-                target_position[0] = std::stod(col2);
-                target_position[1] = std::stod(col3);
-                target_position[2] = std::stod(col4);
-                target_position[3] = std::stod(col5);
-                target_position[4] = std::stod(col6);
-                target_position[5] = std::stod(col7);
-                csvFile.close(); // Close the file before returning
-                return;
-            }
+        // Read the remaining columns (values) into positions array
+        for (int i = 0; i < 6; ++i) {
+            std::getline(iss, token, ',');
+            rowData[i] = std::stod(token);
         }
+
+        manipulation_poses.positions.push_back(rowData);
     }
-     // If we reach here, it means searchValue was not found in the CSV file.
     std::cerr << "Value not found in the CSV file." << std::endl;
     csvFile.close();
+
+    /*DELETE PRINT STATEMENTS BELOW*/
+
+    for (int i = 0; i < 6; i++) {
+        std::cout << manipulation_poses.position_names[i] << std::endl;
+        for(int j = 0; j < 6; j++)
+        {
+            std::cout << manipulation_poses.positions[i][j] << std::endl;
+        }
+    }
 }
                   
 void Manipulation::set_target(array6d target)

@@ -113,7 +113,7 @@ struct Positions {
 
 struct WorkSpaceDimensionsFree {
     std::vector<std::string> workspace_number;
-    std::vector<std::array<double, 5>> workspace_dimensions;
+    std::vector<std::array<double, 5> > workspace_dimensions;
 };
 
 /**
@@ -126,7 +126,7 @@ struct WorkSpaceDimensionsFree {
 
 struct WorkSpaceDimensionsMatching {
     std::vector<std::string> workspace_number;
-    std::vector<std::array<double, 5>> workspace_dimensions;
+    std::vector<std::array<double, 5> > workspace_dimensions;
 };
 
 /**
@@ -206,7 +206,7 @@ class Manipulation
         void set_collision_activated(bool collision);
         void set_tray(std::string tray);
         void set_response_status(std::string status);
-        void setTargetPosition6d(std::string target); // este
+        void setTargetPosition6d(); // este
         void set_target(array6d);
         void set_count(int);
         void increment_count();
