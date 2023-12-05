@@ -254,4 +254,5 @@ class Manipulation
         WorkSpaceDimensionsMatching get_workspace_dimensions_matching_object();
 
         int index(std::string);
+        array6d tray_pose();
 };

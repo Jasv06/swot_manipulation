@@ -88,7 +88,7 @@ BT::NodeStatus ScanWorkSpace::tick()
     
     for(auto i = 0; i < 4; i++)
     {
-        srv_match.request.ws_dimensions[i] = manipulation_.get_ws_dim()[i];
+        srv_match.request.ws_dimensions[i] = manipulation_.get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].task)][i+1];
     }    
     if(ros::service::waitForService("ObjectMatchingServer", ros::Duration(3.0)) == false)
     {
@@ -128,19 +128,19 @@ MoveUp::MoveUp(const std::string& name, Manipulation& manipulation) : BT::SyncAc
 {
     conditionActions = {
     { [&]() { return manipulation_.get_grasping_area() == "left_left";},
-      [&]() { manipulation_.setTargetPosition6d("array_pick_left_left"); manipulation_.sendTargetPosition6d();}
+      [&]() { manipulation_.sendTargetPosition6d("array_pick_left_left");}
     },
     { [&]() { return manipulation_.get_grasping_area() == "left";},
-      [&]() { manipulation_.setTargetPosition6d("array_pick_left"); manipulation_.sendTargetPosition6d();}
+      [&]() { manipulation_.sendTargetPosition6d("array_pick_left");}
     },
     { [&]() { return manipulation_.get_grasping_area() == "mid";},
-      [&]() { manipulation_.setTargetPosition6d("array_pick_mid"); manipulation_.sendTargetPosition6d();}
+      [&]() { manipulation_.sendTargetPosition6d("array_pick_mid");}
     },
     { [&]() { return manipulation_.get_grasping_area() == "right";},
-      [&]() { manipulation_.setTargetPosition6d("array_pick_right"); manipulation_.sendTargetPosition6d();}
+      [&]() { manipulation_.sendTargetPosition6d("array_pick_right");}
     },
     { [&]() { return manipulation_.get_grasping_area() == "right_right";},
-      [&]() { manipulation_.setTargetPosition6d("array_pick_right_right"); manipulation_.sendTargetPosition6d();}
+      [&]() { manipulation_.sendTargetPosition6d("array_pick_right_right");}
     }
     };
 }
@@ -191,10 +191,17 @@ BT::NodeStatus MoveUp::tick()
 
 DropObjectInTray::DropObjectInTray(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
 {
+    array6d array_tray1_top = {0.027344752103090286, -1.3828709882548829, 0.7994797865497034,  -0.9756995004466553, -1.5633075873004358, -3.091755453740255};
+    array6d array_tray2_top = {-0.2560957113849085, -1.5176499386182805, 0.9604175726519983, -1.0044456881335755, -1.5703113714801233, -3.387533966694967};
+    array6d array_tray3_top = {-0.5458563009845179, -1.5639600318721314, 1.020019833241598,  -1.0378867548755188, -1.5619009176837366, -3.6705244223224085};
+    array6d array_tray1_load = {0.064320102334023, -1.53433151290331, 1.48070460954775, -1.51407157376919, -1.59717017809023, -3.07259160677065};
+    array6d array_tray2_load = {-0.255173508320944, -1.6467939815917, 1.58283216158022, -1.48665781438861, -1.55522424379458, -3.37798530260195};
+    array6d array_tray3_load = {-0.530647579823629, -1.6887427769103, 1.65178472200503, -1.53478486955676, -1.56944162050356, -3.6110408941852};
+
     trays = {
-        {manipulation_.array_tray1_top, manipulation_.array_tray1_load, "SAVE_1", manipulation_.objects_in_trays[0]},
-        {manipulation_.array_tray2_top, manipulation_.array_tray2_load, "SAVE_2", manipulation_.objects_in_trays[1]},
-        {manipulation_.array_tray3_top, manipulation_.array_tray3_load, "SAVE_3", manipulation_.objects_in_trays[2]}
+        {array_tray1_top, array_tray1_load, "SAVE_1", manipulation_.objects_in_trays[0]},
+        {array_tray2_top, array_tray2_load, "SAVE_2", manipulation_.objects_in_trays[1]},
+        {array_tray3_top, array_tray3_load, "SAVE_3", manipulation_.objects_in_trays[2]}
     };
 }
 
@@ -212,8 +219,8 @@ DropObjectInTray::~DropObjectInTray()  = default;
 BT::NodeStatus DropObjectInTray::tick() 
 {
     ROS_INFO("drop object in tray");
-    manipulation_.setTargetPosition6d("array_rotate1"); manipulation_.sendTargetPosition6d();
-    manipulation_.setTargetPosition6d("array_rotate2"); manipulation_.sendTargetPosition6d();
+    manipulation_.sendTargetPosition6d("array_rotate1");
+    manipulation_.sendTargetPosition6d("array_rotate2");
 
     for (const auto& tray : trays) {
         if (tray.trayObject.empty() && manipulation_.get_request_vector()[manipulation_.get_task_count()].tasks[manipulation_.get_task_count()].save == tray.savePosition) {
