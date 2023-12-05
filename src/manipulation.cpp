@@ -662,8 +662,8 @@ std::vector<std::string>& Manipulation::getTaskTrack()
     return this->task_track;
 }
 
-
-std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>>& Manipulation::getPickTracker() {
+std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>>& Manipulation::getPickTracker()
+{
     return this->pick_tracker;
 }
 std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>>& Manipulation::getPlaceTracker()
@@ -674,4 +674,24 @@ std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>>& Manipulation::ge
 int& Manipulation::get_task_count()
 {
     return this->task_count;
+}
+
+ManipulationHeight Manipulation::get_manipulation_height_object()
+{
+    return this->manipulation_height_object;
+}
+
+Positions Manipulation::get_manipulation_poses()
+{
+    return this->manipulation_poses;
+}
+
+WorkSpaceDimensionsFree Manipulation::get_workspace_dimensions_free_object()
+{
+    return this->workspace_dimensions_free_object;
+}
+
+WorkSpaceDimensionsMatching Manipulation::get_workspace_dimensions_matching_object()
+{
+    return this->workspace_dimensions_matching_object;
 }
