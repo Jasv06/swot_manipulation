@@ -206,13 +206,14 @@ class Manipulation
         void set_collision_activated(bool collision);
         void set_tray(std::string tray);
         void set_response_status(std::string status);
-        void setTargetPosition6d(std::string target);
+        void setTargetPosition6d(std::string target); // este
         void set_target(array6d);
         void set_count(int);
         void increment_count();
 
-        void get_mani_height(const std::string& name_of_the_object);
-        void get_worksapce_dimension_matching();
+        void get_mani_height(const std::string& name_of_the_object); // este
+        void get_workspace_dimension_matching(); // este
+        void get_workspace_dimension_free(); // este
         void set_workspace_match_or_free(std::string);
 
         // Getter functions

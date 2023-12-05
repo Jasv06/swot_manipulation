@@ -369,7 +369,7 @@ void Manipulation::get_mani_height(const std::string& name_of_the_object)
 
 }
 
-void Manipulation::get_worksapce_dimension_matching()
+void Manipulation::get_workspace_dimension_matching()
 {
     std::string csvFilePath;
     if(this->workspace_match_or_free == "MATCHING")
@@ -410,6 +410,48 @@ void Manipulation::get_worksapce_dimension_matching()
     }
     csvFile.close();
 }   
+
+void Manipulation::get_workspace_dimension_matching()
+{
+    std::string csvFilePath;
+    if(this->workspace_match_or_free == "MATCHING")
+    {
+        csvFilePath = "../csv_files/workspace_dimensions_matching.csv";  // Path to the CSV file
+    }
+    else
+    {
+        csvFilePath = "../csv_files/workspace_dimensions_free.csv";  // Path to the CSV file
+    }
+
+    std::ifstream csvFile(csvFilePath);
+    if (!csvFile.is_open()) {
+        std::cerr << "Failed to open CSV file: " << csvFilePath << std::endl;
+        return;
+    }
+
+    int calc = 0;
+    std::string line;
+    while (std::getline(csvFile, line)) {
+        std::istringstream linestream(line);
+        std::string col1, col2, col3, col4, col5, col6;
+
+        if (std::getline(linestream, col1, ',') &&
+            std::getline(linestream, col2, ',') &&
+            std::getline(linestream, col3, ',') &&
+            std::getline(linestream, col4, ',') &&
+            std::getline(linestream, col5, ',') &&
+            std::getline(linestream, col6)) {
+            if (col1 == get_request(calc++).tasks[get_task_count()].task) {
+                ws_dim[0] = std::stod(col2);
+                ws_dim[1] = std::stod(col3);
+                ws_dim[2] = std::stod(col4);
+                ws_dim[3] = std::stod(col5);
+                ws_height = std::stod(col6);
+            }
+        }
+    }
+    csvFile.close();
+}
 
 void Manipulation::set_workspace_match_or_free(std::string type)
 {
