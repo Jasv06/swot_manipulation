@@ -1,7 +1,53 @@
-https://sdurobotics.gitlab.io/ur_rtde/installation/installation.html#linux-ubuntur-and-macos
-git clone https://gitlab.com/sdurobotics/ur_rtde.git
-ed ur rtde git checkout v1.5.6
-git submodule update - -init --recursive mkdir build ca build
-make - DCMAKE INSTALL PREFIX-/usr ..
-make -j sudo make install
+struct Positions {
+    std::vector<std::string> position_names;
+    std::vector<std::array<double, 6> > positions;
+};
 
+void setTargetPosition6d(Positions& result)
+{
+    std::vector<double> ws_dim(4);
+    std::string cal;
+    std::string csvFilePath = "positions.csv";  // Path to the CSV file
+
+    std::ifstream csvFile(csvFilePath);
+    if (!csvFile.is_open()) {
+        std::cerr << "Failed to open CSV file: " << csvFilePath << std::endl;
+        return;
+    }
+
+    std::string line;
+    // Read the CSV file line by line
+    while (std::getline(csvFile, line)) {
+        std::istringstream iss(line);
+        std::string token;
+        std::array<double, 6> rowData;
+        // Read the first column (string) into position_names
+        std::getline(iss, token, ',');
+        result.position_names.push_back(token);
+
+        // Read the remaining columns (values) into positions array
+        for (int i = 0; i < 6; ++i) {
+            std::getline(iss, token, ',');
+            rowData[i] = std::stod(token);
+        }
+
+        result.positions.push_back(rowData);
+    }
+    csvFile.close();
+    for (int i = 0; i < 6; i++) {
+        std::cout << result.position_names[i] << std::endl;
+        for(int j = 0; j < 6; j++)
+        {
+            std::cout << result.positions[i][j] << std::endl;
+        }
+    }
+    std::cout << cal <<std::endl;
+}
+
+int main()
+{
+
+    Positions result;
+    setTargetPosition6d(result);
+    return 0;
+}
