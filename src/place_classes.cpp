@@ -68,8 +68,6 @@ BT::NodeStatus CheckWSFree::tick()
 {
     ROS_INFO("check ws free");
     swot_msgs::SwotFreeSpot srv_free;
-    manipulation_.set_workspace_match_or_free("FREE");
-    manipulation_.get_worksapce_dimension_matching();
     for(auto i = 0; i < 4; i++)
     {
         srv_free.request.ws_dimensions[i] = manipulation_.get_ws_dim()[i];

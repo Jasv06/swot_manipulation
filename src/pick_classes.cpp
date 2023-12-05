@@ -81,8 +81,7 @@ BT::NodeStatus ScanWorkSpace::tick()
             srv_match.request.objects[i] = manipulation_.get_request(i).tasks[i].object;
         }
     }
-    manipulation_.set_workspace_match_or_free("MATCHING");
-    manipulation_.get_worksapce_dimension_matching();
+    
     for(auto i = 0; i < 4; i++)
     {
         srv_match.request.ws_dimensions[i] = manipulation_.get_ws_dim()[i];

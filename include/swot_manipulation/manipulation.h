@@ -173,7 +173,6 @@ class Manipulation
         std::string obj_name;
         double obj_mani_height; 
         array4d ws_dim; 
-        std::string workspace_match_or_free;
         std::vector<std::string> task_track;                                             /*! Possible values for this vector are FOUND, NOTFOUND, FULLFILLED, NOTFULLFILLED, or UNKNOWN. */ 
         std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>> pick_tracker;     /*! The initial string starts with a number which is the number of task in the current workspace, then 0 or 1 depending if the task was completed and then tha name of the object, for example, 20M20. */ 
         std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>> place_tracker;    /*! The initial string starts with a number which is the number of task in the current workspace, then 0 or 1 depending if the task was completed and then tha name of the object, for example, 20M20. */
@@ -206,15 +205,14 @@ class Manipulation
         void set_collision_activated(bool collision);
         void set_tray(std::string tray);
         void set_response_status(std::string status);
-        void setTargetPosition6d(); // este
+        void setTargetPosition6d(); 
         void set_target(array6d);
         void set_count(int);
         void increment_count();
 
-        void get_mani_height(const std::string& name_of_the_object); // este
-        void get_workspace_dimension_matching(); // este
-        void get_workspace_dimension_free(); // este
-        void set_workspace_match_or_free(std::string);
+        void get_mani_height(); 
+        void get_workspace_dimension_matching(); 
+        void get_workspace_dimension_free(); 
 
         // Getter functions
         std::string get_last_pos() const;
@@ -244,7 +242,6 @@ class Manipulation
         std::string& get_obj_name();
         double& get_obj_mani_height();
         array4d& get_ws_dim();
-        std::string get_workspace_match_or_free() const;
         std::vector<std::string>& getTaskTrack();
         std::string object_in_gripper;
         std::vector<std::string> objects_in_trays;      
