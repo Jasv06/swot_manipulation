@@ -199,6 +199,17 @@ void Manipulation::callback_wrench(const geometry_msgs::WrenchStamped &msg)
 
 void Manipulation::sendTargetPosition6d(std::string target_point)
 {
+    for(int i = 0; i < 26; i++)
+    {
+        if(target_point == manipulation_poses.position_names[i])
+        {
+            for(int j = 0; j < 6; j++)
+            {
+                target_position[j] = manipulation_poses.positions[i][j];
+            }
+            break;
+        }
+    }
     rtde->joint_target(target_position, jnt_vel_, jnt_acc_);
 }
  
@@ -213,15 +224,15 @@ void Manipulation::tray_top()
 {
     if (get_tray() == "SAVE_1")
     {
-        setTargetPosition6d("array_tray1_top"); sendTargetPosition6d();
+        sendTargetPosition6d("array_tray1_top");
     }
     else if (get_tray() == "SAVE_2")
     {
-        setTargetPosition6d("array_tray2_top"); sendTargetPosition6d();
+        sendTargetPosition6d("array_tray2_top");
     }
     else
     {
-        setTargetPosition6d("array_tray3_top"); sendTargetPosition6d();
+        sendTargetPosition6d("array_tray3_top");
     }
 }
 
