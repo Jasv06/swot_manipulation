@@ -70,18 +70,21 @@ BT::NodeStatus CheckWSFree::tick()
     swot_msgs::SwotFreeSpot srv_free;
     for(auto i = 0; i < 4; i++)
     {
-        srv_free.request.ws_dimensions[i] = manipulation_.get_ws_dim()[i];
+        srv_free.request.ws_dimensions[i] = manipulation_.get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].task)][i+1];
     }
     if (ros::service::waitForService("FreeSpotServer", ros::Duration(3.0)))
     {
         std::cout << "FreeSpotServer" << std::endl;
-        manipulation_.setTargetPosition6d("array_scan_left"); manipulation_.sendTargetPosition6d();
+        std:: string scan_left = "array_scan_left_yolo_" + manipulation_.get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].task)][4];
+        manipulation_.sendTargetPosition6d(scan_left);
             if (!(manipulation_.get_service_client_free()).call(srv_free))
             {
-                manipulation_.setTargetPosition6d("array_scan_right"); manipulation_.sendTargetPosition6d();
+                std:: string scan_right = "array_scan_right_yolo_" + manipulation_.get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].task)][4];
+                manipulation_.sendTargetPosition6d(scan_right);
                 if (!(manipulation_.get_service_client_free()).call(srv_free))
                 {
-                    manipulation_.setTargetPosition6d("array_scan_mid"); manipulation_.sendTargetPosition6d();
+                    std:: string scan_mid = "array_scan_mid_" + manipulation_.get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].task)][4];
+                    manipulation_.sendTargetPosition6d(scan_mid);
                     if(!(manipulation_.get_service_client_free()).call(srv_free))
                     {
                         return BT::NodeStatus::FAILURE;
@@ -129,8 +132,8 @@ MoveToTray::~MoveToTray()  = default;
 BT::NodeStatus MoveToTray::tick() 
 {
     ROS_INFO("move to tray");
-    manipulation_.setTargetPosition6d("array_rotate1"); manipulation_.sendTargetPosition6d();
-    manipulation_.setTargetPosition6d("array_rotate2"); manipulation_.sendTargetPosition6d();
+    manipulation_.sendTargetPosition6d("array_rotate1");
+    manipulation_.sendTargetPosition6d("array_rotate2");
     manipulation_.tray_top();       
     return BT::NodeStatus::SUCCESS;   
 }
@@ -162,15 +165,15 @@ BT::NodeStatus PickFromTray::tick()
     ROS_INFO("pick from tray");
     if (manipulation_.get_tray() == "SAVE_1")
     {
-        manipulation_.setTargetPosition6d("array_tray1_load"); manipulation_.sendTargetPosition6d();
+        manipulation_.sendTargetPosition6d("array_tray1_load");
     }
     else if (manipulation_.get_tray() == "SAVE_2")
     {
-        manipulation_.setTargetPosition6d("array_tray2_load"); manipulation_.sendTargetPosition6d();
+        manipulation_.sendTargetPosition6d("array_tray2_load");
     }
     else
     {
-        manipulation_.setTargetPosition6d("array_tray3_load"); manipulation_.sendTargetPosition6d();
+        manipulation_.sendTargetPosition6d("array_tray3_load");
     }
     for(auto i = 0; i < manipulation_.get_request_vector().size(); i++)
     {
@@ -239,9 +242,9 @@ MoveToDropPos::~MoveToDropPos()  = default;
 BT::NodeStatus MoveToDropPos::tick() 
 {
     ROS_INFO("move to drop pos");
-    manipulation_.setTargetPosition6d("array_rotate2"); manipulation_.sendTargetPosition6d();
-    manipulation_.setTargetPosition6d("array_rotate1"); manipulation_.sendTargetPosition6d();
-    manipulation_.setTargetPosition6d("array_scan_mid"); manipulation_.sendTargetPosition6d();
+    manipulation_.sendTargetPosition6d("array_rotate2");
+    manipulation_.sendTargetPosition6d("array_rotate1");
+    manipulation_.sendTargetPosition6d("array_scan_mid");
     manipulation_.set_last_pos("mid");
     return BT::NodeStatus::SUCCESS;
 }

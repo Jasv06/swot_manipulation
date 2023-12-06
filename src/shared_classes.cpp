@@ -47,25 +47,19 @@ BT::NodeStatus GetGraspAndMoveGrasp::tick()
 
     conditionActions = {
     { [&]() { return grasping_point.position.y >= manipulation_.get_left_left_thresh();},
-      [&]() { manipulation_.set_grasping_area("left_left");
-              manipulation_.setTargetPosition6d("array_pick_left_left"); manipulation_.sendTargetPosition6d();}
+      [&]() { manipulation_.set_grasping_area("left_left"); manipulation_.sendTargetPosition6d("array_pick_left_left");}
     },
     { [&]() { return grasping_point.position.y < manipulation_.get_left_left_thresh() && grasping_point.position.y >= manipulation_.get_left_thresh();},
-      [&]() { manipulation_.set_grasping_area("left");
-              manipulation_.setTargetPosition6d("array_pick_left"); manipulation_.sendTargetPosition6d();}
+      [&]() { manipulation_.set_grasping_area("left"); manipulation_.sendTargetPosition6d("array_pick_left");}
     },
     { [&]() { return grasping_point.position.y < manipulation_.get_left_thresh() && grasping_point.position.y >= manipulation_.get_right_thresh();},
-      [&]() { manipulation_.set_grasping_area("mid");
-              manipulation_.setTargetPosition6d("array_pick_mid"); manipulation_.sendTargetPosition6d();}
+      [&]() { manipulation_.set_grasping_area("mid"); manipulation_.sendTargetPosition6d("array_pick_mid");}
     },
     { [&]() { return grasping_point.position.y < manipulation_.get_right_thresh() && grasping_point.position.y >= manipulation_.get_right_right_thresh();},
-      [&]() { manipulation_.set_grasping_area("right");
-              manipulation_.setTargetPosition6d("array_pick_right"); manipulation_.sendTargetPosition6d();}
+      [&]() { manipulation_.set_grasping_area("right"); manipulation_.sendTargetPosition6d("array_pick_right");}
     },
     { [&]() { return grasping_point.position.y < manipulation_.get_right_right_thresh();},
-      [&]() { manipulation_.set_grasping_area("right_right");
-              manipulation_.setTargetPosition6d("array_pick_right_right"); manipulation_.sendTargetPosition6d();
-        }
+      [&]() { manipulation_.set_grasping_area("right_right"); manipulation_.sendTargetPosition6d("array_pick_right_right");}
     }
     }; 
 
@@ -201,15 +195,15 @@ BT::NodeStatus MoveHomePos::tick()
     ROS_INFO("move home pos");
     if(manipulation_.get_last_pos() == "tray")
     {
-        manipulation_.setTargetPosition6d("array_rotate2"); manipulation_.sendTargetPosition6d();
-        manipulation_.setTargetPosition6d("array_rotate1"); manipulation_.sendTargetPosition6d();
-        manipulation_.setTargetPosition6d("array_scan_mid"); manipulation_.sendTargetPosition6d();
+        manipulation_.sendTargetPosition6d("array_rotate2");
+        manipulation_.sendTargetPosition6d("array_rotate1");
+        manipulation_.sendTargetPosition6d("array_scan_mid");
         manipulation_.set_response_status("FINISHED");
         return BT::NodeStatus::SUCCESS; 
     }
     else
     {  
-        manipulation_.setTargetPosition6d("array_scan_mid"); manipulation_.sendTargetPosition6d();
+        manipulation_.sendTargetPosition6d("array_scan_mid");
         manipulation_.set_response_status("FINISHED");
         return BT::NodeStatus::SUCCESS;
     }
@@ -244,7 +238,7 @@ BT::NodeStatus MoveToDrivePose::tick()
     {
         return BT::NodeStatus::FAILURE;
     }
-    manipulation_.setTargetPosition6d("array_drive"); manipulation_.sendTargetPosition6d();
+    manipulation_.sendTargetPosition6d("array_drive");
     manipulation_.set_response_status("FINISHED");
     return BT::NodeStatus::SUCCESS;
 }
