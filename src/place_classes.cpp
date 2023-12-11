@@ -5,7 +5,7 @@
 *       @author Joel Santos
 */
 
-#include "swot_manipulation_bt/place_classes.h"
+#include "swot_manipulation/place_classes.h"
 
 /**
  *      @brief Constructor of the CheckObjRequired class used to initialize the corresponding member variables.
@@ -32,22 +32,14 @@ CheckObjRequired::~CheckObjRequired()  = default;
 BT::NodeStatus CheckObjRequired::tick() 
 {
     manipulation_.set_collision_detected(false);
-    if (manipulation_.get_request().save == "SAVE_1")
+    if(manipulation_.get_request_vector()[manipulation_.get_task_count()].tasks[manipulation_.get_task_count()].mode != "PLACE")
     {
-        ROS_INFO("Object from tray 1 required");
-        manipulation_.reset_object_in_trays(0);
-    }
-    else if (manipulation_.get_request().save == "SAVE_2")
-    {
-        ROS_INFO("Object from tray 2 required");
-        manipulation_.reset_object_in_trays(1);
+        return BT::NodeStatus::FAILURE;
     }
     else
     {
-        ROS_INFO("Object from tray 3 required");
-        manipulation_.reset_object_in_trays(2);
+        return BT::NodeStatus::SUCCESS;
     }
-    return BT::NodeStatus::SUCCESS;
 }     
 
 /**
@@ -76,19 +68,22 @@ BT::NodeStatus CheckWSFree::tick()
 {
     ROS_INFO("check ws free");
     swot_msgs::SwotFreeSpot srv_free;
-    if (ros::service::waitForService("FreeSpotServer", ros::Duration(5.0)))
+    manipulation_.set_workspace_match_or_free("FREE");
+    manipulation_.get_worksapce_dimension_matching();
+    for(auto i = 0; i < 4; i++)
+    {
+        srv_free.request.ws_dimensions[i] = manipulation_.get_ws_dim()[i];
+    }
+    if (ros::service::waitForService("FreeSpotServer", ros::Duration(3.0)))
     {
         std::cout << "FreeSpotServer" << std::endl;
-        (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_left, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
-        ros::Duration(2).sleep();
+        manipulation_.setTargetPosition6d("array_scan_left"); manipulation_.sendTargetPosition6d();
             if (!(manipulation_.get_service_client_free()).call(srv_free))
             {
-                (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_right, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
-                ros::Duration(2).sleep();
+                manipulation_.setTargetPosition6d("array_scan_right"); manipulation_.sendTargetPosition6d();
                 if (!(manipulation_.get_service_client_free()).call(srv_free))
                 {
-                    (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_mid, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());                   
-                    ros::Duration(2).sleep();
+                    manipulation_.setTargetPosition6d("array_scan_mid"); manipulation_.sendTargetPosition6d();
                     if(!(manipulation_.get_service_client_free()).call(srv_free))
                     {
                         return BT::NodeStatus::FAILURE;
@@ -101,8 +96,13 @@ BT::NodeStatus CheckWSFree::tick()
         ROS_WARN("Couldn't find ROS Service \"SwotFreeSpot\"");
         return BT::NodeStatus::FAILURE;
     }
-    manipulation_.set_grasping_point(srv_free.response.pose);
-    std::cout << manipulation_.get_grasping_point() << std::endl;
+    for(auto i = 0; i < manipulation_.get_request_vector().size(); i++)
+    {
+        if(manipulation_.getPlaceTracker()[i].first[0] == manipulation_.get_task_count())
+        {
+            manipulation_.getPlaceTracker()[i].second.pose = srv_free.response.pose;
+        }
+    }
     return BT::NodeStatus::SUCCESS;
 }
 
@@ -131,8 +131,8 @@ MoveToTray::~MoveToTray()  = default;
 BT::NodeStatus MoveToTray::tick() 
 {
     ROS_INFO("move to tray");
-    (manipulation_.getRTDE())->joint_target(manipulation_.array_rotate1, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
-    (manipulation_.getRTDE())->joint_target(manipulation_.array_rotate2, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
+    manipulation_.setTargetPosition6d("array_rotate1"); manipulation_.sendTargetPosition6d();
+    manipulation_.setTargetPosition6d("array_rotate2"); manipulation_.sendTargetPosition6d();
     manipulation_.tray_top();       
     return BT::NodeStatus::SUCCESS;   
 }
@@ -164,18 +164,24 @@ BT::NodeStatus PickFromTray::tick()
     ROS_INFO("pick from tray");
     if (manipulation_.get_tray() == "SAVE_1")
     {
-        (manipulation_.getRTDE())->joint_target(manipulation_.array_tray1_load, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());  
+        manipulation_.setTargetPosition6d("array_tray1_load"); manipulation_.sendTargetPosition6d();
     }
     else if (manipulation_.get_tray() == "SAVE_2")
     {
-        (manipulation_.getRTDE())->joint_target(manipulation_.array_tray2_load, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());        
+        manipulation_.setTargetPosition6d("array_tray2_load"); manipulation_.sendTargetPosition6d();
     }
     else
     {
-        (manipulation_.getRTDE())->joint_target(manipulation_.array_tray3_load, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
+        manipulation_.setTargetPosition6d("array_tray3_load"); manipulation_.sendTargetPosition6d();
+    }
+    for(auto i = 0; i < manipulation_.get_request_vector().size(); i++)
+    {
+        if(manipulation_.getPlaceTracker()[i].first[0] == manipulation_.get_task_count())
+        {
+            manipulation_.get_mani_height(manipulation_.getPlaceTracker()[i].first.substr(2));
+        }
     }
     ros::Duration(0.5).sleep();
-
     manipulation_.set_collision_detected(false);
     array6d free_axis = {1,1,1,0,0,0};
     array6d wrench = {0,0,-20,0,0,0};
@@ -200,7 +206,7 @@ BT::NodeStatus PickFromTray::tick()
     geometry_msgs::TransformStampedConstPtr pcp_pose_;
     pcp_pose_ = ros::topic::waitForMessage<geometry_msgs::TransformStamped>("/tcp_pose", ros::Duration(2.0));
 
-    array7d target = {pcp_pose_->transform.translation.x, pcp_pose_->transform.translation.y, pcp_pose_->transform.translation.z + 0.006, 
+    array7d target = {pcp_pose_->transform.translation.x, pcp_pose_->transform.translation.y, pcp_pose_->transform.translation.z + manipulation_.get_obj_mani_height(), 
                     pcp_pose_->transform.rotation.x, pcp_pose_->transform.rotation.y, pcp_pose_->transform.rotation.z, 
                     pcp_pose_->transform.rotation.w};
     (manipulation_.getRTDE())->cart_target(1, target, manipulation_.get_jnt_vel_()*0.2, manipulation_.get_jnt_acc_()*0.2);
@@ -235,9 +241,9 @@ MoveToDropPos::~MoveToDropPos()  = default;
 BT::NodeStatus MoveToDropPos::tick() 
 {
     ROS_INFO("move to drop pos");
-    (manipulation_.getRTDE())->joint_target(manipulation_.array_rotate2, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
-    (manipulation_.getRTDE())->joint_target(manipulation_.array_rotate1, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
-    (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_mid, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
+    manipulation_.setTargetPosition6d("array_rotate2"); manipulation_.sendTargetPosition6d();
+    manipulation_.setTargetPosition6d("array_rotate1"); manipulation_.sendTargetPosition6d();
+    manipulation_.setTargetPosition6d("array_scan_mid"); manipulation_.sendTargetPosition6d();
     manipulation_.set_last_pos("mid");
     return BT::NodeStatus::SUCCESS;
 }

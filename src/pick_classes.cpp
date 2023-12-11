@@ -1,11 +1,11 @@
 /**
 *       pick_classes.cpp
 *
-*       @date 14.07.2023
+*       @date 19.09.2023
 *       @author Joel Santos
 */
 
-#include "swot_manipulation_bt/pick_classes.h"
+#include "swot_manipulation/pick_classes.h"
 
 /**
  *      @brief Constructor of the MoveToScan class used to initialize the corresponding member variables.
@@ -31,10 +31,20 @@ MoveToScan::~MoveToScan() = default;
 
 BT::NodeStatus MoveToScan::tick() 
 {
-    manipulation_.set_collision_detected(false);
     ROS_INFO("move to scan");
-    (manipulation_.getRTDE())->gripper_open(manipulation_.get_gripper_speed_(), manipulation_.get_gripper_force_());
-    (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_mid, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
+    if(manipulation_.get_request_vector()[manipulation_.get_task_count()].tasks[manipulation_.get_task_count()].mode != "PICK")
+    {
+        return BT::NodeStatus::FAILURE;
+    }
+    manipulation_.set_collision_detected(false);
+    if(manipulation_.get_count() == 0)
+    {
+        manipulation_.setTargetPosition6d("array_scan_left_yolo"); manipulation_.sendTargetPosition6d();
+    }
+    if(manipulation_.get_count() == 1)
+    {
+        manipulation_.setTargetPosition6d("array_scan_right_yolo"); manipulation_.sendTargetPosition6d();
+    }
     return BT::NodeStatus::SUCCESS; 
 }  
 
@@ -46,7 +56,7 @@ BT::NodeStatus MoveToScan::tick()
 
 ScanWorkSpace::ScanWorkSpace(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
 {
-
+    
 }
 
 /**
@@ -62,42 +72,46 @@ ScanWorkSpace::~ScanWorkSpace()  = default;
 
 BT::NodeStatus ScanWorkSpace::tick() 
 {
-    swot_msgs::SwotObjectMatching2023 srv_match;
-    srv_match.request.object = manipulation_.get_request().object;
     ROS_INFO("scan workspace");
-    if(manipulation_.get_count() == 0)
+    swot_msgs::SwotObjectMatching srv_match;
+    for(auto i = 0; i < manipulation_.get_request_vector().size(); i++)
     {
-        (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_left_yolo, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
+        if(manipulation_.getTaskTrack()[i] == "UNKNOWN" || manipulation_.getTaskTrack()[i] == "NOTFOUND" || manipulation_.getTaskTrack()[i] == "NOTFULFILLED")
+        {
+            srv_match.request.objects[i] = manipulation_.get_request(i).tasks[i].object;
+        }
     }
-    else if(manipulation_.get_count() == 1)
+    manipulation_.set_workspace_match_or_free("MATCHING");
+    manipulation_.get_worksapce_dimension_matching();
+    for(auto i = 0; i < 4; i++)
     {
-        (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_right_yolo, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
-    }
-    else
-    {
-        (manipulation_.getRTDE())->joint_target(manipulation_.array_scan_mid, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
-        manipulation_.set_count(0);
-    }
-
+        srv_match.request.ws_dimensions[i] = manipulation_.get_ws_dim()[i];
+    }    
     if(ros::service::waitForService("ObjectMatchingServer", ros::Duration(3.0)) == false)
     {
-        manipulation_.increment_count();
+        std::cout << "Service not available" << std::endl;
         return BT::NodeStatus::FAILURE;   
     }
-    ros::Duration(1).sleep();
     if(!(manipulation_.get_service_client_matching()).call(srv_match))
     {
-        manipulation_.increment_count();
         ROS_WARN("Couldn't find ROS Service \"SwotObjectMatching\"");
         return BT::NodeStatus::FAILURE;
     }
-    ros::Duration(1).sleep();
-    if (srv_match.response.posture == "STANDING" || srv_match.response.posture == "FAILED")
+    for(auto i = 0; i < manipulation_.getPickTracker().size(); i++)
     {
-        manipulation_.increment_count();
-        return BT::NodeStatus::FAILURE;
+        manipulation_.getPickTracker()[i].second = srv_match.response.poses[i];
     }
-    manipulation_.set_grasping_point(srv_match.response.pose);
+    for(auto i = 0; i < manipulation_.getPickTracker().size() ; i++)
+    {
+        if(srv_match.response.poses[i].error_code == 0)
+        {
+            manipulation_.getTaskTrack()[i] = "FOUND";
+        }
+        else
+        {
+            manipulation_.getTaskTrack()[i] = "NOTFOUND";
+        }
+    }
     return BT::NodeStatus::SUCCESS;
 }
 
@@ -109,12 +123,22 @@ BT::NodeStatus ScanWorkSpace::tick()
 
 MoveUp::MoveUp(const std::string& name, Manipulation& manipulation) : BT::SyncActionNode(name, {}), manipulation_(manipulation) 
 {
-    areaTargets = {
-        {"left_left", manipulation_.array_pick_left_left},
-        {"left", manipulation_.array_pick_left},
-        {"mid", manipulation_.array_pick_mid},
-        {"right", manipulation_.array_pick_right},
-        {"right_right", manipulation_.array_pick_right_right}
+    conditionActions = {
+    { [&]() { return manipulation_.get_grasping_area() == "left_left";},
+      [&]() { manipulation_.setTargetPosition6d("array_pick_left_left"); manipulation_.sendTargetPosition6d();}
+    },
+    { [&]() { return manipulation_.get_grasping_area() == "left";},
+      [&]() { manipulation_.setTargetPosition6d("array_pick_left"); manipulation_.sendTargetPosition6d();}
+    },
+    { [&]() { return manipulation_.get_grasping_area() == "mid";},
+      [&]() { manipulation_.setTargetPosition6d("array_pick_mid"); manipulation_.sendTargetPosition6d();}
+    },
+    { [&]() { return manipulation_.get_grasping_area() == "right";},
+      [&]() { manipulation_.setTargetPosition6d("array_pick_right"); manipulation_.sendTargetPosition6d();}
+    },
+    { [&]() { return manipulation_.get_grasping_area() == "right_right";},
+      [&]() { manipulation_.setTargetPosition6d("array_pick_right_right"); manipulation_.sendTargetPosition6d();}
+    }
     };
 }
 
@@ -131,25 +155,29 @@ MoveUp::~MoveUp()  = default;
 
 BT::NodeStatus MoveUp::tick() 
 {
-    ROS_INFO("move up ");           
-    array7d target = {manipulation_.get_grasping_point().position.x, manipulation_.get_grasping_point().position.y, manipulation_.get_grasping_point().position.z + 0.07,
-    manipulation_.get_grasping_point().orientation.x, manipulation_.get_grasping_point().orientation.y, manipulation_.get_grasping_point().orientation.z,
-    manipulation_.get_grasping_point().orientation.w};
+    ROS_INFO("move up ");  
+    geometry_msgs::Pose grasping_point;
+    for(auto i = 0; i < manipulation_.getPickTracker().size(); i++)
+    {
+        if(manipulation_.getPickTracker()[i].first[1] == '1' && manipulation_.getPickTracker()[i].first.substr(2) == manipulation_.object_in_gripper)
+        {
+            grasping_point = manipulation_.getPickTracker()[i].second.pose;
+        }
+    }         
+    array7d target = {grasping_point.position.x, grasping_point.position.y, grasping_point.position.z + 0.07,
+    grasping_point.orientation.x, grasping_point.orientation.y, grasping_point.orientation.z, grasping_point.orientation.w};
     (manipulation_.getRTDE())->cart_target(1, target, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());           
 
-    std::string graspingArea = manipulation_.get_grasping_area();
-    array6d defaultTarget = manipulation_.array_pick_mid;
-
-    auto find = std::find_if(areaTargets.begin(), areaTargets.end(), [&](const auto& pair){return pair.first == graspingArea;});
-    if(find != areaTargets.end())
+    for (const auto& conditionAction : conditionActions) 
     {
-        (manipulation_.getRTDE())->joint_target(find->second, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
+        if (conditionAction.condition()) 
+        {
+            conditionAction.action();
+            return BT::NodeStatus::SUCCESS;
+        }
     }
-    else
-    {
-        (manipulation_.getRTDE())->joint_target(defaultTarget, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
-    }
-    return BT::NodeStatus::SUCCESS;
+    std::cout << "No matching action found." << std::endl;
+    return BT::NodeStatus::FAILURE;
 } 
 
 /**
@@ -181,11 +209,11 @@ DropObjectInTray::~DropObjectInTray()  = default;
 BT::NodeStatus DropObjectInTray::tick() 
 {
     ROS_INFO("drop object in tray");
-    (manipulation_.getRTDE())->joint_target(manipulation_.array_rotate1, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
-    (manipulation_.getRTDE())->joint_target(manipulation_.array_rotate2, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
+    manipulation_.setTargetPosition6d("array_rotate1"); manipulation_.sendTargetPosition6d();
+    manipulation_.setTargetPosition6d("array_rotate2"); manipulation_.sendTargetPosition6d();
 
     for (const auto& tray : trays) {
-        if (tray.trayObject.empty() && manipulation_.get_request().save == tray.savePosition) {
+        if (tray.trayObject.empty() && manipulation_.get_request_vector()[manipulation_.get_task_count()].tasks[manipulation_.get_task_count()].save == tray.savePosition) {
             (manipulation_.getRTDE())->joint_target(tray.topPose, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
             ros::Duration(1).sleep();                    
             manipulation_.set_collision_detected(false);
@@ -218,7 +246,7 @@ BT::NodeStatus DropObjectInTray::tick()
                             pcp_pose_->transform.rotation.w};
             (manipulation_.getRTDE())->cart_target(1, target, manipulation_.get_jnt_vel_()*0.2, manipulation_.get_jnt_acc_()*0.2);
             manipulation_.set_tray(tray.savePosition);
-            tray.trayObject = manipulation_.get_request().object;
+            tray.trayObject = manipulation_.get_request_vector()[manipulation_.get_task_count()].tasks[manipulation_.get_task_count()].object;
             break;
         }
     }

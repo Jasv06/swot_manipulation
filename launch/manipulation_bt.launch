@@ -1,7 +1,7 @@
 <launch>
   <!--param name="debug" value="0" /-->
   
-  <node name="swot_manipulation_bt" pkg="swot_manipulation_bt" type="swot_manipulation_bt" output="screen">
+  <node name="swot_manipulation" pkg="swot_manipulation" type="swot_manipulation" output="screen">
     <!--rosparam-->
           <!-- Pass the value of the 'debug' parameter to the node as a parameter -->
           <!--param name="debug" value="$(arg debug)" />

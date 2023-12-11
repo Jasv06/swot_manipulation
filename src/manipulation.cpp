@@ -1,15 +1,14 @@
 /**
 *       manipulation.cpp
 *
-*       @date 14.07.2023
+*       @date 19.09.2023
 *       @author Joel Santos
 */
 
-#include "swot_manipulation_bt/manipulation.h"
-#include "swot_manipulation_bt/condition_classes.h"
-#include "swot_manipulation_bt/pick_classes.h"
-#include "swot_manipulation_bt/place_classes.h"
-#include "swot_manipulation_bt/shared_classes.h"
+#include "swot_manipulation/manipulation.h"
+#include "swot_manipulation/pick_classes.h"
+#include "swot_manipulation/place_classes.h"
+#include "swot_manipulation/shared_classes.h"
 
 
 /**
@@ -19,6 +18,18 @@
 Manipulation::Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_limit(10.5), collision_detected(false), collision_activated(false), gripper_speed_(1.0), gripper_force_(60.0), jnt_vel_(1), jnt_acc_(1), left_left_thresh(0.2), left_thresh(0.1), right_thresh(-0.1), right_right_thresh(-0.2), count(0)
 {
     target_position = {2.40435886383057, -1.83808960537099, 0.975212875996725, -0.674065129165985, -1.63826924959292, -3.8627772966968};
+    ws_dim = {0.15, 0.50, -0.45, 0.45};
+    ws_height = 10;
+    ws_name = "WS01";
+    ws_type = "WS";
+    obj_mani_height = 0.002;
+    obj_name = "M20";
+    task_count = 0;
+    getTaskTrack().resize(get_request_vector().size());
+    for(auto i = 0; i < getTaskTrack().size(); i++)
+    {
+        getTaskTrack()[i] = "UNKNOWN";
+    }
 }
 
 /**
@@ -40,7 +51,7 @@ void Manipulation::initialize()
 {
     rtde = std::make_unique<URRTDE>(nh_);
     service_server = nh_.advertiseService("SwotManipulationBT", &Manipulation::callback_service_manipulation, this);
-    service_client_matching = nh_.serviceClient<swot_msgs::SwotObjectMatching2023>("ObjectMatchingServer");
+    service_client_matching = nh_.serviceClient<swot_msgs::SwotObjectMatching>("ObjectMatchingServer");
     service_client_free = nh_.serviceClient<swot_msgs::SwotFreeSpot>("FreeSpotServer");
     sub_wrench = nh_.subscribe("wrench", 1000, &Manipulation::callback_wrench, this);
     ROS_INFO("ROS service started"); 
@@ -54,65 +65,44 @@ void Manipulation::initialize()
 
 void Manipulation::registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation)
 {
-    BT::NodeBuilder builder_1 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<NotPick>(name,  std::ref(manipulation));};
-    factory.registerBuilder<NotPick>("NotPick", builder_1);
+    BT::NodeBuilder builder_1 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<CheckObjRequired>(name,  std::ref(manipulation));};
+    factory.registerBuilder<CheckObjRequired>("CheckObjRequired", builder_1);
 
-    BT::NodeBuilder builder_2 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<NotDrive>(name,  std::ref(manipulation));};
-    factory.registerBuilder<NotDrive>("NotDrive", builder_2);
+    BT::NodeBuilder builder_2 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<CheckWSFree>(name, std::ref(manipulation));};
+    factory.registerBuilder<CheckWSFree>("CheckWSFree", builder_2);
 
-    BT::NodeBuilder builder_3 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<NotPlace>(name,  std::ref(manipulation));};
-    factory.registerBuilder<NotPlace>("NotPlace", builder_3);        
+    BT::NodeBuilder builder_3 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<DropObjectInTray>(name,  std::ref(manipulation));};
+    factory.registerBuilder<DropObjectInTray>("DropObjectInTray", builder_3);
+
+    BT::NodeBuilder builder_4 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<GetGraspAndMoveGrasp>(name,  std::ref(manipulation));};
+    factory.registerBuilder<GetGraspAndMoveGrasp>("GetGraspAndMoveGrasp", builder_4);
+
+    BT::NodeBuilder builder_5 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveHomePos>(name,  std::ref(manipulation));};
+    factory.registerBuilder<MoveHomePos>("MoveHomePos", builder_5);
+
+    BT::NodeBuilder builder_6 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveToDrivePose>(name,  std::ref(manipulation));};
+    factory.registerBuilder<MoveToDrivePose>("MoveToDrivePose", builder_6);
+
+    BT::NodeBuilder builder_7 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveToDropPos>(name,  std::ref(manipulation));};
+    factory.registerBuilder<MoveToDropPos>("MoveToDropPos", builder_7); 
         
-    BT::NodeBuilder builder_4 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<NotPP>(name,  std::ref(manipulation));};
-    factory.registerBuilder<NotPP>("NotPP", builder_4);
-        
-    BT::NodeBuilder builder_5 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<NotWS>(name,  std::ref(manipulation));};
-    factory.registerBuilder<NotWS>("NotWS", builder_5);
+    BT::NodeBuilder builder_8 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveToScan>(name,  std::ref(manipulation));};
+    factory.registerBuilder<MoveToScan>("MoveToScan", builder_8);
 
-    BT::NodeBuilder builder_6 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<NotSH>(name,  std::ref(manipulation));};
-    factory.registerBuilder<NotSH>("NotSH", builder_6);
+    BT::NodeBuilder builder_9 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveToTray>(name,  std::ref(manipulation));};
+    factory.registerBuilder<MoveToTray>("MoveToTray", builder_9);
 
-    BT::NodeBuilder builder_7 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<NotTT>(name,  std::ref(manipulation));};
-    factory.registerBuilder<NotTT>("NotTT", builder_7);
+    BT::NodeBuilder builder_10 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveUp>(name,  std::ref(manipulation));};       
+    factory.registerBuilder<MoveUp>("MoveUp", builder_10);
 
-    BT::NodeBuilder builder_8 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<CheckObjRequired>(name,  std::ref(manipulation));};
-    factory.registerBuilder<CheckObjRequired>("CheckObjRequired", builder_8);
+    BT::NodeBuilder builder_11 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<PickFromTray>(name,  std::ref(manipulation));};
+    factory.registerBuilder<PickFromTray>("PickFromTray", builder_11);
 
-    BT::NodeBuilder builder_9 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<CheckWSFree>(name, std::ref(manipulation));};
-    factory.registerBuilder<CheckWSFree>("CheckWSFree", builder_9);
+    BT::NodeBuilder builder_12 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<PickPlaceObject>(name,  std::ref(manipulation));};
+    factory.registerBuilder<PickPlaceObject>("PickPlaceObject", builder_12); 
 
-    BT::NodeBuilder builder_10 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<DropObjectInTray>(name,  std::ref(manipulation));};
-    factory.registerBuilder<DropObjectInTray>("DropObjectInTray", builder_10);
-
-    BT::NodeBuilder builder_11 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<GetGraspAndMoveGrasp>(name,  std::ref(manipulation));};
-    factory.registerBuilder<GetGraspAndMoveGrasp>("GetGraspAndMoveGrasp", builder_11);
-
-    BT::NodeBuilder builder_12 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveHomePos>(name,  std::ref(manipulation));};
-    factory.registerBuilder<MoveHomePos>("MoveHomePos", builder_12);
-
-    BT::NodeBuilder builder_13 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveToDrivePose>(name,  std::ref(manipulation));};
-    factory.registerBuilder<MoveToDrivePose>("MoveToDrivePose", builder_13);
-
-    BT::NodeBuilder builder_14 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveToDropPos>(name,  std::ref(manipulation));};
-    factory.registerBuilder<MoveToDropPos>("MoveToDropPos", builder_14); 
-        
-    BT::NodeBuilder builder_15 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveToScan>(name,  std::ref(manipulation));};
-    factory.registerBuilder<MoveToScan>("MoveToScan", builder_15);
-
-    BT::NodeBuilder builder_16 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveToTray>(name,  std::ref(manipulation));};
-    factory.registerBuilder<MoveToTray>("MoveToTray", builder_16);
-
-    BT::NodeBuilder builder_17 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<MoveUp>(name,  std::ref(manipulation));};       
-    factory.registerBuilder<MoveUp>("MoveUp", builder_17);
-
-    BT::NodeBuilder builder_18 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<PickFromTray>(name,  std::ref(manipulation));};
-    factory.registerBuilder<PickFromTray>("PickFromTray", builder_18);
-
-    BT::NodeBuilder builder_19 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<PickPlaceObject>(name,  std::ref(manipulation));};
-    factory.registerBuilder<PickPlaceObject>("PickPlaceObject", builder_19); 
-
-    BT::NodeBuilder builder_20 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<ScanWorkSpace>(name,  std::ref(manipulation));};       
-    factory.registerBuilder<ScanWorkSpace>("ScanWorkSpace", builder_20);
+    BT::NodeBuilder builder_13 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<ScanWorkSpace>(name,  std::ref(manipulation));};       
+    factory.registerBuilder<ScanWorkSpace>("ScanWorkSpace", builder_13);
 }
 
 /**
@@ -128,21 +118,44 @@ void Manipulation::registerNodes(BT::BehaviorTreeFactory& factory, Manipulation&
  *
 */
 
-bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulation::Request &req, swot_msgs::SwotManipulation::Response &res)
+bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulations::Request& req, swot_msgs::SwotManipulations::Response& res)
 {
-    this->req_ = req;
-    this->res_ = res;
+    swot_msgs::SwotObjectPose defaultpose;
+    
+    int size_of_req = sizeof(req.tasks)/sizeof(req.tasks[0]);
 
-    std::cout << get_request().mode << std::endl;
-    std::cout << get_request().object << std::endl;
-    std::cout << get_request().save << std::endl;
-    std::cout << get_request().task << std::endl;
+    for(size_t i = 0; i < size_of_req; i++)
+    {
+        swot_msgs::SwotManipulations::Request mani;
+
+        for(size_t j = 0; i != j; j++)
+        {
+            mani.tasks[j] = req.tasks[j];
+        }
+
+        req_array_.push_back(mani);
+    }
+
+    std::cout << req_array_[0].tasks[get_task_count()].object << std::endl;
+    std::cout << req_array_[1].tasks[get_task_count()].object << std::endl;
+
+    for(auto i = 0; i < get_request_vector().size(); i++)
+    {
+        if(req_array_[i].tasks[get_task_count()].mode == "PICK")
+        {
+            pick_tracker.push_back(std::make_pair(std::to_string(i) + "0" + req_array_[i].tasks[get_task_count()].object, defaultpose));
+        }
+        if(req_array_[i].tasks[get_task_count()].mode == "PLACE")
+        {
+            place_tracker.push_back(std::make_pair(std::to_string(i) + "0" + req_array_[i].tasks[get_task_count()].object, defaultpose));
+        }
+    }
     rtde->gripper_open(gripper_speed_, gripper_force_);
     BT::BehaviorTreeFactory factory;
     registerNodes(factory, *this);   
-    nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation_bt/xml_structure/swot_manipulation.xml");
+    nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation/xml_structure/swot_manipulation.xml");
     auto tree = factory.createTreeFromFile(xml_file);
-    tree.tickRoot();
+    tree.tickOnce();
     return true;
 }
 
@@ -180,6 +193,22 @@ void Manipulation::sendTargetPosition6d()
 {
     rtde->joint_target(target_position, jnt_vel_, jnt_acc_);
 }
+
+void Manipulation::sendTargetPosition6d(std::string target_point)
+{
+    for(int i = 0; i < 26; i++)
+    {
+        if(target_point == manipulation_poses.position_names[i])
+        {
+            for(int j = 0; j < 6; j++)
+            {
+                target_position[j] = manipulation_poses.positions[i][j];
+            }
+            break;
+        }
+    }
+    rtde->joint_target(target_position, jnt_vel_, jnt_acc_);
+}
  
 /**
  *      @brief Sets the top position of the tray.
@@ -192,15 +221,15 @@ void Manipulation::tray_top()
 {
     if (get_tray() == "SAVE_1")
     {
-        rtde->joint_target(array_tray1_top, jnt_vel_, jnt_acc_);    
+        setTargetPosition6d("array_tray1_top"); sendTargetPosition6d();
     }
     else if (get_tray() == "SAVE_2")
     {
-        rtde->joint_target(array_tray2_top, jnt_vel_, jnt_acc_);          
+        setTargetPosition6d("array_tray2_top"); sendTargetPosition6d();
     }
     else
     {
-        rtde->joint_target(array_tray3_top, jnt_vel_, jnt_acc_); 
+        setTargetPosition6d("array_tray3_top"); sendTargetPosition6d();
     }
 }
 
@@ -247,16 +276,6 @@ void Manipulation::set_collision_activated(bool collision)
 }
 
 /**
- *      @brief Sets the grasping point.
- *      @param grasping The grasping point to set.
- */
-
-void Manipulation::set_grasping_point(geometry_msgs::Pose grasping)
-{
-    this->grasping_point = grasping;
-}
-
-/**
  *      @brief Sets the current tray.
  *      @param tray The tray to set.
  */
@@ -267,32 +286,11 @@ void Manipulation::set_tray(std::string tray)
 }
 
 /**
- *      @brief Sets the object placed in the specified tray.
- *      @param object The object to set.
- *      @param tray_number The tray number where the object is placed. It can be 0,1 or 2.
- */
-
-void Manipulation::set_object_in_trays(std::string object, int tray_number)
-{
-    this->objects_in_trays[tray_number] = object;
-}
-
-/**
- *      @brief Resets the object placed in the specified tray.
- *      @param tray_number The tray number to reset.
- */
-
-void Manipulation::reset_object_in_trays(int tray_number)
-{
-    this->objects_in_trays[tray_number] = "";
-}
-
-/**
  *      @brief Sets the response status.
  *      @param status The response status to set.
  */
 
-void Manipulation::set_response_status(const std::string& status)
+void Manipulation::set_response_status(std::string status)
 {
     this->res_.status = status;
 }
@@ -314,25 +312,76 @@ void Manipulation::setTargetPosition6d(std::string target)
 
     std::string line;
     while (std::getline(csvFile, line)) {
-        std::istringstream iss(line);
-        std::string columnName;
-        std::getline(iss, columnName, ',');
+        std::istringstream linestream(line);
+        std::string col1, col2, col3, col4, col5, col6, col7;
 
-        if (columnName == target) {
-            // Extract values from each column and assign them to the targetValues array
-            std::string columnValue;
-            for (int i = 0; i < target_position.size(); ++i) {
-                std::getline(iss, columnValue, ',');
-                target_position[i] = std::stod(columnValue);
+        if (std::getline(linestream, col1, ',') &&
+            std::getline(linestream, col2, ',') &&
+            std::getline(linestream, col3, ',') &&
+            std::getline(linestream, col4, ',') &&
+            std::getline(linestream, col5, ',') &&
+            std::getline(linestream, col6, ',') &&
+            std::getline(linestream, col7)) {
+            if (col1 == target) {
+                target_position[0] = std::stod(col2);
+                target_position[1] = std::stod(col3);
+                target_position[2] = std::stod(col4);
+                target_position[3] = std::stod(col5);
+                target_position[4] = std::stod(col6);
+                target_position[5] = std::stod(col7);
+                csvFile.close(); // Close the file before returning
+                return;
             }
-
-            break;  // Found the target, so no need to continue searching
         }
     }
-
+     // If we reach here, it means searchValue was not found in the CSV file.
+    std::cerr << "Value not found in the CSV file." << std::endl;
     csvFile.close();
 }
 
+void Manipulation::setTargetPosition6d()
+{
+    std::string csvFilePath = "../csv_files/target_positions.csv";  // Path to the CSV file
+
+    std::ifstream csvFile(csvFilePath);
+    if (!csvFile.is_open()) {
+        std::cerr << "Failed to open CSV file: " << csvFilePath << std::endl;
+        return;
+    }
+
+    std::string line;
+    // Read the CSV file line by line
+    while (std::getline(csvFile, line)) {
+        std::istringstream iss(line);
+        std::string token;
+        array6d rowData;
+        
+        // Read the first column (string) into position_names
+        std::getline(iss, token, ',');
+        manipulation_poses.position_names.push_back(token);
+
+        // Read the remaining columns (values) into positions array
+        for (int i = 0; i < 6; ++i) {
+            std::getline(iss, token, ',');
+            rowData[i] = std::stod(token);
+        }
+
+        manipulation_poses.positions.push_back(rowData);
+    }
+    std::cerr << "Value not found in the CSV file." << std::endl;
+    csvFile.close();
+
+    /*DELETE PRINT STATEMENTS BELOW*/
+
+    for (int i = 0; i < 6; i++) {
+        std::cout << manipulation_poses.position_names[i] << std::endl;
+        for(int j = 0; j < 6; j++)
+        {
+            std::cout << manipulation_poses.positions[i][j] << std::endl;
+        }
+    }
+}
+                  
 void Manipulation::set_target(array6d target)
 {
     this->target_position = target;
@@ -346,6 +395,121 @@ void Manipulation::set_count(int number)
 void Manipulation::increment_count()
 {
     this->count++;
+}
+
+void Manipulation::get_mani_height(const std::string& name_of_the_object)
+{
+    std::string csvFilePath = "../csv_files/manipulation_height.csv";  // Path to the CSV file
+
+    std::ifstream csvFile(csvFilePath);
+    if (!csvFile.is_open()) {
+        std::cerr << "Failed to open CSV file: " << csvFilePath << std::endl;
+        return;
+    }
+    int calc = 0;
+    std::string line;
+    while (std::getline(csvFile, line)) {
+        std::istringstream linestream(line);
+        std::string col1, col2;
+
+        if (std::getline(linestream, col1, ',') &&
+            std::getline(linestream, col2)) {
+            if (col1 == get_request(calc++).tasks[get_task_count()].object) {
+                obj_mani_height = std::stod(col2);
+                csvFile.close(); // Close the file before returning
+                return;
+            }
+        }
+    }
+
+    // If we reach here, it means searchValue was not found in the CSV file.
+    std::cerr << "Value not found in the CSV file." << std::endl;
+    csvFile.close(); // Close the file before returning
+
+}
+
+void Manipulation::get_mani_height()
+{
+    std::string csvFilePath = "../csv_files/manipulation_height.csv";  // Path to the CSV file
+
+    std::ifstream csvFile(csvFilePath);
+    if (!csvFile.is_open()) {
+        std::cerr << "Failed to open CSV file: " << csvFilePath << std::endl;
+        return;
+    }
+
+    std::string line;
+    // Read the CSV file line by line
+    while (std::getline(csvFile, line)) {
+        std::istringstream iss(line);
+        std::string token;
+        double data;
+        
+        // Read the first column (string) into object_names
+        std::getline(iss, token, ',');
+        manipulation_height_object.object_names.push_back(token);
+
+        std::getline(iss, token, ',');
+        data = std::stod(token);
+        manipulation_height_object.manipulation_heights.push_back(data);
+    }
+    csvFile.close();
+
+    /*DELETE PRINT STATEMENTS BELOW*/
+
+    for (int i = 0; i < 6; i++) {
+        std::cout << manipulation_height_object.object_names[i] << std::endl;
+        std::cout << manipulation_height_object.manipulation_heights[i] << std::endl;
+        
+    }
+    return;
+}
+
+void Manipulation::get_worksapce_dimension_matching()
+{
+    std::string csvFilePath;
+    if(this->workspace_match_or_free == "MATCHING")
+    {
+        csvFilePath = "../csv_files/workspace_dimensions_matching.csv";  // Path to the CSV file
+    }
+    else
+    {
+        csvFilePath = "../csv_files/workspace_dimensions_free.csv";  // Path to the CSV file
+    }
+
+    std::ifstream csvFile(csvFilePath);
+    if (!csvFile.is_open()) {
+        std::cerr << "Failed to open CSV file: " << csvFilePath << std::endl;
+        return;
+    }
+
+    int calc = 0;
+    std::string line;
+    while (std::getline(csvFile, line)) {
+        std::istringstream linestream(line);
+        std::string col1, col2, col3, col4, col5, col6;
+
+        if (std::getline(linestream, col1, ',') &&
+            std::getline(linestream, col2, ',') &&
+            std::getline(linestream, col3, ',') &&
+            std::getline(linestream, col4, ',') &&
+            std::getline(linestream, col5, ',') &&
+            std::getline(linestream, col6)) {
+            if (col1 == get_request(calc++).tasks[get_task_count()].task) {
+                ws_dim[0] = std::stod(col2);
+                ws_dim[1] = std::stod(col3);
+                ws_dim[2] = std::stod(col4);
+                ws_dim[3] = std::stod(col5);
+                ws_height = std::stod(col6);
+            }
+        }
+    }
+    csvFile.close();
+}   
+
+void Manipulation::set_workspace_match_or_free(std::string type)
+{
+    workspace_match_or_free = type;
 }
 
 // Getter functions -------------------------------------------
@@ -401,27 +565,6 @@ ros::NodeHandle Manipulation::get_nh()
 }
 
 /**
- *      @brief Gets the grasping point.
- *      @return The grasping point.
- */
-
-geometry_msgs::Pose Manipulation::get_grasping_point() const
-{
-    return this->grasping_point;
-}
-
-/**
- *      @brief Gets the object placed in the specified tray.
- *      @param tray_number The tray number.
- *      @return The object placed in the tray.
- */
- 
-std::string Manipulation::get_object_in_tray(int tray_number) const
-{
-    return this->objects_in_trays[tray_number];
-}
-
-/**
  *      @brief Gets the current tray.
  *      @return The current tray.
  */
@@ -451,14 +594,23 @@ ros::ServiceClient Manipulation::get_service_client_free() const
     return this->service_client_free;
 }
 
+const std::vector<swot_msgs::SwotManipulations::Request>& Manipulation::get_request_vector() const {
+    return this->req_array_; 
+}
+
 /**
  *      @brief Gets the Manipulation service request.
  *      @return The Manipulation service request.
  */
 
-swot_msgs::SwotManipulation::Request Manipulation::get_request() const
+const swot_msgs::SwotManipulations::Request& Manipulation::get_request(int index) const
 {
-    return this->req_;
+    // Check if index is within bounds
+    if (index < req_array_.size()) {
+        return req_array_[index];
+    } else {
+        throw std::out_of_range("Index out of bounds");
+    }
 }
 
 /**
@@ -466,9 +618,9 @@ swot_msgs::SwotManipulation::Request Manipulation::get_request() const
  *      @return The Manipulation service response.
  */
 
-swot_msgs::SwotManipulation::Response Manipulation::get_response() const
+swot_msgs::SwotManipulations::Response& Manipulation::get_response()
 {
-    return this->res_;
+    return res_;
 }
 
 /**
@@ -566,3 +718,56 @@ int Manipulation::get_count() const
     return this->count;
 }
 
+int& Manipulation::get_ws_height()
+{
+    return this->ws_height;
+}
+
+std::string& Manipulation::get_ws_name()
+{
+    return this->ws_name;
+}
+
+std::string& Manipulation::get_ws_type()
+{
+    return this->ws_type;
+}
+
+std::string& Manipulation::get_obj_name()
+{
+    return this->obj_name;
+}
+
+double& Manipulation::get_obj_mani_height()
+{
+    return this->obj_mani_height;
+}
+
+array4d& Manipulation::get_ws_dim()
+{
+    return this->ws_dim;
+}
+
+std::string Manipulation::get_workspace_match_or_free() const
+{
+    return this->workspace_match_or_free;
+}
+
+std::vector<std::string>& Manipulation::getTaskTrack()
+{
+    return this->task_track;
+}
+
+
+std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>>& Manipulation::getPickTracker() {
+    return this->pick_tracker;
+}
+std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>>& Manipulation::getPlaceTracker()
+{
+    return this->place_tracker;
+}
+
+int& Manipulation::get_task_count()
+{
+    return this->task_count;
+}
