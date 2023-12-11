@@ -179,7 +179,7 @@ BT::NodeStatus PickFromTray::tick()
     {
         if(manipulation_.getPlaceTracker()[i].first[0] == manipulation_.get_task_count())
         {
-            manipulation_.get_mani_height(manipulation_.getPlaceTracker()[i].first.substr(2));
+            //manipulation_.get_mani_height(manipulation_.getPlaceTracker()[i].first.substr(2));
         }
     }
     ros::Duration(0.5).sleep();

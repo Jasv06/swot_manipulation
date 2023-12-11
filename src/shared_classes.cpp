@@ -107,12 +107,12 @@ BT::NodeStatus PickPlaceObject::tick()
         if(manipulation_.getPickTracker()[i].first[0] == manipulation_.get_task_count())
         {
             grasping_point = manipulation_.getPickTracker()[i].second.pose;
-            manipulation_.get_mani_height(manipulation_.getPickTracker()[i].first.substr(2));
+            //manipulation_.get_mani_height(manipulation_.getPickTracker()[i].first.substr(2));
         }
         if(manipulation_.getPlaceTracker()[i].first[0] == manipulation_.get_task_count())
         {
             grasping_point = manipulation_.getPlaceTracker()[i].second.pose;
-            manipulation_.get_mani_height(manipulation_.getPlaceTracker()[i].first.substr(2));
+            //manipulation_.get_mani_height(manipulation_.getPlaceTracker()[i].first.substr(2));
         }
     }
     array7d target = {grasping_point.position.x, grasping_point.position.y, grasping_point.position.z + 0.07,
