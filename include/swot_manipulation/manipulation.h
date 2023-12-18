@@ -10,8 +10,8 @@
 #include "ros/ros.h"
 #include <ros/package.h>
 #include <swot_ur/ur_rtde.h>
-#include <swot_msgs/SwotManipulation.h> //message
-#include <swot_msgs/SwotManipulations.h> //service                
+#include <swot_msgs/SwotManipulation.h>                 //message
+#include <swot_msgs/SwotManipulations.h>                //service                
 #include <swot_msgs/SwotObjectMatching.h>
 #include <swot_msgs/SwotFreeSpot.h>
 #include <swot_msgs/SwotObjectPose.h>

@@ -201,7 +201,7 @@ void Manipulation::sendTargetPosition6d(std::string target_point)
 {
     for(int i = 0; i < 26; i++)
     {
-        if(target_point == manipulation_poses.position_names[i])
+        if(manipulation_poses.position_names[i] == target_point)
         {
             for(int j = 0; j < 6; j++)
             {
@@ -765,7 +765,7 @@ int Manipulation::index(std::string ws_name)
 {
     for(int i = 1; i <= 16; i++)
     {
-        if(ws_name == workspace_dimensions_matching_object.workspace_dimensions[i][4])
+        if(workspace_dimensions_matching_object.workspace_dimensions[i][4] == ws_name)
         {
             return i;
         }
@@ -777,7 +777,7 @@ int Manipulation::index_height(std::string obj_name)
 {
     for(int i = 1; i <= 18; i++)
     {
-        if(obj_name == workspace_dimensions_matching_object.workspace_dimensions[i][4])
+        if(workspace_dimensions_matching_object.workspace_dimensions[i][4] == obj_name)
         {
             return i;
         }
