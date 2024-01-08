@@ -424,21 +424,11 @@ void Manipulation::get_workspace_dimension_matching()
         for(int i = 0; i < 5; i++)
         {
             std::getline(iss, token, ',');
-            dimensions = std::stod(token);
+            dimensions[i] = std::stod(token);
         }
         workspace_dimensions_matching_object.workspace_dimensions.push_back(dimensions);
     }
     csvFile.close();
-
-    /*DELETE PRINT STATEMENTS BELOW*/
-
-    for (int i = 0; i < 6; i++) {
-        std::cout << workspace_dimensions_matching_object.workspace_number[i] << std::endl;
-        for(int j = 0; j < 5; j++)
-        {
-            std::cout << workspace_dimensions_matching_object.workspace_dimensions[i][j] << std::endl;
-        }  
-    }
     return;
 }   
 
@@ -468,21 +458,11 @@ void Manipulation::get_workspace_dimension_free()
         for(int i = 0; i < 5; i++)
         {
             std::getline(iss, token, ',');
-            dimensions = std::stod(token);
+            dimensions[i] = std::stod(token);
         }
         workspace_dimensions_free_object.workspace_dimensions.push_back(dimensions);
     }
     csvFile.close();
-
-    /*DELETE PRINT STATEMENTS BELOW*/
-
-    for (int i = 0; i < 6; i++) {
-        std::cout << workspace_dimensions_free_object.workspace_number[i] << std::endl;
-        for(int j = 0; j < 5; j++)
-        {
-            std::cout << workspace_dimensions_free_object.workspace_dimensions[i][j] << std::endl;
-        }  
-    }
     return;
 }
 
@@ -765,7 +745,7 @@ int Manipulation::index(std::string ws_name)
 {
     for(int i = 1; i <= 16; i++)
     {
-        if(workspace_dimensions_matching_object.workspace_dimensions[i][4] == ws_name)
+        if(std::to_string(workspace_dimensions_matching_object.workspace_dimensions[i][4]) == ws_name)
         {
             return i;
         }
@@ -777,7 +757,7 @@ int Manipulation::index_height(std::string obj_name)
 {
     for(int i = 1; i <= 18; i++)
     {
-        if(workspace_dimensions_matching_object.workspace_dimensions[i][4] == obj_name)
+        if(std::to_string(workspace_dimensions_matching_object.workspace_dimensions[i][4]) == obj_name)
         {
             return i;
         }

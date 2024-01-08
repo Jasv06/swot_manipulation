@@ -40,12 +40,12 @@ BT::NodeStatus MoveToScan::tick()
     std::string scan;
     if(manipulation_.get_count() == 0)
     {
-        scan = "array_scan_left_yolo_" + manipulation_.get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].task)][4];
+        scan = "array_scan_left_yolo_" + std::to_string(manipulation_.get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].task)][4]);
         manipulation_.sendTargetPosition6d(scan);
     }
     if(manipulation_.get_count() == 1)
     {
-        scan = "array_scan_right_yolo_" + manipulation_.get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].task)][4];
+        scan = "array_scan_right_yolo_" + std::to_string(manipulation_.get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].task)][4]);
         manipulation_.sendTargetPosition6d(scan);
     }
 

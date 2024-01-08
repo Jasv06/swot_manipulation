@@ -75,15 +75,15 @@ BT::NodeStatus CheckWSFree::tick()
     if (ros::service::waitForService("FreeSpotServer", ros::Duration(3.0)))
     {
         std::cout << "FreeSpotServer" << std::endl;
-        std::string scan_left = "array_scan_left_yolo_" + manipulation_.get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].task)][4];
+        std::string scan_left = "array_scan_left_yolo_" + std::to_string(manipulation_.get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].task)][4]);
         manipulation_.sendTargetPosition6d(scan_left);
             if (!(manipulation_.get_service_client_free()).call(srv_free))
             {
-                std::string scan_right = "array_scan_right_yolo_" + manipulation_.get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].task)][4];
+                std::string scan_right = "array_scan_right_yolo_" + std::to_string(manipulation_.get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].task)][4]);
                 manipulation_.sendTargetPosition6d(scan_right);
                 if (!(manipulation_.get_service_client_free()).call(srv_free))
                 {
-                    std::string scan_mid = "array_scan_mid_" + manipulation_.get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].task)][4];
+                    std::string scan_mid = "array_scan_mid_" + std::to_string(manipulation_.get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].task)][4]);
                     manipulation_.sendTargetPosition6d(scan_mid);
                     if(!(manipulation_.get_service_client_free()).call(srv_free))
                     {
