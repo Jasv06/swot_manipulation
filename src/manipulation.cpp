@@ -15,7 +15,7 @@
  *      @brief Constructor of class Manipulation used to initialize the corresponding member variables.
  */
 
-Manipulation::Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_limit(10.5), collision_detected(false), collision_activated(false), gripper_speed_(1.0), gripper_force_(60.0), jnt_vel_(1), jnt_acc_(1), left_left_thresh(0.2), left_thresh(0.1), right_thresh(-0.1), right_right_thresh(-0.2), count(0)
+Manipulation::Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_limit(10.5), collision_detected(false), collision_activated(false), gripper_speed_(1.0), gripper_force_(60.0), jnt_vel_(1), jnt_acc_(1), left_left_thresh(0.2), left_thresh(0.1), right_thresh(-0.1), right_right_thresh(-0.2)
 {
     target_position = {2.7868363857269287, -1.927878042260641, 1.708729092274801, -1.4058648657849808, -1.6280115286456507, -3.468132559453146};
     ws_dim = {0.15, 0.50, -0.45, 0.45};
@@ -24,7 +24,13 @@ Manipulation::Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_l
     ws_type = "WS";
     obj_mani_height = 0.002;
     obj_name = "M20";
-    task_count = 0;
+    failed_position[0] = 0.35;
+    failed_position[1] = 0.0;
+    failed_position[2] = 0.25;
+    failed_position[3] =  -0.9238795;
+    failed_position[4] = -0.3826834;
+    failed_position[5] = 0.0;
+    failed_position[6] = 0.0;
 }
 
 /**
@@ -120,22 +126,18 @@ void Manipulation::registerNodes(BT::BehaviorTreeFactory& factory, Manipulation&
 bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulations::Request& req, swot_msgs::SwotManipulations::Response& res)
 {
     swot_msgs::SwotObjectPose defaultpose;
-    
-    int size_of_req = sizeof(req.tasks)/sizeof(req.tasks[0]);
+    task_count = 0;
+    count = 0;
+    size_of_req = sizeof(req.tasks)/sizeof(req.tasks[0]);
 
     std::cout << size_of_req << std::endl;
 
+    swot_msgs::SwotManipulations::Request mani;
     for(size_t i = 0; i < size_of_req; i++)
     {
-        swot_msgs::SwotManipulations::Request mani;
-
-        for(size_t j = 0; i != j; j++)
-        {
-            mani.tasks[j] = req.tasks[j];
-        }
-
-        req_array_.push_back(mani);
+        mani.tasks[i] = req.tasks[i];
     }
+    req_array_.push_back(mani);
 
     /*The print statements below can be deleted*/
     std::cout << req_array_[0].tasks[get_task_count()].object << std::endl;
@@ -151,6 +153,7 @@ bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulations::R
     {
         if(req_array_[i].tasks[get_task_count()].mode == "PICK")
         {
+            //0 for not found yet, 1 for found and picked, 2 for found but not picked
             pick_tracker.push_back(std::make_pair(std::to_string(i) + "0" + req_array_[i].tasks[get_task_count()].object, defaultpose));
         }
         if(req_array_[i].tasks[get_task_count()].mode == "PLACE")
@@ -158,6 +161,7 @@ bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulations::R
             place_tracker.push_back(std::make_pair(std::to_string(i) + "0" + req_array_[i].tasks[get_task_count()].object, defaultpose));
         }
     }
+
     rtde->gripper_open(gripper_speed_, gripper_force_);
     BT::BehaviorTreeFactory factory;
     registerNodes(factory, *this);   
@@ -335,14 +339,11 @@ void Manipulation::setTargetPosition6d()
     std::cerr << "Value not found in the CSV file." << std::endl;
     csvFile.close();
 
-    /*DELETE PRINT STATEMENTS BELOW*/
-
-    for (int i = 0; i < 6; i++) {
-        std::cout << manipulation_poses.position_names[i] << std::endl;
-        for(int j = 0; j < 6; j++)
-        {
-            std::cout << manipulation_poses.positions[i][j] << std::endl;
-        }
+    std::cout << "Positions" << std::endl;
+    std::cout << manipulation_poses.position_names[2] << std::endl;
+    for(int i = 0; i < 6; i++)
+    {
+        std::cout << manipulation_poses.position_names[2][i] << std::endl;
     }
 }
                   
@@ -388,14 +389,9 @@ void Manipulation::get_mani_height()
     }
     csvFile.close();
 
-    /*DELETE PRINT STATEMENTS BELOW*/
-
-    for (int i = 0; i < 6; i++) {
-        std::cout << manipulation_height_object.object_names[i] << std::endl;
-        std::cout << manipulation_height_object.manipulation_heights[i] << std::endl;
-        
-    }
-    return;
+    std::cout << "Object height data" << std::endl; 
+    std::cout << manipulation_poses.object_names[2] << std::endl;    
+    std::cout << manipulation_poses.manipulation_heights[2] << std::endl;
 }
 
 void Manipulation::get_workspace_dimension_matching()
@@ -429,7 +425,13 @@ void Manipulation::get_workspace_dimension_matching()
         workspace_dimensions_matching_object.workspace_dimensions.push_back(dimensions);
     }
     csvFile.close();
-    return;
+
+    std::cout << "Dimensions matching" << std::endl;
+    std::cout << manipulation_poses.workspace_number[2] << std::endl;
+    for(int i = 0; i < 5; i++)
+    {
+        std::cout << manipulation_poses.workspace_dimensions[2][i] << std::endl;
+    }
 }   
 
 void Manipulation::get_workspace_dimension_free()
@@ -463,7 +465,24 @@ void Manipulation::get_workspace_dimension_free()
         workspace_dimensions_free_object.workspace_dimensions.push_back(dimensions);
     }
     csvFile.close();
-    return;
+
+    std::cout << "Dimensions Free" << std::endl;
+    std::cout << manipulation_poses.workspace_number[2] << std::endl;
+    for(int i = 0; i < 5; i++)
+    {
+        std::cout << manipulation_poses.workspace_dimensions[2][i] << std::endl;
+    }
+}
+
+void Manipulation::set_failed_position(geometry_msgs::Pose pose)
+{
+    this->failed_position.position.x = pose.position.x;
+    this->failed_position.position.y = pose.position.y;
+    this->failed_position.position.z = pose.position.z;
+    this->failed_position.orientation.x = pose.orientation.x;
+    this->failed_position.orientation.y = pose.orientation.y;
+    this->failed_position.orientation.z = pose.orientation.z;
+    this->failed_position.orientation.w = pose.orientation.w;
 }
 
 // Getter functions -------------------------------------------
@@ -550,21 +569,6 @@ ros::ServiceClient Manipulation::get_service_client_free() const
 
 const std::vector<swot_msgs::SwotManipulations::Request>& Manipulation::get_request_vector() const {
     return this->req_array_; 
-}
-
-/**
- *      @brief Gets the Manipulation service request.
- *      @return The Manipulation service request.
- */
-
-const swot_msgs::SwotManipulations::Request& Manipulation::get_request(int index) const
-{
-    // Check if index is within bounds
-    if (index < req_array_.size()) {
-        return req_array_[index];
-    } else {
-        throw std::out_of_range("Index out of bounds");
-    }
 }
 
 /**
@@ -755,12 +759,22 @@ int Manipulation::index(std::string ws_name)
 
 int Manipulation::index_height(std::string obj_name)
 {
-    for(int i = 1; i <= 18; i++)
+    for(int i = 0; i < 18; i++)
     {
-        if(std::to_string(workspace_dimensions_matching_object.workspace_dimensions[i][4]) == obj_name)
+        if(std::to_string(manipulation_height_object.object_names[i]) == obj_name)
         {
             return i;
         }
     }
     return 0;
+}
+
+int Manipulation::get_size_of_req()
+{
+    return this->size_of_req;
+}
+
+array6d Manipulation::get_failed_position()
+{
+    return this->failed_position;
 }

@@ -33,15 +33,17 @@ BT::NodeStatus GetGraspAndMoveGrasp::tick()
 {
     ROS_INFO("get grasp and move grasp");
     geometry_msgs::Pose grasping_point;
-    for(auto i = 0; i < manipulation_.get_request_vector().size(); i++)
+    for(auto i = 0; i <= manipulation_.get_request_vector().size(); i++)
     {
         if(manipulation_.getPickTracker()[i].first[0] == manipulation_.get_task_count())
         {
             grasping_point = manipulation_.getPickTracker()[i].second.pose;
+            break;
         }
         if(manipulation_.getPlaceTracker()[i].first[0] == manipulation_.get_task_count())
         {
             grasping_point = manipulation_.getPlaceTracker()[i].second.pose;
+            break;
         }
     }
 
@@ -102,19 +104,24 @@ BT::NodeStatus PickPlaceObject::tick()
     ROS_INFO("pick object");
     
     geometry_msgs::Pose grasping_point;
+    std::string object;
+    int var;
     for(auto i = 0; i < manipulation_.get_request_vector().size(); i++)
     {
         if(manipulation_.getPickTracker()[i].first[0] == manipulation_.get_task_count())
         {
             grasping_point = manipulation_.getPickTracker()[i].second.pose;
-            //manipulation_.get_mani_height(manipulation_.getPickTracker()[i].first.substr(2));
+            object = manipulation_.getPickTracker()[i].first.substr(2);
+            var = i;
         }
         if(manipulation_.getPlaceTracker()[i].first[0] == manipulation_.get_task_count())
         {
             grasping_point = manipulation_.getPlaceTracker()[i].second.pose;
-            //manipulation_.get_mani_height(manipulation_.getPlaceTracker()[i].first.substr(2));
+            object = manipulation_.getPickTracker()[i].first.substr(2);
+            var = i;
         }
     }
+    manipulation_.get_obj_mani_height() = manipulation_.get_manipulation_height_object().manipulation_heights[manipulation_.index_height(object)];
     array7d target = {grasping_point.position.x, grasping_point.position.y, grasping_point.position.z + 0.07,
     grasping_point.orientation.x, grasping_point.orientation.y, grasping_point.orientation.z, grasping_point.orientation.w};
     (manipulation_.getRTDE())->cart_target(1, target, manipulation_.get_jnt_vel_() * 0.7, manipulation_.get_jnt_acc_() * 0.5);
@@ -152,18 +159,15 @@ BT::NodeStatus PickPlaceObject::tick()
     {
         (manipulation_.getRTDE())->gripper_close(manipulation_.get_gripper_speed_(), manipulation_.get_gripper_force_());
         ros::Duration(0.5).sleep();
-        if(manipulation_.getRTDE()->get_gripper_position_per() < 2)
+        if(manipulation_.getRTDE()->get_gripper_position_per() > 2)
         {
-            (manipulation_.getRTDE())->gripper_open(manipulation_.get_gripper_speed_(), manipulation_.get_gripper_force_());
-            array7d target = {grasping_point.position.x, grasping_point.position.y, grasping_point.position.z + 0.07,
-            grasping_point.orientation.x, grasping_point.orientation.y, grasping_point.orientation.z, grasping_point.orientation.w};
-            (manipulation_.getRTDE())->cart_target(1, target, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
-            return BT::NodeStatus::FAILURE;
+            manipulation_.getPickTracker()[var].first[1] = '1';
         }
     }
     if(manipulation_.get_request_vector()[manipulation_.get_task_count()].tasks[manipulation_.get_task_count()].mode == "PLACE")
     {
         (manipulation_.getRTDE())->gripper_open(manipulation_.get_gripper_speed_(), manipulation_.get_gripper_force_());
+        manipulation_.getPlaceTracker()[var].first[1] = '1';
     }           
     return BT::NodeStatus::SUCCESS;
 }
@@ -193,6 +197,10 @@ MoveHomePos::~MoveHomePos()  = default;
 BT::NodeStatus MoveHomePos::tick() 
 {
     ROS_INFO("move home pos");
+    if(manipulation_.get_request_vector() != manipulation_.task_count())
+    {
+        return BT::NodeStatus::FAILURE;
+    }
     if(manipulation_.get_last_pos() == "tray")
     {
         manipulation_.sendTargetPosition6d("array_rotate2");
@@ -234,7 +242,7 @@ MoveToDrivePose::~MoveToDrivePose()  = default;
 BT::NodeStatus MoveToDrivePose::tick() 
 {
     ROS_INFO("move to drive pos");
-    if(manipulation_.get_request_vector()[manipulation_.get_task_count()].tasks[manipulation_.get_task_count()].mode != "DRIVE")
+    if(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].mode != "DRIVE")
     {
         return BT::NodeStatus::FAILURE;
     }

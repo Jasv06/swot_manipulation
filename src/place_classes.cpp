@@ -32,7 +32,7 @@ CheckObjRequired::~CheckObjRequired()  = default;
 BT::NodeStatus CheckObjRequired::tick() 
 {
     manipulation_.set_collision_detected(false);
-    if(manipulation_.get_request_vector()[manipulation_.get_task_count()].tasks[manipulation_.get_task_count()].mode != "PLACE")
+    if(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].mode != "PLACE")
     {
         return BT::NodeStatus::FAILURE;
     }
@@ -163,11 +163,11 @@ PickFromTray::~PickFromTray()  = default;
 BT::NodeStatus PickFromTray::tick() 
 {
     ROS_INFO("pick from tray");
-    if (manipulation_.get_tray() == "SAVE_1")
+    if (manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].save == "SAVE_1")
     {
         manipulation_.sendTargetPosition6d("array_tray1_load");
     }
-    else if (manipulation_.get_tray() == "SAVE_2")
+    else if (manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].save == "SAVE_2")
     {
         manipulation_.sendTargetPosition6d("array_tray2_load");
     }
@@ -175,13 +175,15 @@ BT::NodeStatus PickFromTray::tick()
     {
         manipulation_.sendTargetPosition6d("array_tray3_load");
     }
+    std::string object;
     for(auto i = 0; i < manipulation_.get_request_vector().size(); i++)
     {
         if(manipulation_.getPlaceTracker()[i].first[0] == manipulation_.get_task_count())
         {
-            //manipulation_.get_mani_height(manipulation_.getPlaceTracker()[i].first.substr(2));
+            object = manipulation_.getPickTracker()[i].first.substr(2);
         }
     }
+    manipulation_.get_obj_mani_height() = manipulation_.get_manipulation_height_object().manipulation_heights[manipulation_.index_height(object)];
     ros::Duration(0.5).sleep();
     manipulation_.set_collision_detected(false);
     array6d free_axis = {1,1,1,0,0,0};

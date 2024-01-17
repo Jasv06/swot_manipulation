@@ -165,6 +165,7 @@ class Manipulation
         double right_thresh;                                                    /*! The threshold value for the right condition. */
         double right_right_thresh;                                              /*! The threshold value for the right-right condition. */
         array6d target_position;                                                /*! The target position array for robot movement planning. */
+        geometry_msgs::Pose failed_position;
         int count;                                                              /*! Count can either be 0, 1 or 2. */
 
         int ws_height;
@@ -177,11 +178,11 @@ class Manipulation
         std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>> pick_tracker;     /*! The initial string starts with a number which is the number of task in the current workspace, then 0 or 1 depending if the task was completed and then tha name of the object, for example, 20M20. */ 
         std::vector<std::pair<std::string, swot_msgs::SwotObjectPose>> place_tracker;    /*! The initial string starts with a number which is the number of task in the current workspace, then 0 or 1 depending if the task was completed and then tha name of the object, for example, 20M20. */
         int task_count;
-
         ManipulationHeight manipulation_height_object;
         Positions manipulation_poses;
         WorkSpaceDimensionsFree workspace_dimensions_free_object;
         WorkSpaceDimensionsMatching workspace_dimensions_matching_object;
+        int size_of_req;
 
     public:  
         // Constructor
@@ -211,7 +212,8 @@ class Manipulation
         void increment_count();
         void get_mani_height(); 
         void get_workspace_dimension_matching(); 
-        void get_workspace_dimension_free(); 
+        void get_workspace_dimension_free();
+        void set_failed_position(geometry_msgs::Pose pose); 
 
         // Getter functions
         std::string get_last_pos() const;
@@ -223,7 +225,6 @@ class Manipulation
         ros::ServiceClient get_service_client_matching() const;
         ros::ServiceClient get_service_client_free() const; 
         const std::vector<swot_msgs::SwotManipulations::Request>& get_request_vector() const;
-        const swot_msgs::SwotManipulations::Request& get_request(int index) const;
         swot_msgs::SwotManipulations::Response& get_response();
         double get_gripper_speed_() const;                          
         double get_gripper_force_() const;                         
@@ -255,4 +256,7 @@ class Manipulation
 
         int index(std::string);
         int index_height(std::string obj_name);
+
+        int get_size_of_req();
+        geometry_msgs::Pose get_failed_position();
 };

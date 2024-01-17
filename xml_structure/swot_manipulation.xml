@@ -1,6 +1,7 @@
 <root BTCPP_format="4">
 
     <BehaviorTree ID="MainTree">
+        <RetryUntilSuccessful num_attempts="7">
             <Fallback name="tree">
                 <Sequence name="Pick">
                     <Action ID="MoveToScan"/>
@@ -13,9 +14,11 @@
                 </Sequence>
                 <Action ID="MoveToDrivePose"/>
             </Fallback>
+        </RetryUntilSuccessful>
     </BehaviorTree>
 
     <BehaviorTree ID="PickFromWS">
+        <RetryUntilSuccessful num_attempts="3">
             <Fallback name="subtree1">
                 <Action ID="GetGraspAndMoveGrasp"/>
                 <Action ID="PickPlaceObject"/>
@@ -23,6 +26,7 @@
                 <Action ID="DropObjectInTray"/>
                 <Action ID="MoveHomePos"/>
             </Fallback>
+        </RetryUntilSuccessful>
     </BehaviorTree>
     
     <BehaviorTree ID="PlaceInWS">

@@ -32,18 +32,28 @@ MoveToScan::~MoveToScan() = default;
 BT::NodeStatus MoveToScan::tick() 
 {
     ROS_INFO("move to scan");
-    if(manipulation_.get_request_vector()[manipulation_.get_task_count()].tasks[manipulation_.get_task_count()].mode != "PICK")
+    if(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].mode != "PICK")
     {
         return BT::NodeStatus::FAILURE;
     }
     manipulation_.set_collision_detected(false);
     std::string scan;
+    for(auto i = 0; i < manipulation_.get_size_of_req(); i ++)
+    {
+        if(manipulation_.getTaskTrack()[i] == "NOTFULFILLED" && manipulation_.get_request_vector()[0].tasks[i].mode == "PICK")
+        {
+            array7d target = {manipulation_.get_failed_position().position.x, manipulation_.get_failed_position().position.y, manipulation_.get_failed_position().position.z + 0.09,
+            manipulation_.get_failed_position().orientation.x, manipulation_.get_failed_position().orientation.y, manipulation_.get_failed_position().orientation.z, manipulation_.get_failed_position().orientation.w};
+            (manipulation_.getRTDE())->cart_target(1, target, manipulation_.get_jnt_vel_(), manipulation_.get_jnt_acc_());
+            return BT::NodeStatus::SUCCESS;
+        }
+    }
     if(manipulation_.get_count() == 0)
     {
         scan = "array_scan_left_yolo_" + std::to_string(manipulation_.get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].task)][4]);
         manipulation_.sendTargetPosition6d(scan);
     }
-    if(manipulation_.get_count() == 1)
+    else if(manipulation_.get_count() == 1)
     {
         scan = "array_scan_right_yolo_" + std::to_string(manipulation_.get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].task)][4]);
         manipulation_.sendTargetPosition6d(scan);
@@ -78,17 +88,16 @@ BT::NodeStatus ScanWorkSpace::tick()
 {
     ROS_INFO("scan workspace");
     swot_msgs::SwotObjectMatching srv_match;
-    for(auto i = 0; i < manipulation_.get_request_vector().size(); i++)
+    for(auto i = 0; i < manipulation_.get_size_of_req(); i++)
     {
-        if(manipulation_.getTaskTrack()[i] == "UNKNOWN" || manipulation_.getTaskTrack()[i] == "NOTFOUND" || manipulation_.getTaskTrack()[i] == "NOTFULFILLED")
+        if((manipulation_.getTaskTrack()[i] == "UNKNOWN" && manipulation_.get_request_vector()[0].tasks[i].mode == "PICK") || (manipulation_.getTaskTrack()[i] == "NOTFOUND" && manipulation_.get_request_vector()[0].tasks[i].mode == "PICK") || (manipulation_.getTaskTrack()[i] == "NOTFULFILLED" && manipulation_.get_request_vector()[0].tasks[i].mode == "PICK"))
         {
             srv_match.request.objects[i] = manipulation_.get_request(i).tasks[i].object;
         }
     }
-    
     for(auto i = 0; i < 4; i++)
     {
-        srv_match.request.ws_dimensions[i] = manipulation_.get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].task)][i+1];
+        srv_match.request.ws_dimensions[i] = manipulation_.get_workspace_dimensions_matching_object().workspace_dimensions[manipulation_.index(manipulation_.get_request_vector()[0].tasks[manipulation_.get_task_count()].task)][i];
     }    
     if(ros::service::waitForService("ObjectMatchingServer", ros::Duration(3.0)) == false)
     {
@@ -100,19 +109,20 @@ BT::NodeStatus ScanWorkSpace::tick()
         ROS_WARN("Couldn't find ROS Service \"SwotObjectMatching\"");
         return BT::NodeStatus::FAILURE;
     }
-    for(auto i = 0; i < manipulation_.getPickTracker().size(); i++)
+
+    for (size_t i = 0; i < manipulation_.getPickTracker().size(); ++i) 
     {
-        manipulation_.getPickTracker()[i].second = srv_match.response.poses[i];
-    }
-    for(auto i = 0; i < manipulation_.getPickTracker().size() ; i++)
-    {
-        if(srv_match.response.poses[i].error_code == 0)
+        for (const auto& pair : manipulation_.getPickTracker()) 
         {
-            manipulation_.getTaskTrack()[i] = "FOUND";
-        }
-        else
-        {
-            manipulation_.getTaskTrack()[i] = "NOTFOUND";
+            if (srv_match.response.poses[i].object == pair.first.substr(2) && srv_match.response.poses[i].error_code == 0) 
+            {
+                pair.second = srv_match.response.poses[i];
+                manipulation_.getTaskTrack()[std::stoi(pair.first[0])] = "FOUND";
+            }
+            else if(srv_match.response.poses[i].error_code > 0)
+            {
+                manipulation_.getTaskTrack()[std::stoi(pair.first[0])] = "NOTFOUND";
+            }
         }
     }
     return BT::NodeStatus::SUCCESS;
@@ -162,7 +172,7 @@ BT::NodeStatus MoveUp::tick()
     geometry_msgs::Pose grasping_point;
     for(auto i = 0; i < manipulation_.getPickTracker().size(); i++)
     {
-        if(manipulation_.getPickTracker()[i].first[1] == '1' && manipulation_.getPickTracker()[i].first.substr(2) == manipulation_.object_in_gripper)
+        if(manipulation_.getPickTracker()[i].first[1] == '1')
         {
             grasping_point = manipulation_.getPickTracker()[i].second.pose;
         }
@@ -176,6 +186,12 @@ BT::NodeStatus MoveUp::tick()
         if (conditionAction.condition()) 
         {
             conditionAction.action();
+            if(manipulation_.getRTDE()->get_gripper_position_per() < 2)
+            {
+                (manipulation_.getRTDE())->gripper_open(manipulation_.get_gripper_speed_(), manipulation_.get_gripper_force_());
+                manipulation_.set_failed_position(grasping_point);
+                return BT::NodeStatus::FAILURE;
+            }
             return BT::NodeStatus::SUCCESS;
         }
     }
