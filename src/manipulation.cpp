@@ -17,6 +17,7 @@
 
 Manipulation::Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_limit(10.5), collision_detected(false), collision_activated(false), gripper_speed_(1.0), gripper_force_(60.0), jnt_vel_(1), jnt_acc_(1), left_left_thresh(0.2), left_thresh(0.1), right_thresh(-0.1), right_right_thresh(-0.2)
 {
+    req_array_ = {};
     target_position = {2.7868363857269287, -1.927878042260641, 1.708729092274801, -1.4058648657849808, -1.6280115286456507, -3.468132559453146};
     ws_dim = {0.15, 0.50, -0.45, 0.45};
     ws_height = 10;
@@ -125,33 +126,41 @@ void Manipulation::registerNodes(BT::BehaviorTreeFactory& factory, Manipulation&
 
 bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulations::Request& req, swot_msgs::SwotManipulations::Response& res)
 {
+    std::cout << "test1" << std::endl;
     swot_msgs::SwotObjectPose defaultpose;
     task_count = 0;
     count = 0;
     size_of_req = sizeof(req.tasks)/sizeof(req.tasks[0]);
-
+    std::cout << "test2" << std::endl;
     std::cout << size_of_req << std::endl;
 
+    std::cout << "before mani" << std::endl;
     swot_msgs::SwotManipulations::Request mani;
+    std::cout << "After" << std::endl;
     for(size_t i = 0; i < size_of_req; i++)
     {
+        std::cout << "test3" << std::endl;
         mani.tasks[i] = req.tasks[i];
     }
+    std::cout << "before pusback" << std::endl;
     req_array_.push_back(mani);
+    std::cout << "after" << std::endl;
 
     /*The print statements below can be deleted*/
-    std::cout << req_array_[0].tasks[get_task_count()].object << std::endl;
-    std::cout << req_array_[1].tasks[get_task_count()].object << std::endl;
-
+   // std::cout << req_array_[0].tasks[get_task_count()].object << std::endl;
+    //std::cout << req_array_[1].tasks[get_task_count()].object << std::endl;
+    std::cout << "test4" << std::endl;
     getTaskTrack().resize(get_request_vector().size());
     for(auto i = 0; i < getTaskTrack().size(); i++)
     {
+        std::cout << "test5" << std::endl;
         getTaskTrack()[i] = "UNKNOWN";
     }
 
     for(auto i = 0; i < get_request_vector().size(); i++)
     {
-        if(req_array_[i].tasks[get_task_count()].mode == "PICK")
+        std::cout << "test6" << std::endl;
+        /*if(req_array_[i].tasks[get_task_count()].mode == "PICK")
         {
             //0 for not found yet, 1 for found and picked, 2 for found but not picked
             pick_tracker.push_back(std::make_pair(std::to_string(i) + "0" + req_array_[i].tasks[get_task_count()].object, defaultpose));
@@ -160,14 +169,20 @@ bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulations::R
         {
             place_tracker.push_back(std::make_pair(std::to_string(i) + "0" + req_array_[i].tasks[get_task_count()].object, defaultpose));
         }
+        */
     }
-
+    std::cout << "test7" << std::endl;
     rtde->gripper_open(gripper_speed_, gripper_force_);
+    std::cout << "test8" << std::endl;
     BT::BehaviorTreeFactory factory;
-    registerNodes(factory, *this);   
-    nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation/xml_structure/swot_manipulation.xml");
-    auto tree = factory.createTreeFromFile(xml_file);
-    tree.tickOnce();
+    registerNodes(factory, *this);
+    std::cout << "test9" << std::endl;   
+    xml_file = ros::package::getPath("swot_manipulation") + "/xml_structure/swot_manipulation.xml";
+    //nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation");
+    //auto tree = factory.createTreeFromFile(xml_file);
+    std::cout << "test10" << std::endl;
+    //tree.tickOnce();
+    std::cout << "All worked" << std::endl;
     return true;
 }
 
@@ -309,7 +324,7 @@ void Manipulation::set_response_status(std::string status)
 
 void Manipulation::setTargetPosition6d()
 {
-    std::string csvFilePath = "../csv_files/target_positions.csv";  // Path to the CSV file
+    std::string csvFilePath = ros::package::getPath("swot_manipulation") + "/csv_files/positions.csv"; 
 
     std::ifstream csvFile(csvFilePath);
     if (!csvFile.is_open()) {
@@ -364,7 +379,7 @@ void Manipulation::increment_count()
 
 void Manipulation::get_mani_height()
 {
-    std::string csvFilePath = "../csv_files/manipulation_height.csv";  // Path to the CSV file
+    std::string csvFilePath = ros::package::getPath("swot_manipulation") + "/csv_files/manipulation_height.csv";  // Path to the CSV file
 
     std::ifstream csvFile(csvFilePath);
     if (!csvFile.is_open()) {
@@ -397,7 +412,7 @@ void Manipulation::get_mani_height()
 void Manipulation::get_workspace_dimension_matching()
 {
     std::string csvFilePath;
-    csvFilePath = "../csv_files/workspace_dimensions_matching.csv";  // Path to the CSV file
+    csvFilePath = ros::package::getPath("swot_manipulation") + "/csv_files/workspace_dimensions_matching.csv";  // Path to the CSV file
     
     std::ifstream csvFile(csvFilePath);
     if (!csvFile.is_open()) {
@@ -437,7 +452,7 @@ void Manipulation::get_workspace_dimension_matching()
 void Manipulation::get_workspace_dimension_free()
 {
     std::string csvFilePath;
-    csvFilePath = "../csv_files/workspace_dimensions_free.csv";  // Path to the CSV file
+    csvFilePath = ros::package::getPath("swot_manipulation") + "/csv_files/workspace_dimensions_free.csv";  // Path to the CSV file
 
     std::ifstream csvFile(csvFilePath);
     if (!csvFile.is_open()) {
