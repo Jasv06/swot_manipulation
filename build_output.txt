@@ -1,25 +1,5 @@
-home/irobot/catkin_ws/src/swot/swot_manipulation/src/shared_classes.cpp: In member function ‘virtual BT::NodeStatus MoveHomePos::tick()’:
-/home/irobot/catkin_ws/src/swot/swot_manipulation/src/shared_classes.cpp:200:60: error: ‘int Manipulation::task_count’ is private within this context
-  200 |     if(manipulation_.get_request_vector() != manipulation_.task_count())
-      |                                                            ^~~~~~~~~~
-In file included from /home/irobot/catkin_ws/src/swot/swot_manipulation/include/swot_manipulation/shared_classes.h:10,
-                 from /home/irobot/catkin_ws/src/swot/swot_manipulation/src/shared_classes.cpp:8:
-/home/irobot/catkin_ws/src/swot/swot_manipulation/include/swot_manipulation/manipulation.h:180:13: note: declared private here
-  180 |         int task_count;
-      |             ^~~~~~~~~~
-/home/irobot/catkin_ws/src/swot/swot_manipulation/src/shared_classes.cpp:200:71: error: expression cannot be used as a function
-  200 |     if(manipulation_.get_request_vector() != manipulation_.task_count())
-      |                                                                       ^
+rrors     << swot_manipulation:make /home/irobot/catkin_ws/logs/swot_manipulation/build.make.014.log
 /home/irobot/catkin_ws/src/swot/swot_manipulation/src/pick_classes.cpp: In member function ‘virtual BT::NodeStatus ScanWorkSpace::tick()’:
-/home/irobot/catkin_ws/src/swot/swot_manipulation/src/pick_classes.cpp:95:78: error: no matching function for call to ‘Manipulation::get_request_vector(int&)’
-   95 |             srv_match.request.objects[i] = manipulation_.get_request_vector(i).tasks[i].object;
-      |                                                                              ^
-In file included from /home/irobot/catkin_ws/src/swot/swot_manipulation/include/swot_manipulation/pick_classes.h:10,
-                 from /home/irobot/catkin_ws/src/swot/swot_manipulation/src/pick_classes.cpp:8:
-/home/irobot/catkin_ws/src/swot/swot_manipulation/include/swot_manipulation/manipulation.h:227:67: note: candidate: ‘const std::vector<swot_msgs::SwotManipulationsRequest_<std::allocator<void> > >& Manipulation::get_request_vector() const’
-  227 |         const std::vector<swot_msgs::SwotManipulations::Request>& get_request_vector() const;
-      |                                                                   ^~~~~~~~~~~~~~~~~~
-/home/irobot/catkin_ws/src/swot/swot_manipulation/include/swot_manipulation/manipulation.h:227:67: note:   candidate expects 0 arguments, 1 provided
 /home/irobot/catkin_ws/src/swot/swot_manipulation/src/pick_classes.cpp:119:57: error: passing ‘const swot_msgs::SwotObjectPose_<std::allocator<void> >’ as ‘this’ argument discards qualifiers [-fpermissive]
   119 |                 pair.second = srv_match.response.poses[i];
       |                                                         ^
@@ -139,11 +119,11 @@ In file included from /usr/include/c++/9/string:55,
 /usr/include/c++/9/bits/basic_string.h:6601:25: note:   no known conversion for argument 1 from ‘__gnu_cxx::__alloc_traits<std::allocator<std::__cxx11::basic_string<char> >, std::__cxx11::basic_string<char> >::value_type’ {aka ‘std::__cxx11::basic_string<char>’} to ‘long double’
  6601 |   to_string(long double __val)
       |             ~~~~~~~~~~~~^~~~~
-make[2]: *** [CMakeFiles/swot_manipulation_lib.dir/build.make:102: CMakeFiles/swot_manipulation_lib.dir/src/shared_classes.cpp.o] Error 1
-make[2]: *** Waiting for unfinished jobs....
 make[2]: *** [CMakeFiles/swot_manipulation_lib.dir/build.make:76: CMakeFiles/swot_manipulation_lib.dir/src/pick_classes.cpp.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
 make[2]: *** [CMakeFiles/swot_manipulation_lib.dir/build.make:63: CMakeFiles/swot_manipulation_lib.dir/src/manipulation.cpp.o] Error 1
 make[1]: *** [CMakeFiles/Makefile2:1545: CMakeFiles/swot_manipulation_lib.dir/all] Error 2
 make: *** [Makefile:141: all] Error 2
 cd /home/irobot/catkin_ws/build/swot_manipulation; catkin build --get-env swot_manipulation | catkin env -si  /usr/bin/make --jobserver-auth=3,4; cd -
+
 
