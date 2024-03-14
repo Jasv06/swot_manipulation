@@ -24,13 +24,13 @@ Manipulation::Manipulation() : last_pos("drive"), grasping_area("mid"), wrench_l
     ws_type = "WS";
     obj_mani_height = 0.002;
     obj_name = "M20";
-    failed_position[0] = 0.35;
-    failed_position[1] = 0.0;
-    failed_position[2] = 0.25;
-    failed_position[3] =  -0.9238795;
-    failed_position[4] = -0.3826834;
-    failed_position[5] = 0.0;
-    failed_position[6] = 0.0;
+    this->failed_position.position.x = 0.35;
+    this->failed_position.position.y = 0.0;
+    this->failed_position.position.z = 0.25;
+    this->failed_position.orientation.x =  -0.9238795;
+    this->failed_position.orientation.y = -0.3826834;
+    this->failed_position.orientation.z = 0.0;
+    this->failed_position.orientation.w = 0.0;
 }
 
 /**
@@ -390,8 +390,8 @@ void Manipulation::get_mani_height()
     csvFile.close();
 
     std::cout << "Object height data" << std::endl; 
-    std::cout << manipulation_poses.object_names[2] << std::endl;    
-    std::cout << manipulation_poses.manipulation_heights[2] << std::endl;
+    //std::cout << manipulation_poses.object_names[2] << std::endl;    
+    //std::cout << manipulation_poses.manipulation_heights[2] << std::endl;
 }
 
 void Manipulation::get_workspace_dimension_matching()
@@ -427,10 +427,10 @@ void Manipulation::get_workspace_dimension_matching()
     csvFile.close();
 
     std::cout << "Dimensions matching" << std::endl;
-    std::cout << manipulation_poses.workspace_number[2] << std::endl;
+    //std::cout << manipulation_poses.workspace_number[2] << std::endl;
     for(int i = 0; i < 5; i++)
     {
-        std::cout << manipulation_poses.workspace_dimensions[2][i] << std::endl;
+        //std::cout << manipulation_poses.workspace_dimensions[2][i] << std::endl;
     }
 }   
 
@@ -467,10 +467,10 @@ void Manipulation::get_workspace_dimension_free()
     csvFile.close();
 
     std::cout << "Dimensions Free" << std::endl;
-    std::cout << manipulation_poses.workspace_number[2] << std::endl;
+    //std::cout << manipulation_poses.workspace_number[2] << std::endl;
     for(int i = 0; i < 5; i++)
     {
-        std::cout << manipulation_poses.workspace_dimensions[2][i] << std::endl;
+        //std::cout << manipulation_poses.workspace_dimensions[2][i] << std::endl;
     }
 }
 
@@ -761,7 +761,7 @@ int Manipulation::index_height(std::string obj_name)
 {
     for(int i = 0; i < 18; i++)
     {
-        if(std::to_string(manipulation_height_object.object_names[i]) == obj_name)
+        if(manipulation_height_object.object_names[i] == obj_name)
         {
             return i;
         }
@@ -774,7 +774,7 @@ int Manipulation::get_size_of_req()
     return this->size_of_req;
 }
 
-array6d Manipulation::get_failed_position()
+geometry_msgs::Pose Manipulation::get_failed_position()
 {
     return this->failed_position;
 }

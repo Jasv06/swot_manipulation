@@ -197,7 +197,7 @@ MoveHomePos::~MoveHomePos()  = default;
 BT::NodeStatus MoveHomePos::tick() 
 {
     ROS_INFO("move home pos");
-    if(manipulation_.get_request_vector() != manipulation_.task_count())
+    if(manipulation_.get_request_vector().size() != manipulation_.get_task_count())
     {
         return BT::NodeStatus::FAILURE;
     }

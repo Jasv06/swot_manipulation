@@ -92,7 +92,7 @@ BT::NodeStatus ScanWorkSpace::tick()
     {
         if((manipulation_.getTaskTrack()[i] == "UNKNOWN" && manipulation_.get_request_vector()[0].tasks[i].mode == "PICK") || (manipulation_.getTaskTrack()[i] == "NOTFOUND" && manipulation_.get_request_vector()[0].tasks[i].mode == "PICK") || (manipulation_.getTaskTrack()[i] == "NOTFULFILLED" && manipulation_.get_request_vector()[0].tasks[i].mode == "PICK"))
         {
-            srv_match.request.objects[i] = manipulation_.get_request(i).tasks[i].object;
+            srv_match.request.objects[i] = manipulation_.get_request_vector()[i].tasks[i].object;
         }
     }
     for(auto i = 0; i < 4; i++)
@@ -112,16 +112,20 @@ BT::NodeStatus ScanWorkSpace::tick()
 
     for (size_t i = 0; i < manipulation_.getPickTracker().size(); ++i) 
     {
-        for (const auto& pair : manipulation_.getPickTracker()) 
+        for (auto& pair : manipulation_.getPickTracker()) 
         {
             if (srv_match.response.poses[i].object == pair.first.substr(2) && srv_match.response.poses[i].error_code == 0) 
             {
                 pair.second = srv_match.response.poses[i];
-                manipulation_.getTaskTrack()[std::stoi(pair.first[0])] = "FOUND";
+                char digit = pair.first[0];
+                int digit_int = digit - '0';
+                manipulation_.getTaskTrack()[digit_int] = "FOUND";
             }
             else if(srv_match.response.poses[i].error_code > 0)
             {
-                manipulation_.getTaskTrack()[std::stoi(pair.first[0])] = "NOTFOUND";
+                char digit = pair.first[0];
+                int digit_int = digit - '0';
+                manipulation_.getTaskTrack()[digit_int] = "NOTFOUND";
             }
         }
     }
