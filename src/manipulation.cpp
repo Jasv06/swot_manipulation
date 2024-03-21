@@ -70,7 +70,7 @@ void Manipulation::initialize()
  */
 
 void Manipulation::registerNodes(BT::BehaviorTreeFactory& factory, Manipulation& manipulation)
-{
+{    
     BT::NodeBuilder builder_1 = [&](const std::string& name, const BT::NodeConfiguration& config) {return std::make_unique<CheckObjRequired>(name,  std::ref(manipulation));};
     factory.registerBuilder<CheckObjRequired>("CheckObjRequired", builder_1);
 
@@ -126,63 +126,52 @@ void Manipulation::registerNodes(BT::BehaviorTreeFactory& factory, Manipulation&
 
 bool Manipulation::callback_service_manipulation(swot_msgs::SwotManipulations::Request& req, swot_msgs::SwotManipulations::Response& res)
 {
-    std::cout << "test1" << std::endl;
     swot_msgs::SwotObjectPose defaultpose;
     task_count = 0;
     count = 0;
-    size_of_req = sizeof(req.tasks)/sizeof(req.tasks[0]);
-    std::cout << "test2" << std::endl;
-    std::cout << size_of_req << std::endl;
+    size_of_req = req.tasks.size(); 
+    std::cout << "The following number of tasks are to be performed: " << size_of_req << std::endl;
 
-    std::cout << "before mani" << std::endl;
     swot_msgs::SwotManipulations::Request mani;
-    std::cout << "After" << std::endl;
-    for(size_t i = 0; i < size_of_req; i++)
-    {
-        std::cout << "test3" << std::endl;
-        mani.tasks[i] = req.tasks[i];
+    if (!req.tasks.empty()) {
+        for(size_t i = 0; i < req.tasks.size(); i++)
+        {
+            mani.tasks[i] = req.tasks[i];
+        }
+        req_array_.push_back(mani);
+        getTaskTrack().resize(req_array_.size()); 
     }
-    std::cout << "before pusback" << std::endl;
-    req_array_.push_back(mani);
-    std::cout << "after" << std::endl;
+    else
+    {
+        ROS_INFO("No tasks received");
+        return false;
+    }
 
-    /*The print statements below can be deleted*/
-   // std::cout << req_array_[0].tasks[get_task_count()].object << std::endl;
-    //std::cout << req_array_[1].tasks[get_task_count()].object << std::endl;
-    std::cout << "test4" << std::endl;
-    getTaskTrack().resize(get_request_vector().size());
     for(auto i = 0; i < getTaskTrack().size(); i++)
     {
-        std::cout << "test5" << std::endl;
         getTaskTrack()[i] = "UNKNOWN";
     }
 
-    for(auto i = 0; i < get_request_vector().size(); i++)
+    for(auto i = 0; i < req_array_.size(); i++)
     {
-        std::cout << "test6" << std::endl;
-        /*if(req_array_[i].tasks[get_task_count()].mode == "PICK")
+        if(req_array_[0].tasks[get_task_count()].mode == "PICK")
         {
             //0 for not found yet, 1 for found and picked, 2 for found but not picked
             pick_tracker.push_back(std::make_pair(std::to_string(i) + "0" + req_array_[i].tasks[get_task_count()].object, defaultpose));
         }
-        if(req_array_[i].tasks[get_task_count()].mode == "PLACE")
+        if(req_array_[0].tasks[get_task_count()].mode == "PLACE")
         {
             place_tracker.push_back(std::make_pair(std::to_string(i) + "0" + req_array_[i].tasks[get_task_count()].object, defaultpose));
         }
-        */
     }
-    std::cout << "test7" << std::endl;
+    std::cout << "Behavior Tree start starting" << std::endl;
     rtde->gripper_open(gripper_speed_, gripper_force_);
-    std::cout << "test8" << std::endl;
     BT::BehaviorTreeFactory factory;
     registerNodes(factory, *this);
-    std::cout << "test9" << std::endl;   
-    xml_file = ros::package::getPath("swot_manipulation") + "/xml_structure/swot_manipulation.xml";
-    //nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation");
-    //auto tree = factory.createTreeFromFile(xml_file);
-    std::cout << "test10" << std::endl;
+    nh_.param<std::string>("file", xml_file,"/home/irobot/catkin_ws/src/swot_manipulation/xml_structure/swot_manipulation.xml");
+    auto tree = factory.createTreeFromFile(xml_file);
+    //uncomment the tree.tickOnce to test the behavior tree and check if its working preprly and delete this comment
     //tree.tickOnce();
-    std::cout << "All worked" << std::endl;
     return true;
 }
 
@@ -351,15 +340,7 @@ void Manipulation::setTargetPosition6d()
 
         manipulation_poses.positions.push_back(rowData);
     }
-    std::cerr << "Value not found in the CSV file." << std::endl;
     csvFile.close();
-
-    std::cout << "Positions" << std::endl;
-    std::cout << manipulation_poses.position_names[2] << std::endl;
-    for(int i = 0; i < 6; i++)
-    {
-        std::cout << manipulation_poses.position_names[2][i] << std::endl;
-    }
 }
                   
 void Manipulation::set_target(array6d target)
@@ -403,10 +384,6 @@ void Manipulation::get_mani_height()
         manipulation_height_object.manipulation_heights.push_back(data);
     }
     csvFile.close();
-
-    std::cout << "Object height data" << std::endl; 
-    //std::cout << manipulation_poses.object_names[2] << std::endl;    
-    //std::cout << manipulation_poses.manipulation_heights[2] << std::endl;
 }
 
 void Manipulation::get_workspace_dimension_matching()
@@ -440,13 +417,6 @@ void Manipulation::get_workspace_dimension_matching()
         workspace_dimensions_matching_object.workspace_dimensions.push_back(dimensions);
     }
     csvFile.close();
-
-    std::cout << "Dimensions matching" << std::endl;
-    //std::cout << manipulation_poses.workspace_number[2] << std::endl;
-    for(int i = 0; i < 5; i++)
-    {
-        //std::cout << manipulation_poses.workspace_dimensions[2][i] << std::endl;
-    }
 }   
 
 void Manipulation::get_workspace_dimension_free()
@@ -480,13 +450,6 @@ void Manipulation::get_workspace_dimension_free()
         workspace_dimensions_free_object.workspace_dimensions.push_back(dimensions);
     }
     csvFile.close();
-
-    std::cout << "Dimensions Free" << std::endl;
-    //std::cout << manipulation_poses.workspace_number[2] << std::endl;
-    for(int i = 0; i < 5; i++)
-    {
-        //std::cout << manipulation_poses.workspace_dimensions[2][i] << std::endl;
-    }
 }
 
 void Manipulation::set_failed_position(geometry_msgs::Pose pose)
@@ -582,7 +545,8 @@ ros::ServiceClient Manipulation::get_service_client_free() const
     return this->service_client_free;
 }
 
-const std::vector<swot_msgs::SwotManipulations::Request>& Manipulation::get_request_vector() const {
+const std::vector<swot_msgs::SwotManipulations::Request>& Manipulation::get_request_vector() const 
+{
     return this->req_array_; 
 }
 
@@ -764,7 +728,7 @@ int Manipulation::index(std::string ws_name)
 {
     for(int i = 1; i <= 16; i++)
     {
-        if(std::to_string(workspace_dimensions_matching_object.workspace_dimensions[i][4]) == ws_name)
+        if(std::to_string(workspace_dimensions_matching_object.workspace_number[i]) == ws_name)
         {
             return i;
         }

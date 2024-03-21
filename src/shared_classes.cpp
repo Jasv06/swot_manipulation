@@ -197,23 +197,26 @@ MoveHomePos::~MoveHomePos()  = default;
 BT::NodeStatus MoveHomePos::tick() 
 {
     ROS_INFO("move home pos");
-    if(manipulation_.get_request_vector().size() != manipulation_.get_task_count())
-    {
-        return BT::NodeStatus::FAILURE;
-    }
     if(manipulation_.get_last_pos() == "tray")
     {
         manipulation_.sendTargetPosition6d("array_rotate2");
         manipulation_.sendTargetPosition6d("array_rotate1");
         manipulation_.sendTargetPosition6d("array_scan_mid");
         manipulation_.set_response_status("FINISHED");
-        return BT::NodeStatus::SUCCESS; 
     }
     else
     {  
         manipulation_.sendTargetPosition6d("array_scan_mid");
         manipulation_.set_response_status("FINISHED");
-        return BT::NodeStatus::SUCCESS;
+    }
+    manipulation_.get_task_count()++;
+    if(manipulation_.get_request_vector().size() == manipulation_.get_task_count())
+    {
+        return BT::NodeStatus::SUCCESS; 
+    }
+    else
+    {
+        return BT::NodeStatus::FAILURE;
     }
 }
 
